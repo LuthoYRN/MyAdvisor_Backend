@@ -9,18 +9,29 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    height: 100%;
+    
   }
 
 html{
     height: 100%;
+    overflow: none;
+    background-color: #F1F4FC;
 }
 
 h1{
     font-size: 2.5rem;
     font-weight: 400;
-    margin-bottom: 1rem;
     letter-spacing: 0.1rem;
+    opacity: 0.8;
   }
+
+h2{
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+  }  
 
   p{
     font-size: 1rem;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Text from './Text';
 
-const CustomInput = ({label}) => {
+const CustomInput = ({label, placeholder}) => {
     const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
@@ -16,7 +16,7 @@ const CustomInput = ({label}) => {
             type="text"
             value={value}
             onChange={handleChange}
-            placeholder="Enter your text"
+            placeholder={placeholder}
         />
         </div>
     );

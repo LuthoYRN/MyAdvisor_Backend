@@ -2,7 +2,7 @@ import React from 'react';
 
 const Container = ({children}) => {
     return (
-        <div class="mx-64 my-12 h-full grid grid-cols-12">
+        <div class="mx-64 h-screen grid grid-cols-12  grid-rows-12 gap-8">
             {children}
         </div>
     );
