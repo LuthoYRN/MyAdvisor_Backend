@@ -1,8 +1,8 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const User = require("./User");
 
 module.exports = (sequelize, DataTypes) => {
-  class Advisor extends Model {
+  class Advisor extends User {
     static associate(models) {
       Advisor.belongsTo(models.Department, { foreignKey: "departmentID" });
       Advisor.hasMany(models.Availability, { foreignKey: "advisorID" });
@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "majorID",
       });
     }
-
     // Method to find an advisor by email
     static async findByEmail(email) {
       try {
@@ -52,24 +51,11 @@ module.exports = (sequelize, DataTypes) => {
         throw new Error("Error finding advisors by major: " + error.message);
       }
     }
+
     // Method to create a new advisor
-    static async createAdvisor(
-      name,
-      surname,
-      email,
-      office,
-      advisor_level,
-      departmentID
-    ) {
+    static async createAdvisor(data) {
       try {
-        return await Advisor.create({
-          name,
-          surname,
-          email,
-          office,
-          advisor_level,
-          departmentID,
-        });
+        return await Advisor.create(data);
       } catch (error) {
         throw new Error("Error creating advisor: " + error.message);
       }
@@ -78,53 +64,19 @@ module.exports = (sequelize, DataTypes) => {
 
   Advisor.init(
     {
-      uuid: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-      },
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      surname: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      email: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-        validate: {
-          isEmail: true,
-        },
-        // Setter for email with validation
-        set(value) {
-          if (!/\S+@\S+\.\S+/.test(value)) {
-            throw new Error("Invalid email address");
-          }
-          this.setDataValue("email", value);
-        },
-      },
+      ...User.initBaseFields(), // Inherit fields from User
       office_location: {
         type: DataTypes.STRING,
-        // Setter for office location
         set(value) {
           this.setDataValue("office_location", value ? value.trim() : null);
         },
-        // Getter for office location
         get() {
           return this.getDataValue("office_location");
         },
       },
       advisor_level: {
         type: DataTypes.STRING,
+        allowNull: false,
       },
       departmentID: {
         type: DataTypes.INTEGER,

@@ -1,8 +1,8 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const User = require("./User");
 
 module.exports = (sequelize, DataTypes) => {
-  class FacultyAdmin extends Model {
+  class FacultyAdmin extends User {
     static associate(models) {
       FacultyAdmin.belongsTo(models.Faculty, { foreignKey: "facultyID" });
     }
@@ -33,51 +33,7 @@ module.exports = (sequelize, DataTypes) => {
 
   FacultyAdmin.init(
     {
-      uuid: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        allowNull: false,
-      },
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        set(value) {
-          this.setDataValue("name", value.trim());
-        },
-        get() {
-          return this.getDataValue("name");
-        },
-      },
-      surname: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        set(value) {
-          this.setDataValue("surname", value.trim());
-        },
-        get() {
-          return this.getDataValue("surname");
-        },
-      },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
-        set(value) {
-          this.setDataValue("email", value.toLowerCase().trim());
-        },
-        get() {
-          return this.getDataValue("email");
-        },
-      },
+      ...User.initBaseFields(), // Inherit fields from User
       facultyID: {
         type: DataTypes.INTEGER,
         allowNull: false,
