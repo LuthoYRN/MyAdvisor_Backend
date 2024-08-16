@@ -1,5 +1,5 @@
 "use strict";
-const { Model, DATE } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class AdviceRecord extends Model {
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       try {
         return await AdviceRecord.create({
           appointmentID,
-          createdAt: DATE.NOW,
+          createdAt: new Date(),
         });
       } catch (error) {
         throw new Error("Error creating advice record: " + error.message);
@@ -72,11 +72,27 @@ module.exports = (sequelize, DataTypes) => {
           model: "appointments",
           key: "id",
         },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid appointmentID");
+          }
+          this.setDataValue("appointmentID", value);
+        },
       },
       createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         allowNull: false,
+        set(value) {
+          if (!(value instanceof Date)) {
+            throw new Error("Invalid date for createdAt");
+          }
+          this.setDataValue("createdAt", value);
+        },
+        get() {
+          const rawValue = this.getDataValue("createdAt");
+          return rawValue ? rawValue.toLocaleString() : null;
+        },
       },
     },
     {
