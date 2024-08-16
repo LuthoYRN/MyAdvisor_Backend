@@ -39,12 +39,12 @@ module.exports = (sequelize, DataTypes) => {
     // Method to find all advisors associated with a specific major
     static async findByMajor(majorID) {
       try {
-        return await Advisor.findAll({
+        return await sequelize.models.Advisor.findAll({
           include: [
             {
               model: sequelize.models.Major,
               where: { id: majorID },
-              through: { attributes: [] },
+              through: { attributes: [] }, // This excludes the junction table attributes
             },
           ],
         });
@@ -52,11 +52,24 @@ module.exports = (sequelize, DataTypes) => {
         throw new Error("Error finding advisors by major: " + error.message);
       }
     }
-
     // Method to create a new advisor
-    static async createAdvisor(data) {
+    static async createAdvisor(
+      name,
+      surname,
+      email,
+      office,
+      advisor_level,
+      departmentID
+    ) {
       try {
-        return await Advisor.create(data);
+        return await Advisor.create({
+          name,
+          surname,
+          email,
+          office,
+          advisor_level,
+          departmentID,
+        });
       } catch (error) {
         throw new Error("Error creating advisor: " + error.message);
       }
@@ -65,10 +78,25 @@ module.exports = (sequelize, DataTypes) => {
 
   Advisor.init(
     {
-      uuid: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4 },
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      name: { type: DataTypes.STRING, allowNull: false },
-      surname: { type: DataTypes.STRING, allowNull: false },
+      uuid: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+      },
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      surname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       email: {
         type: DataTypes.STRING,
         unique: true,
@@ -76,9 +104,28 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isEmail: true,
         },
+        // Setter for email with validation
+        set(value) {
+          if (!/\S+@\S+\.\S+/.test(value)) {
+            throw new Error("Invalid email address");
+          }
+          this.setDataValue("email", value);
+        },
       },
-      office_location: { type: DataTypes.STRING },
-      advisor_level: { type: DataTypes.STRING },
+      office_location: {
+        type: DataTypes.STRING,
+        // Setter for office location
+        set(value) {
+          this.setDataValue("office_location", value ? value.trim() : null);
+        },
+        // Getter for office location
+        get() {
+          return this.getDataValue("office_location");
+        },
+      },
+      advisor_level: {
+        type: DataTypes.STRING,
+      },
       departmentID: {
         type: DataTypes.INTEGER,
         references: {
@@ -92,6 +139,12 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       tableName: "advisors",
       modelName: "Advisor",
+      getterMethods: {
+        // Getter for full name
+        fullName() {
+          return `${this.name} ${this.surname}`;
+        },
+      },
     }
   );
 
