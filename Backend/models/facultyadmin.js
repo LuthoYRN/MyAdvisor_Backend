@@ -6,6 +6,29 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       FacultyAdmin.belongsTo(models.Faculty, { foreignKey: "facultyID" });
     }
+
+    // Static method to find FacultyAdmin by Faculty ID
+    static async findByFaculty(facultyID) {
+      try {
+        return await FacultyAdmin.findAll({
+          where: { facultyID },
+          include: [sequelize.models.Faculty],
+        });
+      } catch (error) {
+        throw new Error(
+          "Error finding FacultyAdmin by faculty: " + error.message
+        );
+      }
+    }
+
+    // Static method to create a new FacultyAdmin
+    static async createFacultyAdmin(data) {
+      try {
+        return await FacultyAdmin.create(data);
+      } catch (error) {
+        throw new Error("Error creating FacultyAdmin: " + error.message);
+      }
+    }
   }
 
   FacultyAdmin.init(
@@ -24,10 +47,22 @@ module.exports = (sequelize, DataTypes) => {
       name: {
         type: DataTypes.STRING,
         allowNull: false,
+        set(value) {
+          this.setDataValue("name", value.trim());
+        },
+        get() {
+          return this.getDataValue("name");
+        },
       },
       surname: {
         type: DataTypes.STRING,
         allowNull: false,
+        set(value) {
+          this.setDataValue("surname", value.trim());
+        },
+        get() {
+          return this.getDataValue("surname");
+        },
       },
       email: {
         type: DataTypes.STRING,
@@ -36,6 +71,12 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isEmail: true,
         },
+        set(value) {
+          this.setDataValue("email", value.toLowerCase().trim());
+        },
+        get() {
+          return this.getDataValue("email");
+        },
       },
       facultyID: {
         type: DataTypes.INTEGER,
@@ -43,6 +84,15 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           model: "faculties",
           key: "id",
+        },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid facultyID");
+          }
+          this.setDataValue("facultyID", value);
+        },
+        get() {
+          return this.getDataValue("facultyID");
         },
       },
     },

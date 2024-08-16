@@ -9,6 +9,43 @@ module.exports = (sequelize, DataTypes) => {
       SharedCourse.belongsTo(models.Course, { foreignKey: "courseID" });
       SharedCourse.belongsTo(models.Programme, { foreignKey: "programmeID" });
     }
+
+    // Static method to find all shared courses for a specific major
+    static async findByMajor(majorID) {
+      try {
+        return await SharedCourse.findAll({
+          where: { majorID },
+          include: [sequelize.models.Course],
+        });
+      } catch (error) {
+        throw new Error(
+          "Error finding shared courses for major: " + error.message
+        );
+      }
+    }
+
+    // Static method to find all shared courses for a specific programme
+    static async findByProgramme(programmeID) {
+      try {
+        return await SharedCourse.findAll({
+          where: { programmeID },
+          include: [sequelize.models.Course],
+        });
+      } catch (error) {
+        throw new Error(
+          "Error finding shared courses for programme: " + error.message
+        );
+      }
+    }
+
+    // Static method to create a new shared course
+    static async createSharedCourse(data) {
+      try {
+        return await SharedCourse.create(data);
+      } catch (error) {
+        throw new Error("Error creating shared course: " + error.message);
+      }
+    }
   }
 
   SharedCourse.init(
@@ -26,6 +63,15 @@ module.exports = (sequelize, DataTypes) => {
           model: "majors",
           key: "id",
         },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid majorID");
+          }
+          this.setDataValue("majorID", value);
+        },
+        get() {
+          return this.getDataValue("majorID");
+        },
       },
       courseID: {
         type: DataTypes.INTEGER,
@@ -34,6 +80,15 @@ module.exports = (sequelize, DataTypes) => {
           model: "courses",
           key: "id",
         },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid courseID");
+          }
+          this.setDataValue("courseID", value);
+        },
+        get() {
+          return this.getDataValue("courseID");
+        },
       },
       programmeID: {
         type: DataTypes.INTEGER,
@@ -41,6 +96,15 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           model: "programmes",
           key: "id",
+        },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid programmeID");
+          }
+          this.setDataValue("programmeID", value);
+        },
+        get() {
+          return this.getDataValue("programmeID");
         },
       },
     },

@@ -6,6 +6,24 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Faculty.hasOne(models.FacultyAdmin, { foreignKey: "facultyID" });
     }
+
+    // Static method to find a faculty by name
+    static async findByName(facultyName) {
+      try {
+        return await Faculty.findOne({ where: { facultyName } });
+      } catch (error) {
+        throw new Error("Error finding faculty by name: " + error.message);
+      }
+    }
+
+    // Static method to find a faculty by ID
+    static async findById(id) {
+      try {
+        return await Faculty.findByPk(id);
+      } catch (error) {
+        throw new Error("Error finding faculty by ID: " + error.message);
+      }
+    }
   }
 
   Faculty.init(
@@ -18,6 +36,12 @@ module.exports = (sequelize, DataTypes) => {
       facultyName: {
         type: DataTypes.STRING,
         allowNull: false,
+        set(value) {
+          this.setDataValue("facultyName", value.trim());
+        },
+        get() {
+          return this.getDataValue("facultyName");
+        },
       },
     },
     {

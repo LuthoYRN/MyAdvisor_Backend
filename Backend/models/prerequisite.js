@@ -15,6 +15,31 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "prerequisiteID",
       });
     }
+
+    // Static method to find all prerequisites for a specific course
+    static async findByCourse(courseID) {
+      try {
+        return await Prerequisite.findAll({
+          where: { courseID },
+          include: [
+            { model: sequelize.models.Course, as: "PrerequisiteCourse" },
+          ],
+        });
+      } catch (error) {
+        throw new Error(
+          "Error finding prerequisites for the course: " + error.message
+        );
+      }
+    }
+
+    // Static method to create a new prerequisite
+    static async createPrerequisite(data) {
+      try {
+        return await Prerequisite.create(data);
+      } catch (error) {
+        throw new Error("Error creating prerequisite: " + error.message);
+      }
+    }
   }
 
   Prerequisite.init(
@@ -31,6 +56,15 @@ module.exports = (sequelize, DataTypes) => {
           model: "courses", // Reference to the courses table
           key: "id",
         },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid courseID");
+          }
+          this.setDataValue("courseID", value);
+        },
+        get() {
+          return this.getDataValue("courseID");
+        },
       },
       prerequisiteID: {
         type: DataTypes.INTEGER,
@@ -38,6 +72,15 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           model: "courses", // Reference to the courses table
           key: "id",
+        },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid prerequisiteID");
+          }
+          this.setDataValue("prerequisiteID", value);
+        },
+        get() {
+          return this.getDataValue("prerequisiteID");
         },
       },
     },

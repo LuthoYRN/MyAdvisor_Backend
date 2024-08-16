@@ -23,6 +23,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "programmeID",
       });
     }
+    // Static method to create a new student
+    static async createStudent(data) {
+      try {
+        return await Student.create(data);
+      } catch (error) {
+        throw new Error("Error creating student: " + error.message);
+      }
+    }
   }
 
   Student.init(
@@ -41,10 +49,22 @@ module.exports = (sequelize, DataTypes) => {
       name: {
         type: DataTypes.STRING,
         allowNull: false,
+        set(value) {
+          this.setDataValue("name", value.trim());
+        },
+        get() {
+          return this.getDataValue("name");
+        },
       },
       surname: {
         type: DataTypes.STRING,
         allowNull: false,
+        set(value) {
+          this.setDataValue("surname", value.trim());
+        },
+        get() {
+          return this.getDataValue("surname");
+        },
       },
       email: {
         type: DataTypes.STRING,
@@ -53,10 +73,22 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isEmail: true,
         },
+        set(value) {
+          this.setDataValue("email", value.toLowerCase().trim());
+        },
+        get() {
+          return this.getDataValue("email");
+        },
       },
       yearOfStudy: {
         type: DataTypes.STRING,
         allowNull: false,
+        set(value) {
+          this.setDataValue("yearOfStudy", value.trim());
+        },
+        get() {
+          return this.getDataValue("yearOfStudy");
+        },
       },
       programmeID: {
         type: DataTypes.INTEGER,
@@ -64,6 +96,15 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           model: "programmes",
           key: "id",
+        },
+        set(value) {
+          if (isNaN(value)) {
+            throw new Error("Invalid programmeID");
+          }
+          this.setDataValue("programmeID", value);
+        },
+        get() {
+          return this.getDataValue("programmeID");
         },
       },
     },
