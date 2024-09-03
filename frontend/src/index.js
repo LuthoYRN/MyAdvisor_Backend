@@ -6,11 +6,12 @@ import Signup from './Signup';
 import CourseSelection from './CourseSelection';
 import reportWebVitals from './reportWebVitals';
 import Dashboard from './Dashboard';
+import UserManagement from './UserManagement';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Dashboard />
+    <UserManagement />
   </React.StrictMode>
 );
 

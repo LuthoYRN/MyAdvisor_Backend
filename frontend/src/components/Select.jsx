@@ -1,11 +1,12 @@
 import React from 'react';
 import Text from './Text';
 
-const Select = ({label, placeholder, options}) => {
+const Select = ({label, placeholder, options, onChange}) => {
     const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
         setValue(event.target.value);
+        onChange(event.target.value);
     };
 
     return (
