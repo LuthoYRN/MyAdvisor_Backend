@@ -1,16 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import Login from './Login';
 import Signup from './Signup';
 import CourseSelection from './CourseSelection';
 import reportWebVitals from './reportWebVitals';
 import Dashboard from './Dashboard';
+import AppointmentDetails from './AppointmentDetails';
+import UserManagement from './UserManagement';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Dashboard />
+    <AppointmentDetails />
   </React.StrictMode>
 );
 

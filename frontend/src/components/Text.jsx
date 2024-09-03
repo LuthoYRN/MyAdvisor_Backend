@@ -3,6 +3,7 @@ import React from "react";
 const Text = ({ type, children, color, classNames }) => {
   let Element;
   let classes = "";
+  classNames = classNames ? classNames : "";
 
   switch (type) {
     case "heading":
