@@ -8,11 +8,12 @@ import reportWebVitals from './reportWebVitals';
 import Dashboard from './Dashboard';
 import AppointmentDetails from './AppointmentDetails';
 import UserManagement from './UserManagement';
+import Notifications from './Notifications';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AppointmentDetails />
+    <Notifications />
   </React.StrictMode>
 );
 
