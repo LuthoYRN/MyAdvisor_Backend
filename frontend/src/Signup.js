@@ -10,22 +10,22 @@ function App() {
   return (
     <div className="App">
       <Container>
-      <form class="col-span-4 flex flex-col h-full justify-center my-auto">
+      <form class="col-span-5 flex flex-col h-full justify-center my-auto">
         <Text classNames="mb-8" type={"heading"}>Let's get started!</Text>
-        <div class="flex justify-between">
-          <CustomInput label={"First Name"} placeholder="Enter your first name"/>
-          <CustomInput label={"Surname"} placeholder="Enter your surname"/>
+        <div class="flex justify-between mb-1">
+          <CustomInput classNames="w-5/12" label={"First Name"} placeholder="Enter your first name"/>
+          <CustomInput classNames="w-5/12" label={"Surname"} placeholder="Enter your surname"/>
         </div>
-        <CustomInput label={"Email Address"} placeholder="Enter your Email Address"/>
-        <div class="flex justify-between">
-          <CustomInput label={"Password"} placeholder="Enter your password"/>
-          <CustomInput label={"Confirm Password"} placeholder="Confirm your password"/>
+        <CustomInput classNames=" mb-2" label={"Email Address"} placeholder="Enter your Email Address"/>
+        <div class="flex justify-between mb-1">
+          <CustomInput classNames="w-5/12" label={"Password"} placeholder="Enter your password"/>
+          <CustomInput classNames="w-5/12" label={"Confirm Password"} placeholder="Confirm your password"/>
         </div>
         
-        <Select label={"Faculty"} options={[{value: 'science', label: 'Science'}, {value: 'commerce', label: 'Commerce'}]}/>
-        <div class="flex justify-between">
-          <Select label={"First Major"} options={[{value: 'computerScience', label: 'Computer Science'}, {value: 'computerEngineering', label: 'Computer Engineering'}]}/>
-          <Select label={"Second Major"} options={[{value: 'computerScience', label: 'Computer Science'}, {value: 'computerEngineering', label: 'Computer Engineering'}]}/>
+        <Select classNames=" mb-2" label={"Faculty"} options={[{value: 'science', label: 'Science'}, {value: 'commerce', label: 'Commerce'}]}/>
+        <div class="flex justify-between  mb-1">
+          <Select classNames="w-5/12" label={"First Major"} options={[{value: 'computerScience', label: 'Computer Science'}, {value: 'computerEngineering', label: 'Computer Engineering'}]}/>
+          <Select classNames="w-5/12" label={"Second Major"} options={[{value: 'computerScience', label: 'Computer Science'}, {value: 'computerEngineering', label: 'Computer Engineering'}]}/>
         </div>
         
         <Button text={"Register"}/>
