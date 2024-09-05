@@ -44,7 +44,7 @@ Major.init(
   {
     sequelize,
     modelName: "Major",
-    tableName: "majors",
+    freezeTableName:true,
     timestamps: false,
   }
 );

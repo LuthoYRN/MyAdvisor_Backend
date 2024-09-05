@@ -39,8 +39,8 @@ UploadedFile.init(
   },
   {
     sequelize,
-    tableName: "uploaded_files",
     modelName: "UploadedFile",
+    freezeTableName: true,
     timestamps: false,
   }
 );

@@ -42,8 +42,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      tableName: "shared_courses",
       modelName: "SharedCourse",
+      freezeTableName: true,
+      timestamps: false,
     }
   );
   return SharedCourse;

@@ -53,7 +53,7 @@ Course.init(
   {
     sequelize,
     modelName: "Course",
-    tableName: "courses",
+    freezeTableName: true,
     timestamps: false,
   }
 );
