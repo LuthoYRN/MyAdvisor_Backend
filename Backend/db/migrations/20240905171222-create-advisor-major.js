@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       majorID: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
     });
   },

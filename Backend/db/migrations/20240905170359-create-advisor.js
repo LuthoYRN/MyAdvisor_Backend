@@ -24,6 +24,9 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
+      office: {
+        type: Sequelize.STRING,
+      },
       advisor_level: {
         type: Sequelize.STRING,
       },

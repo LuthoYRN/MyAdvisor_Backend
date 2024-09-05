@@ -33,9 +33,8 @@ class Course extends Model {
 Course.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       primaryKey: true,
-      autoIncrement: true,
       allowNull: false,
     },
     courseName: {

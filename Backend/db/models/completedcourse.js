@@ -23,7 +23,7 @@ CompletedCourse.init(
       allowNull: false,
     },
     courseID: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },

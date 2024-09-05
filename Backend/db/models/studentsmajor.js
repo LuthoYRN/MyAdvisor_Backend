@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       majorID: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
           model: "majors",

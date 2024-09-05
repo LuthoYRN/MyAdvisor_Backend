@@ -22,7 +22,8 @@ module.exports = {
         type: Sequelize.STRING,
       },
       programmeID: {
-        type: Sequelize.INTEGER,
+        allowNull: true,
+        type: Sequelize.STRING,
       },
       profile_url: {
         type: Sequelize.STRING,

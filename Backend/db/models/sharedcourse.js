@@ -17,21 +17,23 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
       },
       majorID: {
-        type: DataTypes.INTEGER,
+        allowNull: true,
+        type: DataTypes.STRING,
         references: {
           model: "majors",
           key: "id",
         },
       },
       courseID: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         references: {
           model: "courses",
           key: "id",
         },
       },
       programmeID: {
-        type: DataTypes.INTEGER,
+        allowNull: true,
+        type: DataTypes.STRING,
         references: {
           model: "programmes",
           key: "id",

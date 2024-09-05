@@ -5,9 +5,8 @@ module.exports = {
     await queryInterface.createTable("major", {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       majorName: {
         type: Sequelize.STRING,

@@ -10,13 +10,15 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       majorID: {
-        type: Sequelize.INTEGER,
+        allowNull: true,
+        type: Sequelize.STRING,
       },
       courseID: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       programmeID: {
-        type: Sequelize.INTEGER,
+        allowNull: true,
+        type: Sequelize.STRING,
       },
     });
   },

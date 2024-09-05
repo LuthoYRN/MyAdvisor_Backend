@@ -73,7 +73,8 @@ Student.init(
       },
     },
     programmeID: {
-      type: DataTypes.INTEGER,
+      allowNull: true,
+      type: DataTypes.STRING,
     },
     profile_url: {
       type: DataTypes.STRING,

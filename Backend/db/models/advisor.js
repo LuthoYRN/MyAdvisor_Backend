@@ -51,8 +51,11 @@ Advisor.init(
     email: {
       type: DataTypes.STRING,
     },
-    hash_password: {
+    password: {
       type: DataTypes.STRING,
+    },
+    office: {
+      type: Sequelize.STRING,
     },
     advisor_level: {
       type: DataTypes.STRING,
