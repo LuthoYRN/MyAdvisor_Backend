@@ -4,6 +4,7 @@ import Text from "./components/Text";
 import Button from "./components/Button";
 import video from "./assets/Video.svg";
 import Pill from "./components/Pill";
+import Calendar from "./components/Calendar";
 
 /* 
 Data Needed:
@@ -42,8 +43,10 @@ const AppointmentDate = () => {
           John Doe
         </Text>
         <div class="flex gap-72 flex-auto">
-          <div class="flex flex-col w-1/2 justify-between">
-            <div></div>
+          <div class="flex flex-auto flex-col w-1/2 justify-between">
+            <div>
+              <Calendar/>
+            </div>
             <div>
               <Button
                 text="Book appointment"

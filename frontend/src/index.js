@@ -11,11 +11,12 @@ import UserManagement from './UserManagement';
 import Notifications from './Notifications';
 import AppointmentDate from './AppointmentDate';
 import Appointment from './Appointment';
+import AppointmentAdvisor from './AppointmentAdvisor';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AppointmentDate />
+    <AppointmentAdvisor />
   </React.StrictMode>
 );
 
