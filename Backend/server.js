@@ -1,9 +1,6 @@
-const port = 3000;
+require("dotenv").config({ path: `${process.cwd()}/.env` });
 const app = require("./app");
-const { sequelize } = require("./models");
-
-app.listen(port, "127.0.0.1", async () => {
-  console.log(`Server is running on port ${port}`);
-  await sequelize.authenticate();
-  console.log("Database connected!");
+const PORT = process.env.APP_PORT || 4000;
+app.listen(PORT, "127.0.0.1", async () => {
+  console.log(`Server is running on port ${PORT}`);
 });
