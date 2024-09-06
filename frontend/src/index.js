@@ -9,11 +9,15 @@ import Dashboard from './Dashboard';
 import AppointmentDetails from './AppointmentDetails';
 import UserManagement from './UserManagement';
 import Notifications from './Notifications';
+import AppointmentDate from './AppointmentDate';
+import Appointment from './Appointment';
+import AppointmentAdvisor from './AppointmentAdvisor';
+import AdviceLog from './AdviceLog';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Notifications />
+    <AdviceLog />
   </React.StrictMode>
 );
 
