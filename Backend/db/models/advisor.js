@@ -60,7 +60,7 @@ Advisor.init(
   },
   {
     sequelize,
-    modelName: "Advisor",
+    modelName: "advisor",
     timestamps: false,
     freezeTableName: true,
   }

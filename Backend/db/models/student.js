@@ -77,6 +77,7 @@ Student.init(
       type: DataTypes.STRING,
     },
     profile_url: {
+      allowNull: true,
       type: DataTypes.STRING,
     },
   },
