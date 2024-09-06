@@ -1,7 +1,7 @@
 import React from 'react';
 import Text from './Text';
 
-const CustomInput = ({label, placeholder, icon, classNames}) => {
+const CustomInput = ({label, placeholder, icon, disabled, classNames}) => {
     const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
@@ -18,6 +18,7 @@ const CustomInput = ({label, placeholder, icon, classNames}) => {
             value={value}
             onChange={handleChange}
             placeholder={placeholder}
+            disabled={disabled}
         />
         {icon && <img src={icon} alt="icon" class="-mx-8 mb-4" />}
         </div>
