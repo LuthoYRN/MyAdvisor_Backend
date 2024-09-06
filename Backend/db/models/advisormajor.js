@@ -34,7 +34,7 @@ AdvisorMajor.init(
   {
     sequelize,
     timestamps: false,
-    modelName: "AdvisorMajor",
+    modelName: "advisorMajor",
     freezeTableName: true,
   }
 );

@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "courses", // Reference to the courses table
+          model: "course", // Reference to the courses table
           key: "id",
         },
       },
@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "courses", // Reference to the courses table
+          model: "course", // Reference to the courses table
           key: "id",
         },
       },
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       timestamps: false,
-      modelName: "Prerequisite",
+      modelName: "prerequisite",
       freezeTableName: true,
     }
   );

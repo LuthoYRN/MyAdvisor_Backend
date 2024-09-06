@@ -36,15 +36,15 @@ Major.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "departments",
+        model: "department",
         key: "id",
       },
     },
   },
   {
     sequelize,
-    modelName: "Major",
-    freezeTableName:true,
+    modelName: "major",
+    freezeTableName: true,
     timestamps: false,
   }
 );

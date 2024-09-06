@@ -36,7 +36,7 @@ FacultyAdmin.init(
     facultyID: {
       type: DataTypes.INTEGER,
       references: {
-        model: "Faculties",
+        model: "faculty",
         key: "id",
       },
     },
@@ -46,7 +46,7 @@ FacultyAdmin.init(
   },
   {
     sequelize,
-    modelName: "FacultyAdmin",
+    modelName: "facultyAdmin",
     timestamps: false,
     freezeTableName: true,
   }

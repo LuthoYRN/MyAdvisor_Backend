@@ -23,7 +23,7 @@ UploadedFile.init(
     appointmentID: {
       type: DataTypes.INTEGER,
       references: {
-        model: "appointments", // Link to appointments table
+        model: "appointment", // Link to appointments table
         key: "id",
       },
       onDelete: "CASCADE", // Delete file if appointment is deleted
@@ -39,7 +39,7 @@ UploadedFile.init(
   },
   {
     sequelize,
-    modelName: "UploadedFile",
+    modelName: "uploadedFile",
     freezeTableName: true,
     timestamps: false,
   }

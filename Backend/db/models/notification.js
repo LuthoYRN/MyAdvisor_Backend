@@ -50,7 +50,7 @@ Notification.init(
     sequelize,
     timestamps: false,
     freezeTableName: true,
-    modelName: "Notification",
+    modelName: "notification",
   }
 );
 

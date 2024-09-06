@@ -26,14 +26,14 @@ Department.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "faculties",
+        model: "faculty",
         key: "id",
       },
     },
   },
   {
     sequelize,
-    modelName: "Department",
+    modelName: "department",
     timestamps: false,
     freezeTableName: true,
   }

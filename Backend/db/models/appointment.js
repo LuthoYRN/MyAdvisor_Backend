@@ -26,14 +26,14 @@ Appointment.init(
     studentID: {
       type: DataTypes.INTEGER,
       references: {
-        model: "students",
+        model: "student",
         key: "id",
       },
     },
     advisorID: {
       type: DataTypes.INTEGER,
       references: {
-        model: "advisors",
+        model: "advisor",
         key: "id",
       },
     },
@@ -49,7 +49,7 @@ Appointment.init(
   },
   {
     sequelize,
-    modelName: "Appointment",
+    modelName: "appointment",
     freezeTableName: true,
     timestamps: false, // This prevents createdAt and updatedAt fields
   }

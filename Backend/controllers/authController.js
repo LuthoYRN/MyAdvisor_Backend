@@ -1,6 +1,8 @@
 const student = require("../db/models/student");
 const advisor = require("../db/models/advisor");
 const faculty = require("../db/models/faculty");
+const major = require("../db/models/major");
+const department = require("../db/models/department");
 const bcrypt = require("bcrypt");
 
 //returns faculties for signup page dropdown
@@ -19,6 +21,36 @@ const getFaculties = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during fetching faculties:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+//returns majors under faculty from drop
+const getMajorsbyFaculty = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+    const majors = await major.findAll({
+      where: {
+        include: {
+          model: department,
+          where: { facultyID }, // Filtering by faculty ID
+        },
+      },
+    });
+    if (!majors || majors.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No majors found",
+      });
+    }
+    return res.status(200).json({
+      status: "success",
+      data: majors,
+    });
+  } catch (error) {
+    console.error("Error during fetching majors:", error.message);
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",
@@ -124,4 +156,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getFaculties };
+module.exports = { signup, login, getFaculties, getMajorsbyFaculty };

@@ -37,7 +37,7 @@ Availability.init(
   },
   {
     sequelize,
-    modelName: "Availability",
+    modelName: "availability",
     timestamps: false,
     freezeTableName: true,
   }

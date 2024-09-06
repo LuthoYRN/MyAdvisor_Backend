@@ -20,14 +20,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         type: DataTypes.STRING,
         references: {
-          model: "majors",
+          model: "major",
           key: "id",
         },
       },
       courseID: {
         type: DataTypes.STRING,
         references: {
-          model: "courses",
+          model: "course",
           key: "id",
         },
       },
@@ -35,14 +35,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         type: DataTypes.STRING,
         references: {
-          model: "programmes",
+          model: "programme",
           key: "id",
         },
       },
     },
     {
       sequelize,
-      modelName: "SharedCourse",
+      modelName: "sharedCourse",
       freezeTableName: true,
       timestamps: false,
     }

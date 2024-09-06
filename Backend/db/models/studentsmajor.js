@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "students",
+          model: "student",
           key: "id",
         },
       },
@@ -38,14 +38,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         references: {
-          model: "majors",
+          model: "major",
           key: "id",
         },
       },
     },
     {
       sequelize,
-      modelName: "StudentMajor",
+      modelName: "studentsMajor",
       freezeTableName: true,
       timestamps: false,
     }

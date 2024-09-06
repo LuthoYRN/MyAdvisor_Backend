@@ -31,7 +31,7 @@ CompletedCourse.init(
     sequelize,
     timestamps: false,
     freezeTableName: true,
-    modelName: "CompletedCourse",
+    modelName: "completedCourse",
   }
 );
 
