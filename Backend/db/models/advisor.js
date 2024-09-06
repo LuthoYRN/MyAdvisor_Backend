@@ -49,7 +49,7 @@ Advisor.init(
       type: DataTypes.STRING,
     },
     office: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     advisor_level: {
       type: DataTypes.STRING,

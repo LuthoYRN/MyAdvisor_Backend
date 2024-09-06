@@ -20,12 +20,14 @@ module.exports = {
       },
       timestamp: {
         type: Sequelize.DATE,
+        defaultValue: DataTypes.NOW,
       },
       comment: {
         type: Sequelize.STRING,
       },
       read: {
         type: Sequelize.BOOLEAN,
+        defaultValue: false,
       },
     });
   },

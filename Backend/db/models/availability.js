@@ -23,7 +23,7 @@ Availability.init(
       type: DataTypes.INTEGER,
     },
     date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
     },
     time: {
       type: DataTypes.TIME,

@@ -22,17 +22,19 @@ AppointmentRequest.init(
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    timestamp: {
-      type: DataTypes.DATE,
-    },
     appointmentID: {
       type: DataTypes.INTEGER,
     },
     read: {
       type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     availabilityID: {
       type: DataTypes.INTEGER,
+    },
+    timestamp: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
   {

@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      timestamp: {
-        type: Sequelize.DATE,
-      },
       appointmentID: {
         type: Sequelize.INTEGER,
       },
@@ -20,6 +17,10 @@ module.exports = {
       },
       availabilityID: {
         type: Sequelize.INTEGER,
+      },
+      timestamp: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
