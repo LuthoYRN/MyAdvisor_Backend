@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      id: {
-        type: Sequelize.INTEGER,
-      },
       name: {
         type: Sequelize.STRING,
       },
@@ -29,9 +26,6 @@ module.exports = {
       },
       advisor_level: {
         type: Sequelize.STRING,
-      },
-      departmentID: {
-        type: Sequelize.INTEGER,
       },
       profile_url: {
         type: Sequelize.STRING,

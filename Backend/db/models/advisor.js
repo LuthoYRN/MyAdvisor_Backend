@@ -25,12 +25,6 @@ class Advisor extends Model {
       otherKey: "studentID",
       as: "students",
     });
-
-    // Belongs to a department
-    Advisor.belongsTo(models.Department, {
-      foreignKey: "departmentID",
-      as: "department",
-    });
   }
 }
 
@@ -59,9 +53,6 @@ Advisor.init(
     },
     advisor_level: {
       type: DataTypes.STRING,
-    },
-    departmentID: {
-      type: DataTypes.INTEGER,
     },
     profile_url: {
       type: DataTypes.STRING,

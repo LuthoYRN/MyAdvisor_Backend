@@ -5,7 +5,6 @@ const sequelize = require("../../config/database");
 class Department extends Model {
   static associate(models) {
     // Define associations here
-    Department.hasMany(models.Advisor, { foreignKey: "departmentID" });
     Department.hasMany(models.Major, { foreignKey: "departmentID" });
     Department.belongsTo(models.Faculty, { foreignKey: "facultyID" });
   }
