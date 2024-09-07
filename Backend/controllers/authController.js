@@ -1,9 +1,11 @@
+const { ValidationError } = require("sequelize");
 const {
   advisor,
   faculty,
   student,
   major,
   department,
+  studentsMajor,
 } = require("../db/models");
 const bcrypt = require("bcrypt");
 
@@ -63,32 +65,94 @@ const getMajorsbyFaculty = async (req, res) => {
 // Signup function
 const signup = async (req, res) => {
   try {
-    const body = req.body;
+    const {
+      name,
+      surname,
+      email,
+      password,
+      confirmPassword,
+      majors,
+      programmeID,
+    } = req.body;
 
-    // Student model takes care of the password and confirmPassword validation.
+    // Check if the email is already used
+    const existingStudent = await student.findOne({
+      where: { email: email },
+    });
+
+    // If student already exists, return a conflict response
+    if (existingStudent) {
+      return res.status(409).json({
+        status: "fail",
+        message: "Email is already in use",
+      });
+    }
+    // Ensure password and confirmPassword match
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Passwords do not match",
+      });
+    } else if (password.length < 6 || password.length > 255) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Password should be between 6 and 255 characters long.",
+      });
+    }
+    // Create the new student
     const newStudent = await student.create({
-      name: body.name,
-      surname: body.surname,
-      email: body.email,
-      password: body.password, // Student model handles hashing
-      confirmPassword: body.confirmPassword, // Validates password matching
-      programmeID: body.programmeID,
-      profile_url: body.profile_url,
+      name,
+      surname,
+      email,
+      password: bcrypt.hashSync(confirmPassword, 10), // Hash password for security // Ensure your model handles hashing
+      programmeID: programmeID || null, // If no programme selected, set to null
     });
 
     const result = newStudent.toJSON();
-    delete result.email;
-    delete result.password; // Remove password from returned result
+
+    // Assign majors to the student if provided
+    if (majors && majors.length > 0) {
+      majors.forEach(async (majorID) => {
+        await studentsMajor.create({
+          studentID: result.id,
+          majorID: majorID,
+        });
+      });
+    }
 
     return res.status(201).json({
       status: "success",
-      data: result,
+      user_id: result.uuid,
     });
   } catch (error) {
     console.error("Error during signup:", error.message);
-    return res
-      .status(500)
-      .json({ status: "fail", message: "Internal Server Error" });
+    if (error.name == "SequelizeValidationError") {
+      const validationErrors = error.errors.map((err) => err.message); // Collect all validation error messages
+      const fieldErrors = error.errors.map((err) => err.path); // Collect which fields caused the error
+
+      // Initialize default error message
+      let message = [];
+
+      // Check for specific field errors
+      if (fieldErrors.includes("name")) {
+        message.push("Name cannot be empty.");
+      }
+      if (fieldErrors.includes("surname")) {
+        message.push("Surname cannot be empty.");
+      }
+      if (fieldErrors.includes("email")) {
+        message.push("Invalid email format.");
+      }
+      return res.status(400).json({
+        status: "fail",
+        message: message,
+      });
+    }
+
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -118,13 +182,10 @@ const login = async (req, res) => {
       }
 
       const logged_in = result.toJSON();
-      delete logged_in.password;
-      delete logged_in.email;
-
       return res.status(200).json({
         status: "success",
         user_type: "student",
-        user_id: logged_in.id,
+        user_id: logged_in.uuid,
       });
 
       // Handle advisor login
@@ -132,7 +193,7 @@ const login = async (req, res) => {
       const result = await advisor.findOne({ where: { email } });
 
       // If advisor not found or passwords don't match
-      if (!result || !(password == result.password)) {
+      if (!result || !(await bcrypt.compare(password, result.password))) {
         return res.status(400).json({
           status: "fail",
           message: "Incorrect email or password",
@@ -143,7 +204,7 @@ const login = async (req, res) => {
       return res.status(200).json({
         status: "success",
         user_type: "advisor",
-        user_id: logged_in.id,
+        user_id: logged_in.uuid,
       });
     } else {
       return res

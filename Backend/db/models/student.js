@@ -1,6 +1,5 @@
 "use strict";
 const { Model } = require("sequelize");
-const bcrypt = require("bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class Student extends Model {
     static associate(models) {
@@ -50,39 +49,35 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: {
         validate: {
-          notEmpty: true,
+          notEmpty: {
+            msg: "Name cannot be empty", // Custom validation message
+          },
         },
         allowNull: false,
         type: DataTypes.STRING,
       },
       surname: {
         validate: {
-          notEmpty: true,
+          notEmpty: {
+            msg: "Surname cannot be empty", // Custom validation message
+          },
         },
         allowNull: false,
         type: DataTypes.STRING,
       },
       email: {
         validate: {
-          isEmail: true,
+          isEmail: {
+            msg: "Invalid email address", // Validate email format
+          },
         },
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
-      },
-      confirmPassword: {
-        type: DataTypes.VIRTUAL,
-        set(value) {
-          if (value === this.password) {
-            const hashPassword = bcrypt.hashSync(value, 10);
-            this.setDataValue("password", hashPassword);
-          } else {
-            throw new Error("Password and confirm password must be the same");
-          }
-        },
       },
       programmeID: {
         allowNull: true,
