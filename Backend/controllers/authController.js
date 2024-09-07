@@ -1,10 +1,11 @@
 const { ValidationError } = require("sequelize");
-const { sequelize } = require('../db/models'); 
+const { sequelize } = require("../db/models");
 const {
   advisor,
   faculty,
   student,
   course,
+  completedCourse,
   major,
   department,
   sharedCourse,
@@ -47,6 +48,7 @@ const getMajorsbyFaculty = async (req, res) => {
       attributes: ["id", "majorName"],
     });
     if (!majors || majors.length === 0) {
+      //to be implemented search for prorgammes instead
       return res.status(404).json({
         status: "fail",
         message: "No majors found",
@@ -222,6 +224,7 @@ const login = async (req, res) => {
   }
 };
 
+//gets all courses for a particular student
 const getCoursesForStudent = async (req, res) => {
   try {
     const { studentID } = req.params;
@@ -262,10 +265,62 @@ const getCoursesForStudent = async (req, res) => {
   }
 };
 
+//receives courses the student has completed and populates completedCourse table
+const addCompletedCourses = async (req, res) => {
+  try {
+    const { studentID } = req.params; // Get the student UUID from the route params
+    const { courses } = req.body; // Get the array of course IDs from the body
+
+    // Find the student using UUID
+    const the_student = await student.findOne({ where: { uuid: studentID } });
+    if (!the_student) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Student not found",
+      });
+    }
+    // Loop through the courses and add them to the CompletedCourse table
+    const completedCourses = [];
+    for (const courseID of courses) {
+      // Ensure the course exists
+      const foundCourse = await course.findOne({ where: { id: courseID } });
+      if (!foundCourse) {
+        return res.status(400).json({
+          status: "fail",
+          message: `Course with ID ${courseID} not found`,
+        });
+      }
+      // Prevent duplicate entries for the same student and course
+      const existingRecord = await completedCourse.findOne({
+        where: { studentID: the_student.id, courseID: foundCourse.id },
+      });
+      if (!existingRecord) {
+        const newCompletedCourse = await completedCourse.create({
+          studentID: the_student.id,
+          courseID: foundCourse.id,
+        });
+        completedCourses.push(newCompletedCourse);
+      }
+    }
+    return res.status(201).json({
+      status: "success",
+      student_id: studentID,
+      data: completedCourses,
+    });
+  } catch (error) {
+    console.error("Error during course addition:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
   getFaculties,
   getMajorsbyFaculty,
   getCoursesForStudent,
+  addCompletedCourses,
 };
