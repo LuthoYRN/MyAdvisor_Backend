@@ -1,16 +1,16 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Prerequisite extends Model {
     static associate(models) {
       // Define association with the Course model
-      Prerequisite.belongsTo(models.Course, {
+      Prerequisite.belongsTo(models.course, {
         as: "Course",
         foreignKey: "courseID",
       });
 
-      Prerequisite.belongsTo(models.Course, {
+      Prerequisite.belongsTo(models.course, {
         as: "PrerequisiteCourse",
         foreignKey: "prerequisiteID",
       });

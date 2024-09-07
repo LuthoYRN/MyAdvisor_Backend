@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class adviceRecord extends Model {
     static associate(models) {
       // Define association with Appointments model
-      adviceRecord.belongsTo(models.Appointments, {
+      adviceRecord.belongsTo(models.appointment, {
         foreignKey: "appointmentID",
         targetKey: "id",
       });

@@ -1,18 +1,18 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Programme extends Model {
     static associate(models) {
       // Programme belongs to Faculty
-      Programme.belongsTo(models.Faculty, { foreignKey: "facultyID" });
+      Programme.belongsTo(models.faculty, { foreignKey: "facultyID" });
 
       // Programme has many Students
-      Programme.hasMany(models.Student, { foreignKey: "programmeID" });
+      Programme.hasMany(models.student, { foreignKey: "programmeID" });
 
       // Programme has many Courses through SharedCourse
-      Programme.belongsToMany(models.Course, {
-        through: models.SharedCourse,
+      Programme.belongsToMany(models.course, {
+        through: models.sharedCourse,
         foreignKey: "programmeID",
         otherKey: "courseID",
       });

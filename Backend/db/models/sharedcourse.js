@@ -1,12 +1,12 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class SharedCourse extends Model {
     static associate(models) {
-      SharedCourse.belongsTo(models.Major, { foreignKey: "majorID" });
-      SharedCourse.belongsTo(models.Course, { foreignKey: "courseID" });
-      SharedCourse.belongsTo(models.Programme, { foreignKey: "programmeID" });
+      SharedCourse.belongsTo(models.major, { foreignKey: "majorID" });
+      SharedCourse.belongsTo(models.course, { foreignKey: "courseID" });
+      SharedCourse.belongsTo(models.programme, { foreignKey: "programmeID" });
     }
   }
   SharedCourse.init(

@@ -1,42 +1,41 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../../config/database");
-
-class AdvisorMajor extends Model {
-  static associate(models) {
-    // Define the relationships here
-    this.belongsTo(models.Advisor, {
-      foreignKey: "advisorID",
-      as: "advisor",
-    });
-    this.belongsTo(models.Major, {
-      foreignKey: "majorID",
-      as: "major",
-    });
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  class AdvisorMajor extends Model {
+    static associate(models) {
+      // Define the relationships here
+      this.belongsTo(models.advisor, {
+        foreignKey: "advisorID",
+        as: "advisor",
+      });
+      this.belongsTo(models.major, {
+        foreignKey: "majorID",
+        as: "major",
+      });
+    }
   }
-}
 
-AdvisorMajor.init(
-  {
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: DataTypes.INTEGER,
+  AdvisorMajor.init(
+    {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
+      advisorID: {
+        type: DataTypes.INTEGER,
+      },
+      majorID: {
+        type: DataTypes.STRING,
+      },
     },
-    advisorID: {
-      type: DataTypes.INTEGER,
-    },
-    majorID: {
-      type: DataTypes.STRING,
-    },
-  },
-  {
-    sequelize,
-    timestamps: false,
-    modelName: "advisorMajor",
-    freezeTableName: true,
-  }
-);
-
-module.exports = AdvisorMajor;
+    {
+      sequelize,
+      timestamps: false,
+      modelName: "advisorMajor",
+      freezeTableName: true,
+    }
+  );
+  return AdvisorMajor;
+};

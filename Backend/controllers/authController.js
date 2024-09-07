@@ -1,8 +1,10 @@
-const student = require("../db/models/student");
-const advisor = require("../db/models/advisor");
-const faculty = require("../db/models/faculty");
-const major = require("../db/models/major");
-const department = require("../db/models/department");
+const {
+  advisor,
+  faculty,
+  student,
+  major,
+  department,
+} = require("../db/models");
 const bcrypt = require("bcrypt");
 
 //returns faculties for signup page dropdown
@@ -27,17 +29,17 @@ const getFaculties = async (req, res) => {
     });
   }
 };
-//returns majors under faculty from drop
+//returns majors under faculty from dropdown
 const getMajorsbyFaculty = async (req, res) => {
   try {
     const { facultyID } = req.params;
     const majors = await major.findAll({
-      where: {
-        include: {
-          model: department,
-          where: { facultyID }, // Filtering by faculty ID
-        },
+      include: {
+        model: department,
+        where: { facultyID }, // Filtering by faculty ID
+        attributes: [],
       },
+      attributes: ["id", "majorName"],
     });
     if (!majors || majors.length === 0) {
       return res.status(404).json({

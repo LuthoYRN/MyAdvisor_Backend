@@ -1,17 +1,16 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
-
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class StudentMajor extends Model {
     static associate(models) {
       // Associate with Student
-      StudentMajor.belongsTo(models.Student, {
+      StudentMajor.belongsTo(models.student, {
         foreignKey: "studentID",
         as: "student",
       });
 
       // Associate with Major
-      StudentMajor.belongsTo(models.Major, {
+      StudentMajor.belongsTo(models.major, {
         foreignKey: "majorID",
         as: "major",
       });
