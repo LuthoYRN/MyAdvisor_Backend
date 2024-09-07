@@ -6,13 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       // Associate with Student
       StudentMajor.belongsTo(models.student, {
         foreignKey: "studentID",
-        as: "student",
       });
 
       // Associate with Major
       StudentMajor.belongsTo(models.major, {
         foreignKey: "majorID",
-        as: "major",
       });
     }
   }

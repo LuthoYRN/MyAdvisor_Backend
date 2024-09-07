@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       // UploadedFile belongs to an Appointment
       UploadedFile.belongsTo(models.appointment, {
         foreignKey: "appointmentID",
-        as: "appointment",
       });
     }
   }
@@ -27,7 +26,6 @@ module.exports = (sequelize, DataTypes) => {
           model: "appointment", // Link to appointments table
           key: "id",
         },
-        onDelete: "CASCADE", // Delete file if appointment is deleted
       },
       fileName: {
         validate: {
