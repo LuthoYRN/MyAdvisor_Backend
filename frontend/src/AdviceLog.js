@@ -46,8 +46,6 @@ const AdviceLog = () => {
     setActiveIndex(index);
     setLogType(log.info);
    
-    console.log(content);
-    console.log("activeIndex", activeIndex);
   };
 
   return (

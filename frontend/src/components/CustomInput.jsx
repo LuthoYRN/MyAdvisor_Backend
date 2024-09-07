@@ -1,11 +1,12 @@
 import React from 'react';
 import Text from './Text';
 
-const CustomInput = ({label, placeholder, icon, classNames}) => {
+const CustomInput = ({label, placeholder, icon, classNames, onValueChange}) => {
     const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
         setValue(event.target.value);
+        onValueChange(event.target.value);
     };
 
     return (
