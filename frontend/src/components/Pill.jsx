@@ -8,7 +8,6 @@ const Pill = ({ text, active }) => {
   const handleClick = () => {
     // Toggle the active state when clicked
     setActive(!isActive);
-    console.log(isActive);
   };
 
   return (
