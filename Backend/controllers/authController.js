@@ -1,10 +1,13 @@
 const { ValidationError } = require("sequelize");
+const { sequelize } = require('../db/models'); 
 const {
   advisor,
   faculty,
   student,
+  course,
   major,
   department,
+  sharedCourse,
   studentsMajor,
 } = require("../db/models");
 const bcrypt = require("bcrypt");
@@ -219,4 +222,50 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getFaculties, getMajorsbyFaculty };
+const getCoursesForStudent = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+    const the_student = await student.findOne({ where: { uuid: studentID } });
+    if (!the_student) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student not found" });
+    }
+    if (!the_student.programmeID) {
+      // Find courses linked to the student's majors using the associations
+      const majors = await studentsMajor.findAll({
+        where: { studentID: the_student.id },
+        attributes: ["majorID"],
+      });
+      let courses = await sharedCourse.findAll({
+        where: { majorID: majors.map((el) => el.majorID) },
+        attributes: ["courseID"],
+        order: [[sequelize.literal('SUBSTRING("courseID", 4, 1)'), "ASC"]],
+      });
+      //make the courses not duplicated
+      courses = [...new Set(courses.map((el) => el.courseID))];
+      // Return the courses in the expected format
+      return res.status(200).json({
+        status: "success",
+        student_id: the_student.uuid,
+        courses,
+      });
+    } else {
+      //to be implemented, if the student has a programme instead of majors
+    }
+  } catch (error) {
+    console.error("Error fetching courses for student:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = {
+  signup,
+  login,
+  getFaculties,
+  getMajorsbyFaculty,
+  getCoursesForStudent,
+};

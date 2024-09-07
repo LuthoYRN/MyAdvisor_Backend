@@ -7,5 +7,8 @@ router
   .post(authController.signup)
   .get(authController.getFaculties);
 router.route("/signup/:facultyID").get(authController.getMajorsbyFaculty);
+router
+  .route("/signup/:studentID/courses")
+  .get(authController.getCoursesForStudent);
 router.route("/login").post(authController.login);
 module.exports = router;
