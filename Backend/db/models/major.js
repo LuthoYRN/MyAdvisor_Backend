@@ -28,6 +28,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       majorName: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -38,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
           model: "department",
           key: "id",
         },
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

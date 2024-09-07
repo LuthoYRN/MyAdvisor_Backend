@@ -20,7 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       facultyName: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
+        allowNull: false,
       },
     },
     {

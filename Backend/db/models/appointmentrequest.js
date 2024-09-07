@@ -22,18 +22,27 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       appointmentID: {
+        allowNull:false,
         type: DataTypes.INTEGER,
       },
       read: {
+        allowNull:false,
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
       availabilityID: {
+        allowNull:false,
         type: DataTypes.INTEGER,
       },
       timestamp: {
+        allowNull:false,
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

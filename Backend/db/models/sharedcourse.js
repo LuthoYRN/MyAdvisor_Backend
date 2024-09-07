@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       courseID: {
+        allowNull: false,
         type: DataTypes.STRING,
         references: {
           model: "course",

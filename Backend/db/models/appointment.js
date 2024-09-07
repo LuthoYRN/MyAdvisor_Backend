@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       studentID: {
+        allowNull: false,
         type: DataTypes.INTEGER,
         references: {
           model: "student",
@@ -32,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       advisorID: {
+        allowNull: false,
         type: DataTypes.INTEGER,
         references: {
           model: "advisor",
@@ -39,13 +41,21 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       date: {
+        allowNull: false,
         type: DataTypes.DATEONLY,
       },
       time: {
+        allowNull: false,
         type: DataTypes.TIME,
       },
       comment: {
+        allowNull: true,
         type: DataTypes.STRING,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

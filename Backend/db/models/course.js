@@ -37,16 +37,30 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       courseName: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
         allowNull: false,
       },
       credits: {
+        validate: {
+          max: 72,
+        },
         type: DataTypes.INTEGER,
         allowNull: false,
       },
       nqf_level: {
+        validate: {
+          isIn: [[5, 6, 7, 8]],
+        },
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

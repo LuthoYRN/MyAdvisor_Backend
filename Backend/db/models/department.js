@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       name: {
+        validate: { notEmpty: true },
         type: DataTypes.STRING,
         allowNull: false,
       },

@@ -27,6 +27,10 @@ module.exports = {
       profile_url: {
         type: Sequelize.STRING,
       },
+      uuid: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

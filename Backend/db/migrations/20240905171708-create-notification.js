@@ -20,7 +20,7 @@ module.exports = {
       },
       timestamp: {
         type: Sequelize.DATE,
-        defaultValue: DataTypes.NOW,
+        defaultValue: Sequelize.NOW,
       },
       comment: {
         type: Sequelize.STRING,
@@ -28,6 +28,11 @@ module.exports = {
       read: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+      },
+      uuid: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
     });
   },

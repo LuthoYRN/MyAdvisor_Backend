@@ -22,16 +22,25 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       date: {
+        allowNull: false,
         type: DataTypes.DATEONLY,
       },
       time: {
+        allowNull: false,
         type: DataTypes.TIME,
       },
       advisorID: {
+        allowNull: false,
         type: DataTypes.INTEGER,
       },
       isAvailable: {
+        allowNull: false,
         type: DataTypes.BOOLEAN,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

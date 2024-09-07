@@ -36,25 +36,60 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       name: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
+        allowNull: false,
       },
       surname: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
+        allowNull: false,
       },
       email: {
+        validate: {
+          isEmail: true,
+        },
+        unique: true,
+        allowNull: false,
         type: DataTypes.STRING,
       },
       password: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
+        allowNull: false,
       },
       office: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
+        allowNull: false,
       },
       advisor_level: {
+        validate: {
+          isIn: [["advisor", "senior"]],
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
+        allowNull: false,
       },
       profile_url: {
+        validate: {
+          isUrl: true,
+        },
+        allowNull: true,
         type: DataTypes.STRING,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

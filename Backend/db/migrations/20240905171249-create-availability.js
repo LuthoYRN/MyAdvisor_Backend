@@ -21,6 +21,10 @@ module.exports = {
       isAvailable: {
         type: Sequelize.BOOLEAN,
       },
+      uuid: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

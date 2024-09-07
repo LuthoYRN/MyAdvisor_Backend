@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       appointmentID: {
         type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
           model: "appointment", // Link to appointments table
           key: "id",
@@ -29,12 +30,23 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE", // Delete file if appointment is deleted
       },
       fileName: {
+        validate: {
+          notEmpty: true,
+        },
         type: DataTypes.STRING,
         allowNull: false,
       },
       filePathURL: {
+        validate: {
+          isUrl: true,
+        },
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

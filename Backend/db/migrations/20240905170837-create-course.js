@@ -17,6 +17,10 @@ module.exports = {
       nqf_level: {
         type: Sequelize.INTEGER,
       },
+      uuid: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

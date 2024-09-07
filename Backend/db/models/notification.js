@@ -23,8 +23,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       type: {
+        validate: {
+          isIn: [["approval", "rejection"]],
+        },
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       appointmentID: {
         type: DataTypes.INTEGER,
@@ -46,6 +49,12 @@ module.exports = (sequelize, DataTypes) => {
       read: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+        allowNull: false,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {

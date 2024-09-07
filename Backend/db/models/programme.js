@@ -27,13 +27,21 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       programmeName: {
+        allowNull: false,
         type: DataTypes.STRING,
       },
       facultyID: {
+        allowNull: false,
         type: DataTypes.INTEGER,
       },
       coreElectiveCount: {
+        allowNull: true,
         type: DataTypes.INTEGER,
+      },
+      uuid: {
+        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
       },
     },
     {
