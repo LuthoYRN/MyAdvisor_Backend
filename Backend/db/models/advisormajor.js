@@ -6,11 +6,9 @@ module.exports = (sequelize, DataTypes) => {
       // Define the relationships here
       this.belongsTo(models.advisor, {
         foreignKey: "advisorID",
-        as: "advisor",
       });
       this.belongsTo(models.major, {
         foreignKey: "majorID",
-        as: "major",
       });
     }
   }

@@ -6,7 +6,6 @@ module.exports = (sequelize, DataTypes) => {
       // One-to-many relationship between Advisor and Availability
       Advisor.hasMany(models.availability, {
         foreignKey: "advisorID",
-        as: "availabilities",
       });
 
       // Many-to-many relationship between Advisor and Major through AdvisorMajor
@@ -14,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         through: models.advisorMajor,
         foreignKey: "advisorID",
         otherKey: "majorID",
-        as: "majors",
       });
 
       // Many-to-many relationship between Advisor and Student through Appointment
@@ -22,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
         through: models.appointment,
         foreignKey: "advisorID",
         otherKey: "studentID",
-        as: "students",
       });
     }
   }
