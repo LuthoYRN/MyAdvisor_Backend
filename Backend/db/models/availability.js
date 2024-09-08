@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       times: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false, // Array of time strings
+        allowNull: true, // Array of time strings
       },
       dayOfWeek: {
         type: DataTypes.ENUM(

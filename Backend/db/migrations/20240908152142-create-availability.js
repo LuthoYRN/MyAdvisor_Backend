@@ -25,7 +25,7 @@ module.exports = {
       },
       times: {
         type: Sequelize.ARRAY(Sequelize.STRING), // Array of available time slots
-        allowNull: false,
+        allowNull: true,
       },
       dayOfWeek: {
         type: Sequelize.ENUM(
