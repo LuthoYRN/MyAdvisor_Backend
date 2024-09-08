@@ -6,4 +6,10 @@ const router = express.Router();
 router
   .route("/:studentID/advisors")
   .get(studentController.getAdvisorsForStudent);
+
+//appointment
+router
+.route("/:studentID/:advisorID/appointment/availability")
+.get(studentController.getAdvisorAvailability)
+
 module.exports = router;
