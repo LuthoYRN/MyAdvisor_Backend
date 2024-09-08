@@ -4,16 +4,12 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Notification extends Model {
     static associate(models) {
-      // Notification belongs to a Student
-      Notification.belongsTo(models.student, { foreignKey: "studentID" });
-
       // Notification belongs to an Appointment
       Notification.belongsTo(models.appointment, {
         foreignKey: "appointmentID",
       });
     }
   }
-
   Notification.init(
     {
       id: {
@@ -23,45 +19,34 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       type: {
-        validate: {
-          isIn: [["approval", "rejection"]],
-        },
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM("Approval", "Rejection"),
         allowNull: false,
       },
       appointmentID: {
         type: DataTypes.INTEGER,
-        allowNull: true, // Could be null if not related to an appointment
+        references: {
+          model: "appointment",
+          key: "id",
+        },
       },
-      studentID: {
-        type: DataTypes.INTEGER,
-        allowNull: false, // Every notification is tied to a student
-      },
-      timestamp: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-        allowNull: false,
-      },
-      comment: {
-        type: DataTypes.STRING,
+      message: {
+        type: DataTypes.TEXT,
         allowNull: true,
       },
-      read: {
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+      is_read: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-        allowNull: false,
-      },
-      uuid: {
-        allowNull: false,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
       },
     },
     {
       sequelize,
+      modelName: "notification",
       timestamps: false,
       freezeTableName: true,
-      modelName: "notification",
     }
   );
 

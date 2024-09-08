@@ -21,12 +21,6 @@ module.exports = (sequelize, DataTypes) => {
       Student.belongsTo(models.programme, {
         foreignKey: "programmeID",
       });
-
-      // One-to-Many relationship with Notification
-      Student.hasMany(models.notification, {
-        foreignKey: "studentID",
-      });
-
       // One-to-Many relationship with CompletedCourse
       Student.hasMany(models.completedCourse, {
         foreignKey: "studentID",

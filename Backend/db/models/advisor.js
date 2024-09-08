@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       Advisor.hasMany(models.availability, {
         foreignKey: "advisorID",
       });
-
       // Many-to-many relationship between Advisor and Major through AdvisorMajor
       Advisor.belongsToMany(models.major, {
         through: models.advisorMajor,

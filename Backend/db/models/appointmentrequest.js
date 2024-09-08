@@ -1,14 +1,11 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class AppointmentRequest extends Model {
     static associate(models) {
-      // Associations can be defined here
       AppointmentRequest.belongsTo(models.appointment, {
         foreignKey: "appointmentID",
-      });
-      AppointmentRequest.belongsTo(models.availability, {
-        foreignKey: "availabilityID",
       });
     }
   }
@@ -22,34 +19,27 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       appointmentID: {
-        allowNull:false,
         type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "appointment",
+          key: "id",
+        },
       },
-      read: {
-        allowNull:false,
+      is_read: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      availabilityID: {
-        allowNull:false,
-        type: DataTypes.INTEGER,
-      },
-      timestamp: {
-        allowNull:false,
+      createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
-      },
-      uuid: {
-        allowNull: false,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
       },
     },
     {
       sequelize,
+      modelName: "appointmentRequest",
       timestamps: false,
       freezeTableName: true,
-      modelName: "appointmentRequest",
     }
   );
 

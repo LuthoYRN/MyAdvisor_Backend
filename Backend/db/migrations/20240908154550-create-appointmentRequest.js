@@ -1,7 +1,6 @@
 "use strict";
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("appointmentRequest", {
       id: {
         allowNull: false,
@@ -11,24 +10,26 @@ module.exports = {
       },
       appointmentID: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "appointment", // references appointment table
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
-      read: {
+      is_read: {
         type: Sequelize.BOOLEAN,
+        defaultValue: false,
       },
-      availabilityID: {
-        type: Sequelize.INTEGER,
-      },
-      timestamp: {
+      createdAt: {
+        allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      uuid: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
-      },
     });
   },
-  async down(queryInterface, Sequelize) {
+  down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable("appointmentRequest");
   },
 };

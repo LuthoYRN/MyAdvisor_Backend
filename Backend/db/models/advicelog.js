@@ -2,44 +2,46 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class adviceRecord extends Model {
+  class AdviceLog extends Model {
     static associate(models) {
       // Define association with Appointments model
-      adviceRecord.belongsTo(models.appointment, {
+      AdviceLog.belongsTo(models.appointment, {
         foreignKey: "appointmentID",
         targetKey: "id",
       });
     }
   }
-
-  adviceRecord.init(
+  AdviceLog.init(
     {
       id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
         allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
       },
       appointmentID: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         references: {
           model: "appointment",
           key: "id",
         },
       },
       notes: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
       sequelize,
-      modelName: "adviceRecord",
+      modelName: "adviceLog",
       timestamps: false,
       freezeTableName: true,
     }
   );
 
-  return adviceRecord;
+  return AdviceLog;
 };

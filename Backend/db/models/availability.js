@@ -1,14 +1,11 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Availability extends Model {
     static associate(models) {
-      // An advisor can have many availabilities
-      Availability.belongsTo(models.advisor, { foreignKey: "advisorID" });
-
-      // Availability can be tied to many appointment requests via availabilityID
-      Availability.hasMany(models.appointmentRequest, {
-        foreignKey: "availabilityID",
+      Availability.belongsTo(models.advisor, {
+        foreignKey: "advisorID",
       });
     }
   }
@@ -21,26 +18,32 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      date: {
-        allowNull: false,
-        type: DataTypes.DATEONLY,
-      },
-      time: {
-        allowNull: false,
-        type: DataTypes.TIME,
-      },
-      advisorID: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-      },
-      isAvailable: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-      },
       uuid: {
-        allowNull: false,
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+      },
+      advisorID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "advisor",
+          key: "id",
+        },
+      },
+      times: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: false, // Array of time strings
+      },
+      dayOfWeek: {
+        type: DataTypes.ENUM(
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ),
+        allowNull: false,
       },
     },
     {
@@ -50,5 +53,6 @@ module.exports = (sequelize, DataTypes) => {
       freezeTableName: true,
     }
   );
+
   return Availability;
 };

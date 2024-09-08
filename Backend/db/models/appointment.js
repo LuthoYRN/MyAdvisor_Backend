@@ -1,18 +1,15 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Appointment extends Model {
     static associate(models) {
-      Appointment.belongsTo(models.student, { foreignKey: "studentID" });
-      Appointment.belongsTo(models.advisor, { foreignKey: "advisorID" });
-      Appointment.hasMany(models.uploadedFile, {
-        foreignKey: "appointmentID",
+      Appointment.belongsTo(models.student, {
+        foreignKey: "studentID",
       });
-      Appointment.hasOne(models.notification, { foreignKey: "appointmentID" });
-      Appointment.hasOne(models.appointmentRequest, {
-        foreignKey: "appointmentID",
+      Appointment.belongsTo(models.advisor, {
+        foreignKey: "advisorID",
       });
-      Appointment.hasOne(models.adviceRecord, { foreignKey: "appointmentID" });
     }
   }
 
@@ -24,46 +21,51 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      studentID: {
+      uuid: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
+      },
+      studentID: {
         type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
           model: "student",
           key: "id",
         },
       },
       advisorID: {
-        allowNull: false,
         type: DataTypes.INTEGER,
+        allowNull: false,
         references: {
           model: "advisor",
           key: "id",
         },
       },
       date: {
-        allowNull: false,
         type: DataTypes.DATEONLY,
+        allowNull: false,
       },
       time: {
-        allowNull: false,
         type: DataTypes.TIME,
+        allowNull: false,
       },
       comment: {
+        type: DataTypes.TEXT,
         allowNull: true,
-        type: DataTypes.STRING,
       },
-      uuid: {
-        allowNull: false,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+      status: {
+        type: DataTypes.ENUM("Pending", "Confirmed", "Rejected"),
+        defaultValue: "Pending",
       },
     },
     {
       sequelize,
       modelName: "appointment",
+      timestamps: false,
       freezeTableName: true,
-      timestamps: false, // This prevents createdAt and updatedAt fields
     }
   );
+
   return Appointment;
 };
