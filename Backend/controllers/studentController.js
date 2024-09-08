@@ -1,4 +1,5 @@
-const { ValidationError } = require("sequelize");
+const { ValidationError, Op } = require("sequelize");
+
 const moment = require("moment"); //for date manipulation
 const { sequelize } = require("../db/models");
 const {
@@ -7,6 +8,8 @@ const {
   major,
   availability,
   appointment,
+  appointmentRequest,
+  notification,
   advisorMajor,
 } = require("../db/models");
 
@@ -105,21 +108,13 @@ const getAdvisorAvailability = async (req, res) => {
   try {
     const { studentID, advisorID } = req.params;
     const { date } = req.query;
-    const studentExists = await student.findOne({
-      where: { uuid: studentID },
-    });
-    if (!studentExists) {
+    const studentExists = await student.findOne({ where: { uuid: studentID } });
+    const advisorExists = await advisor.findOne({ where: { uuid: advisorID } });
+
+    if (!studentExists || !advisorExists) {
       return res
         .status(404)
-        .json({ status: "fail", message: "Student not found" });
-    }
-    const advisorExists = await advisor.findOne({
-      where: { uuid: advisorID },
-    });
-    if (!advisorExists) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Advisor not found" });
+        .json({ status: "fail", message: "Student or Advisor not found" });
     }
     // Ensure that a date is provided
     if (!date) {
@@ -165,12 +160,15 @@ const getAdvisorAvailability = async (req, res) => {
       where: {
         advisorID: advisorExists.id,
         date,
+        status: { [Op.not]: "Rejected" }, // Exclude appointments with "Rejected" status
       },
       attributes: ["time"],
     });
-
     // Get already booked times
-    const bookedTimes = appointments.map((appt) => appt.time);
+    let bookedTimes = appointments.map((appt) => appt.time);
+    bookedTimes = bookedTimes.map((time) =>
+      moment(time, "HH:mm:ss").format("HH:mm")
+    );
 
     // Filter available times by removing already booked times
     const availableTimes = availabilities.times.filter(
@@ -191,4 +189,92 @@ const getAdvisorAvailability = async (req, res) => {
   }
 };
 
-module.exports = { getAdvisorsForStudent, getAdvisorAvailability };
+// Controller for booking an appointment
+const bookAppointment = async (req, res) => {
+  try {
+    const { studentID, advisorID } = req.params;
+    const { date, time, comment } = req.body;
+
+    // Check if both student and advisor exist
+    const theStudent = await student.findOne({ where: { uuid: studentID } });
+    const theAdvisor = await advisor.findOne({ where: { uuid: advisorID } });
+
+    if (!theStudent || !theAdvisor) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student or Advisor not found" });
+    }
+
+    // Check if the student has already booked an appointment with the advisor on the same date
+    const existingStudentAppointment = await appointment.findOne({
+      where: {
+        studentID: theStudent.id,
+        advisorID: theAdvisor.id,
+        date, // Same day
+        status: { [Op.not]: "Rejected" }, // Ignore rejected appointments
+      },
+    });
+
+    if (existingStudentAppointment) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "You have already booked an appointment with this advisor on the same day.",
+      });
+    }
+    // Check if there's an existing appointment at the same date and time
+    const existingAppointment = await appointment.findOne({
+      where: {
+        advisorID: theAdvisor.id,
+        date,
+        time,
+        status: { [Op.not]: "Rejected" }, // Check for any active or pending appointments
+      },
+    });
+
+    if (existingAppointment) {
+      return res.status(400).json({
+        status: "fail",
+        message: "The selected time slot is already booked.",
+      });
+    }
+
+    // Create a new appointment with status "Pending"
+    const newAppointment = await appointment.create({
+      studentID: theStudent.id,
+      advisorID: theAdvisor.id,
+      date,
+      time,
+      comment,
+      status: "Pending", // Initial status as pending
+    });
+
+    // Create a new appointment request for the advisor
+    await appointmentRequest.create({
+      appointmentID: newAppointment.id,
+      is_read: false,
+      createdAt: new Date(), // Automatically set to the current time
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "Appointment created and is pending advisor confirmation.",
+      data: {
+        studentID: theStudent.uuid,
+        advisorID: theAdvisor.uuid,
+      },
+    });
+  } catch (error) {
+    console.error("Error booking appointment:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = {
+  getAdvisorsForStudent,
+  getAdvisorAvailability,
+  bookAppointment,
+};

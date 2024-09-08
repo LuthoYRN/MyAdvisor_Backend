@@ -11,5 +11,6 @@ router
 router
 .route("/:studentID/:advisorID/appointment/availability")
 .get(studentController.getAdvisorAvailability)
+.post(studentController.bookAppointment)
 
 module.exports = router;

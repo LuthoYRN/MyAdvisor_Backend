@@ -23,9 +23,9 @@ module.exports = {
         defaultValue: false,
       },
       createdAt: {
+        type: "TIMESTAMP WITHOUT TIME ZONE",
         allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },

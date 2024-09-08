@@ -23,8 +23,8 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        type: "TIMESTAMP WITHOUT TIME ZONE",
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
   },

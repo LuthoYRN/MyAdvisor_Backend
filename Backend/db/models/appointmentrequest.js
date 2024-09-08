@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Sequelize } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class AppointmentRequest extends Model {
@@ -31,8 +31,9 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
       },
       createdAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: "TIMESTAMP WITHOUT TIME ZONE",
+        allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     },
     {

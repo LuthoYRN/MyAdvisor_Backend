@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Sequelize } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Notification extends Model {
@@ -34,8 +34,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       createdAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: "TIMESTAMP WITHOUT TIME ZONE",
+        allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       is_read: {
         type: DataTypes.BOOLEAN,
