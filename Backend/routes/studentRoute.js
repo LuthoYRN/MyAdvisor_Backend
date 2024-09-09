@@ -2,15 +2,16 @@ const express = require("express");
 const studentController = require("./../controllers/studentController");
 const router = express.Router();
 
-//signup
+//dashboard
+router.route("/:studentID").get(studentController.getStudentDashboard);
+//booking an appointment
 router
   .route("/:studentID/advisors")
   .get(studentController.getAdvisorsForStudent);
 
-//appointment
 router
-.route("/:studentID/:advisorID/appointment/availability")
-.get(studentController.getAdvisorAvailability)
-.post(studentController.bookAppointment)
+  .route("/:studentID/:advisorID/appointment/availability")
+  .get(studentController.getAdvisorAvailability)
+  .post(studentController.bookAppointment);
 
 module.exports = router;

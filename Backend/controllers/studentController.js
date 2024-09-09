@@ -7,11 +7,194 @@ const {
   major,
   availability,
   appointment,
+  studentsMajor,
+  department,
+  faculty,
   appointmentRequest,
   notification,
   advisorMajor,
 } = require("../db/models");
 
+//API call to get student dashboard
+const getStudentDashboard = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+
+    if (!studentID) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Student ID is required" });
+    }
+
+    // Fetching student information
+    const studentData = await student.findOne({
+      where: { uuid: studentID },
+      attributes: [
+        "id",
+        "uuid",
+        "name",
+        "surname",
+        "programmeID",
+        "profile_url",
+      ],
+    });
+
+    if (!studentData) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Student not found",
+      });
+    }
+
+    let majorOrProgramme = "";
+
+    // If the student does not have a programme, check majors
+    if (!studentData.programmeID) {
+      // Fetch the student's majors
+      const studentMajors = await studentsMajor.findAll({
+        where: { studentID: studentData.id },
+        include: [
+          {
+            model: major,
+            attributes: ["majorName"],
+            include: [
+              {
+                model: department,
+                attributes: ["facultyID"], // Needed to map to Faculty
+                include: [
+                  {
+                    model: faculty,
+                    attributes: ["facultyName"], // Get Faculty Name
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (studentMajors.length > 0) {
+        // Check if the faculty is "Science"
+        const facultyName =
+          studentMajors[0].major.department.faculty.facultyName;
+        let majorPrefix = "";
+        // Append "BSc" if the faculty is "Science"
+        if (facultyName === "Science") {
+          majorPrefix = "BSc ";
+        }
+        // Concatenate major names
+        const majorsWithFaculty = studentMajors.map(
+          (maj) => maj.major.majorName
+        );
+        // Join all major names into a single string
+        majorOrProgramme = majorPrefix + majorsWithFaculty.join(" & ");
+      } else {
+        majorOrProgramme = "No major found";
+      }
+    } else {
+      // If programmeID exists, to be implemented later
+      majorOrProgramme = "Programmes to be added";
+    }
+
+    // Get today's date and time
+    const today = moment().format("YYYY-MM-DD");
+    const currentTime = moment().format("HH:mm:ss");
+
+    // Fetch past appointments (confirmed and before the current date)
+    const pastAppointments = await appointment.findAll({
+      where: {
+        studentID: studentData.id,
+        status: "Confirmed",
+        date: { [Op.lt]: today }, // Less than today's date
+      },
+      include: [
+        {
+          model: advisor,
+          attributes: ["name", "office"], // Include advisor's details
+        },
+      ],
+      order: [["date", "DESC"]], // Order by date descending
+    });
+
+    // Fetch upcoming appointments (confirmed and on or after today, and current time)
+    const upcomingAppointments = await appointment.findAll({
+      where: {
+        studentID: studentData.id,
+        status: "Confirmed",
+        [Op.or]: [
+          {
+            date: { [Op.gt]: today }, // Dates after today
+          },
+          {
+            date: today, // Appointments on today but after current time
+            time: { [Op.gte]: currentTime },
+          },
+        ],
+      },
+      include: [
+        {
+          model: advisor,
+          attributes: ["name", "office"], // Include advisor's details
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["time", "ASC"],
+      ], // Order by date and time ascending
+    });
+
+    // Fetch unread notifications count
+    const unreadNotifications = await notification.count({
+      where: {
+        is_read: false,
+      },
+      include: [
+        {
+          model: appointment,
+          where: {
+            studentID: studentData.id, // Ensure it's linked to the student
+          },
+          attributes: [], // We don't need any attributes from appointment, just linking
+        },
+      ],
+    });
+
+    // Formatting and sending the response
+    return res.status(200).json({
+      status: "success",
+      data: {
+        student: {
+          id: studentData.uuid,
+          name: studentData.name,
+          surname: studentData.surname,
+          profile_url: studentData.profile_url,
+          majorOrProgramme, // Return the concatenated major or the programme placeholder
+        },
+        pastAppointments: pastAppointments.map((appt) => ({
+          advisorName: appt.advisor.name,
+          date: appt.date,
+          time: appt.time,
+          office: appt.advisor.office,
+        })),
+        upcomingAppointments: upcomingAppointments.map((appt) => ({
+          advisorName: appt.advisor.name,
+          date: appt.date,
+          time: appt.time,
+          office: appt.advisor.office,
+        })),
+        unreadNotifications,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching student dashboard:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+//API call to get all advisors for the student's majors
 const getAdvisorsForStudent = async (req, res) => {
   try {
     const { studentID } = req.params;
@@ -103,6 +286,7 @@ const getAdvisorsForStudent = async (req, res) => {
   }
 };
 
+//API call to get an advisor's available times based on queried date
 const getAdvisorAvailability = async (req, res) => {
   try {
     const { studentID, advisorID } = req.params;
@@ -273,6 +457,7 @@ const bookAppointment = async (req, res) => {
 };
 
 module.exports = {
+  getStudentDashboard,
   getAdvisorsForStudent,
   getAdvisorAvailability,
   bookAppointment,
