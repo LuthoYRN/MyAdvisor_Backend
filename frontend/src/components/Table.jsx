@@ -25,13 +25,10 @@ const Table = ({ Tabledata, column }) => {
   const table = useReactTable({
     data,
     columns,
-    state: {
-      columnFilters,
-    },
-    onColumnFiltersChange: setColumnFilters,
+    
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    manualFiltering: true,
   });
 
   console.log(table.getState().columnFilters);
@@ -46,20 +43,7 @@ const Table = ({ Tabledata, column }) => {
 
   return (
     <div class="flex-auto flex flex-col">
-      <div class="flex gap-8 mb-8 flex-row">
-        <CustomInput
-          classNames="w-5/6"
-          placeholder="Search for users"
-          icon={search}
-        />
-        <Select
-          options={[
-            { value: "student", label: "Student" },
-            { value: "advisor", label: "Advisor" },
-          ]}
-        />
-        <Button text="Add User" />
-      </div>
+     
       <div className="p-4 flex flex-col bg-gray-200 rounded-2xl flex-auto">
         <table className="w-full">
           <thead>

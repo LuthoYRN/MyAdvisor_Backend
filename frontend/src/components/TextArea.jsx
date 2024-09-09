@@ -1,7 +1,7 @@
 import React from 'react';
 import Text from './Text';
 
-const CustomInput = ({label, placeholder, icon, disabled, classNames}) => {
+const TextArea = ({label, placeholder, icon, disabled, classNames}) => {
     const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
@@ -26,4 +26,4 @@ const CustomInput = ({label, placeholder, icon, disabled, classNames}) => {
     );
 };
 
-export default CustomInput;
+export default TextArea;

@@ -16,11 +16,12 @@ import AdviceLog from './AdviceLog';
 import MeetingNotes from './MeetingNotes';
 import MeetingRecording from './MeetingRecording';
 import AddCourse from './AddCourse';
+import AddAdmin from './AddAdmin';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AddCourse />
+    <AppointmentAdvisor />
   </React.StrictMode>
 );
 

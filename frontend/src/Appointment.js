@@ -17,17 +17,6 @@ Data Needed:
 */
 
 const Appointment = () => {
-  const [showConfirmationModal, setShowConfirmationModal] =
-    React.useState(false);
-  const [value, onChange] = React.useState();
-
-  const handleConfirmationModal = () => {
-    setShowConfirmationModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowConfirmationModal(false);
-  };
 
   return (
     <Main>
