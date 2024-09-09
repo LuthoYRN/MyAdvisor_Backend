@@ -182,7 +182,7 @@ const getAppointmentRequests = async (req, res) => {
       appointmentID: request.appointment.uuid, // Include appointment UUID
       studentName: `${request.appointment.student.name} ${request.appointment.student.surname}`, // Student full name
       isRead: request.is_read, // Read status
-      createdAt: moment(request.createdAt).format("YYYY-MM-DD HH:mm"), // Format createdAt
+      createdAt: moment(request.createdAt).fromNow(), // Format createdAt
     }));
 
     // Return the response
@@ -235,7 +235,7 @@ const markRequestAsRead = async (req, res) => {
   }
 };
 
-//API call to mark all unread appointments as read
+// API call to mark all unread appointment requests as read for an advisor
 const markAllRequestsAsRead = async (req, res) => {
   try {
     const { advisorID } = req.params;
@@ -252,28 +252,32 @@ const markAllRequestsAsRead = async (req, res) => {
       });
     }
 
-    // Find and update all unread appointment requests related to the advisor's appointments
-    const updatedCount = await appointmentRequest.update(
-      { is_read: true }, // Mark all as read
-      {
-        where: {
-          is_read: false, // Only update unread ones
-        },
-        include: [
-          {
-            model: appointment,
-            where: {
-              advisorID: advisorExists.id, // Only appointments linked to this advisor
-            },
+    // Find all unread appointment requests related to the advisor's appointments
+    const unreadRequests = await appointmentRequest.findAll({
+      include: [
+        {
+          model: appointment,
+          where: {
+            advisorID: advisorExists.id, // Only appointments linked to this advisor
           },
-        ],
-      }
+        },
+      ],
+      where: {
+        is_read: false, // Only unread requests
+      },
+    });
+
+    // Mark all unread requests as read
+    const updatedCount = await Promise.all(
+      unreadRequests.map((request) =>
+        request.update({ is_read: true })
+      )
     );
 
     // Return success with the number of requests updated
     return res.status(200).json({
       status: "success",
-      message: `${updatedCount[0]} appointment requests marked as read.`,
+      message: `${updatedCount.length} appointment requests marked as read.`,
     });
   } catch (error) {
     console.error("Error marking requests as read:", error.message);

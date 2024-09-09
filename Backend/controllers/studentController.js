@@ -193,6 +193,159 @@ const getStudentDashboard = async (req, res) => {
     });
   }
 };
+//Get all notifications
+const getStudentNotifications = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+    // Check if the student exists
+    const studentExists = await student.findOne({ where: { uuid: studentID } });
+    if (!studentExists) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student not found" });
+    }
+
+    // Fetch all notifications for the student, order by createdAt descending
+    const notifications = await notification.findAll({
+      include: {
+        model: appointment,
+        where: { studentID: studentExists.id }, // Link notifications to student via appointments
+        attributes: ["uuid", "date", "time", "advisorID"],
+        include: {
+          model: advisor,
+          attributes: ["name", "surname", "office"],
+        },
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    // Map notifications to the response format
+    const response = notifications.map((notif) => {
+      // If it's a rejection notification, only return the rejection message without appointment details
+      if (notif.type === "Rejection") {
+        return {
+          id: notif.id,
+          type: notif.type,
+          isRead: notif.is_read,
+          message: notif.message, // This could be the reason for rejection
+          createdAt: moment(notif.createdAt).fromNow(), // e.g., "2 hours ago"
+        };
+      }
+
+      // If it's not a rejection, return the full appointment details
+      return {
+        id: notif.id,
+        type: notif.type,
+        isRead: notif.is_read,
+        message: notif.message, // This could be null for approvals
+        createdAt: moment(notif.createdAt).fromNow(), // e.g., "2 hours ago"
+        appointment: {
+          advisorName: `${notif.appointment.advisor.name} ${notif.appointment.advisor.surname}`,
+          office: notif.appointment.advisor.office,
+          date: moment(notif.appointment.date).format("DD MMMM YYYY"),
+          time: moment(notif.appointment.time, "HH:mm:ss").format("hh:mm A"),
+        },
+      };
+    });
+
+    return res.status(200).json({
+      status: "success",
+      data: response,
+    });
+  } catch (error) {
+    console.error("Error fetching notifications:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+//mark all notifications as read
+const markAllNotificationsAsRead = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+
+    // Check if the student exists
+    const studentExists = await student.findOne({ where: { uuid: studentID } });
+
+    if (!studentExists) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student not found" });
+    }
+
+    // Find all unread notifications for the student
+    const unreadNotifications = await notification.findAll({
+      include: {
+        model: appointment,
+        where: { studentID: studentExists.id }, // Only for this student
+      },
+      where: {
+        is_read: false, // Only unread notifications
+      },
+    });
+
+    // Update all unread notifications to mark them as read
+    await Promise.all(
+      unreadNotifications.map((notif) => notif.update({ is_read: true }))
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "All notifications marked as read.",
+    });
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+// API call to mark a single notification as read
+const markNotificationAsRead = async (req, res) => {
+  try {
+    const { studentID, notificationID } = req.params;
+
+    // Check if the student exists
+    const studentExists = await student.findOne({ where: { uuid: studentID } });
+    if (!studentExists) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student not found" });
+    }
+
+    // Find the notification linked to the student and appointment
+    const notificationToMark = await notification.findOne({
+      where: { id: notificationID, is_read: false },
+      include: {
+        model: appointment,
+        where: { studentID: studentExists.id }, // Ensure the notification is for this student
+      },
+    });
+
+    if (!notificationToMark) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Notification not found or already marked as read",
+      });
+    }
+
+    // Mark the notification as read
+    await notificationToMark.update({ is_read: true });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Notification marked as read.",
+    });
+  } catch (error) {
+    console.error("Error marking notification as read:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
 
 //API call to get all advisors for the student's majors
 const getAdvisorsForStudent = async (req, res) => {
@@ -458,6 +611,9 @@ const bookAppointment = async (req, res) => {
 
 module.exports = {
   getStudentDashboard,
+  getStudentNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
   getAdvisorsForStudent,
   getAdvisorAvailability,
   bookAppointment,
