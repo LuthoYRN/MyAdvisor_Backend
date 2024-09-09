@@ -10,6 +10,7 @@ const {
   appointmentRequest,
   course,
   completedCourse,
+  advisorMajor,
   major,
   department,
   sharedCourse,
@@ -48,7 +49,23 @@ const getAdvisorDashboard = async (req, res) => {
         .status(404)
         .json({ status: "fail", message: "Advisor not found" });
     }
-
+    // Fetch majors associated with the advisor
+    const advisorMajors = await advisorMajor.findAll({
+      where: { advisorID: theAdvisor.id },
+      include: [
+        {
+          model: major,
+          attributes: ["majorName"],
+        },
+      ],
+    });
+    // Extract major names
+    const majors = advisorMajors.map((am) => am.major.majorName);
+    // Check if no majors found
+    if (majors.length === 0) {
+      // If no majors are found, implement logic for advising programmes
+      majors = ["Advises programmes (to be implemented)"];
+    }
     // Determine the date to use: If a date is provided in the query, use that, otherwise use today's date
     const selectedDate = date ? moment(date, "YYYY-MM-DD", true) : moment();
 
@@ -86,6 +103,7 @@ const getAdvisorDashboard = async (req, res) => {
           model: appointment,
           where: {
             advisorID: theAdvisor.id, // Ensure it's linked to the advisor
+            status: "Pending",
           },
           attributes: [], // We don't need any attributes from appointment, just linking
         },
@@ -102,6 +120,7 @@ const getAdvisorDashboard = async (req, res) => {
           office: theAdvisor.office,
           profile_url: theAdvisor.profile_url,
           advisor_level: theAdvisor.advisor_level,
+          majors_advised: majors,
         },
         appointments: confirmedAppointments.map((appt) => ({
           id: appt.uuid,
@@ -121,7 +140,6 @@ const getAdvisorDashboard = async (req, res) => {
 };
 
 //API call to get the appointment requests
-// Controller for fetching appointment requests for advisor
 const getAppointmentRequests = async (req, res) => {
   try {
     const { advisorID } = req.params;
@@ -175,6 +193,152 @@ const getAppointmentRequests = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching appointment requests:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+//API call to mark a request as read
+const markRequestAsRead = async (req, res) => {
+  try {
+    const { requestID } = req.params;
+    // Find the appointment request for the given appointment ID
+    const appointmentRequestToMark = await appointmentRequest.findOne({
+      where: {
+        id: requestID,
+        is_read: false, // Only mark if it is unread
+      },
+    });
+
+    if (!appointmentRequestToMark) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Appointment request not found or already read",
+      });
+    }
+
+    // Mark the specific appointment request as read
+    await appointmentRequestToMark.update({ is_read: true });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Appointment request marked as read",
+    });
+  } catch (error) {
+    console.error("Error marking request as read:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+//API call to mark all unread appointments as read
+const markAllRequestsAsRead = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Ensure the advisor exists
+    const advisorExists = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!advisorExists) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Advisor not found",
+      });
+    }
+
+    // Find and update all unread appointment requests related to the advisor's appointments
+    const updatedCount = await appointmentRequest.update(
+      { is_read: true }, // Mark all as read
+      {
+        where: {
+          is_read: false, // Only update unread ones
+        },
+        include: [
+          {
+            model: appointment,
+            where: {
+              advisorID: advisorExists.id, // Only appointments linked to this advisor
+            },
+          },
+        ],
+      }
+    );
+
+    // Return success with the number of requests updated
+    return res.status(200).json({
+      status: "success",
+      message: `${updatedCount[0]} appointment requests marked as read.`,
+    });
+  } catch (error) {
+    console.error("Error marking requests as read:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+//Controller for fetching appointment request details
+const getAppointmentRequestDetails = async (req, res) => {
+  try {
+    const { advisorID, requestID } = req.params;
+
+    // Check if the advisor exists
+    const advisorExists = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!advisorExists) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Advisor not found",
+      });
+    }
+
+    // Find the appointment request by requestID
+    const appointmentRequestDetails = await appointmentRequest.findOne({
+      where: { id: requestID },
+      include: [
+        {
+          model: appointment,
+          attributes: ["date", "time", "comment"],
+          include: {
+            model: student,
+            attributes: ["name", "surname"],
+          },
+        },
+      ],
+    });
+
+    // If no appointment request is found
+    if (!appointmentRequestDetails) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Appointment request not found",
+      });
+    }
+
+    const attached_appointment = appointmentRequestDetails.appointment;
+    const { name, surname } = attached_appointment.student;
+
+    // Format the response
+    return res.status(200).json({
+      status: "success",
+      data: {
+        studentName: `${name} ${surname}`,
+        date: moment(attached_appointment.date).format("DD MMMM YYYY"),
+        time: moment(attached_appointment.time, "HH:mm:ss").format("h:mm a"),
+        comment: attached_appointment.comment,
+        // File upload details to be implemented later
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching appointment request details:", error.message);
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",
@@ -308,6 +472,9 @@ const updateAdvisorSchedule = async (req, res) => {
 module.exports = {
   getAdvisorDashboard,
   getAdvisorSchedule,
+  markAllRequestsAsRead,
+  markRequestAsRead,
   getAppointmentRequests,
+  getAppointmentRequestDetails,
   updateAdvisorSchedule,
 };
