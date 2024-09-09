@@ -2,7 +2,12 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
 import interactionPlugin from '@fullcalendar/interaction' // a plugin!
 
-export default function Calendar() {
+export default function Calendar({onDateSelect}) {
+  const onSelect = (date) => {
+    onDateSelect(date);
+  }
+
+
   return (
     <FullCalendar
       plugins={[ dayGridPlugin, interactionPlugin ]}
@@ -22,9 +27,7 @@ export default function Calendar() {
         }
       }}
       selectable={true}
-      select={function(info) {
-        console.log(info)
-      }}
+      select={onSelect}
     />
   )
 }

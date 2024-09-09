@@ -28,7 +28,7 @@ const Notifications = () => {
       <div class="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <div class="flex w-1/3 flex-col gap-4">
           <Text type="heading" classNames="mb-8">
-            Upcoming Appointments
+            Notifications
           </Text>
           <div class="items-center">
             <Card

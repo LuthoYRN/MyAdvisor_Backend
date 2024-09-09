@@ -17,17 +17,16 @@ Data Needed:
 */
 
 const Appointment = () => {
-  const [showConfirmationModal, setShowConfirmationModal] =
-    React.useState(false);
-  const [value, onChange] = React.useState();
+  const [comment, setComment] = React.useState("");
+ 
+  const handleCommentChange = (value) => {
+    setComment(value);
+  }
 
-  const handleConfirmationModal = () => {
-    setShowConfirmationModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowConfirmationModal(false);
-  };
+  const handleContinue = () => {
+    // Save the comment to the database
+    console.log(comment);
+  }
 
   return (
     <Main>
@@ -45,10 +44,10 @@ const Appointment = () => {
         <div class="flex gap-64 flex-auto">
           <div class="flex flex-col w-1/2 justify-between">
             <div class="flex-auto">
-              <TextArea label={"Comments"} placeholder={"What advice is required?"}></TextArea>
+              <TextArea label={"Comments"} placeholder={"What advice is required?"} onValueChange={handleCommentChange}></TextArea>
             </div>
             <div class="flex flex-row gap-8">
-              <Button text="Continue"/>
+              <Button text="Continue" onClick={handleContinue}/>
               <Button text="Back" type="secondary" />
             </div>
           </div>

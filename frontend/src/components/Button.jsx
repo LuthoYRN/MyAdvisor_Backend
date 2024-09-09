@@ -1,34 +1,31 @@
 import React from 'react';
 import Text from './Text';
 
-const Button = ({ text, onClick, type }) => {
+const Button = ({ text, onClick, type, disabled }) => {
     let buttonContent;
+    let buttonClassName = '';
 
     switch (type) {
         case 'primary':
-            buttonContent = (
-                <button className="bg-blue-950 rounded-2xl w-full h-10 text-center p-2 my-2" onClick={onClick}>
-                    <Text type="paragraph" color="white">{text}</Text>
-                </button>
-            );
+            buttonClassName = 'bg-blue-950 rounded-2xl w-full h-10 text-center p-2 my-2';
             break;
         case 'secondary':
-            buttonContent = (
-                <button className="border border-black rounded-2xl w-full h-10 text-center p-2 my-2" onClick={onClick}>
-                    <Text type="paragraph">{text}</Text>
-                </button>
-            );
+            buttonClassName = 'border border-black rounded-2xl w-full h-10 text-center p-2 my-2';
             break;
         default:
-            buttonContent = (
-                <button className="bg-blue-950 rounded-2xl w-full h-10 text-center p-2 my-2" onClick={onClick}>
-                    <Text type="paragraph" color="white">{text}</Text>
-                </button>
-            );
+            buttonClassName = 'bg-blue-950 rounded-2xl w-full h-10 text-center p-2 my-2';
             break;
     }
 
-    return buttonContent;
+    if (disabled) {
+        buttonClassName += ' opacity-50 cursor-not-allowed';
+    }
+
+    return buttonContent = (
+        <button className={buttonClassName} onClick={onClick} disabled={disabled}>
+            <Text type="paragraph" color={disabled ? 'gray' : type === 'secondary' ? 'black': 'white'}>{text}</Text>
+        </button>
+    );
 };
 
 export default Button;
