@@ -1,10 +1,13 @@
-const { ValidationError } = require("sequelize");
+const { ValidationError, Op } = require("sequelize");
 const { sequelize } = require("../db/models");
+const moment = require("moment"); //for date manipulation
 const {
   advisor,
   faculty,
   availability,
   student,
+  appointment,
+  appointmentRequest,
   course,
   completedCourse,
   major,
@@ -12,6 +15,110 @@ const {
   sharedCourse,
   studentsMajor,
 } = require("../db/models");
+
+//API to get the advisor's dashboard
+const getAdvisorDashboard = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+    const { date } = req.query; // Check if a date is passed in the query
+
+    // Ensure the advisorID is valid
+    if (!advisorID) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Advisor ID is required" });
+    }
+
+    // Find the advisor by UUID
+    const theAdvisor = await advisor.findOne({
+      where: { uuid: advisorID },
+      attributes: [
+        "id",
+        "uuid",
+        "name",
+        "surname",
+        "office",
+        "profile_url",
+        "advisor_level",
+      ], // Include 'id' to use it later
+    });
+
+    if (!theAdvisor) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Advisor not found" });
+    }
+
+    // Determine the date to use: If a date is provided in the query, use that, otherwise use today's date
+    const selectedDate = date ? moment(date, "YYYY-MM-DD", true) : moment();
+
+    // Validate the date (if provided)
+    if (date && !selectedDate.isValid()) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid date format. Use YYYY-MM-DD",
+      });
+    }
+
+    // Get confirmed appointments for the selected date
+    const confirmedAppointments = await appointment.findAll({
+      where: {
+        advisorID: theAdvisor.id, // Use the advisor's ID
+        date: selectedDate.format("YYYY-MM-DD"), // Either today's date or the selected date
+        status: "Confirmed", // Only get confirmed appointments
+      },
+      attributes: ["uuid", "studentID", "time"],
+      include: [
+        {
+          model: student,
+          attributes: ["name", "surname"],
+        },
+      ],
+    });
+
+    // Get count of unread appointment requests for all appointments linked to the advisor
+    const unreadAppointmentRequests = await appointmentRequest.count({
+      where: {
+        is_read: false,
+      },
+      include: [
+        {
+          model: appointment,
+          where: {
+            advisorID: theAdvisor.id, // Ensure it's linked to the advisor
+          },
+          attributes: [], // We don't need any attributes from appointment, just linking
+        },
+      ],
+    });
+
+    // Return the advisor info, confirmed appointments, and unread requests
+    return res.status(200).json({
+      status: "success",
+      data: {
+        advisor: {
+          uuid: theAdvisor.uuid,
+          name: `${theAdvisor.name} ${theAdvisor.surname}`,
+          office: theAdvisor.office,
+          profile_url: theAdvisor.profile_url,
+          advisor_level: theAdvisor.advisor_level,
+        },
+        appointments: confirmedAppointments.map((appt) => ({
+          id: appt.uuid,
+          studentName: `${appt.student.name} ${appt.student.surname}`,
+          time: appt.time,
+        })),
+        unreadAppointmentRequests,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching advisor appointments:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
 
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
@@ -114,7 +221,7 @@ const updateAdvisorSchedule = async (req, res) => {
 
     // Fetch the updated schedule for the advisor
     const updatedSchedule = await availability.findAll({
-      where: { advisorID:advisorExists.id },
+      where: { advisorID: advisorExists.id },
       attributes: ["dayOfWeek", "times"],
     });
 
@@ -136,4 +243,8 @@ const updateAdvisorSchedule = async (req, res) => {
   }
 };
 
-module.exports = { getAdvisorSchedule, updateAdvisorSchedule };
+module.exports = {
+  getAdvisorDashboard,
+  getAdvisorSchedule,
+  updateAdvisorSchedule,
+};

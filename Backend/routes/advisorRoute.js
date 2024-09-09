@@ -2,7 +2,9 @@ const express = require("express");
 const advisorController = require("./../controllers/advisorController");
 const router = express.Router();
 
-//signup
+//dashboard
+router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
+//updating schedule
 router
   .route("/:advisorID/schedule")
   .get(advisorController.getAdvisorSchedule)

@@ -1,5 +1,4 @@
 const { ValidationError, Op } = require("sequelize");
-
 const moment = require("moment"); //for date manipulation
 const { sequelize } = require("../db/models");
 const {
