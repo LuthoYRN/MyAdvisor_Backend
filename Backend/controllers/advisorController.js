@@ -6,6 +6,7 @@ const {
   faculty,
   availability,
   student,
+  notification,
   appointment,
   appointmentRequest,
   course,
@@ -346,6 +347,93 @@ const getAppointmentRequestDetails = async (req, res) => {
   }
 };
 
+//API endpoint for advisor to approve or reject appointment request
+const handleAppointmentRequest = async (req, res) => {
+  try {
+    const { requestID } = req.params;
+    const { action } = req.query; // Action could be 'approve' or 'reject'
+    // Find the appointment request by requestID
+    const appointmentRequestDetails = await appointmentRequest.findOne({
+      where: { id: requestID },
+      include: {
+        model: appointment,
+        include: {
+          model: student,
+          attributes: ["uuid", "name", "surname"],
+        },
+      },
+    });
+
+    if (!appointmentRequestDetails) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Appointment request not found",
+      });
+    }
+
+    const attached_appointment = appointmentRequestDetails.appointment;
+
+    // Handle Approval
+    if (action === "approve") {
+      // Update the appointment status to 'Confirmed'
+      await attached_appointment.update({
+        status: "Confirmed",
+      });
+
+      // Send notification to the student
+      await notification.create({
+        type: "Approval",
+        appointmentID: attached_appointment.id,
+        message: null, // No message for approval
+        is_read: false,
+        createdAt: new Date(),
+      });
+
+      return res.status(200).json({
+        status: "success",
+        message: "Appointment approved and student notified.",
+      });
+    }
+    // Handle Rejection
+    else if (action === "reject") {
+      const { rejectionMessage } = req.body; // Optional rejection message
+
+      // Update the appointment status to 'Rejected'
+      await attached_appointment.update({
+        status: "Rejected",
+      });
+
+      // Send rejection notification to the student
+      await notification.create({
+        type: "Rejection",
+        appointmentID: attached_appointment.id,
+        message: rejectionMessage || "Your appointment has been rejected.",
+        is_read: false,
+        createdAt: new Date(),
+      });
+
+      return res.status(200).json({
+        status: "success",
+        message: "Appointment rejected and student notified.",
+      });
+    }
+
+    // If action is not provided or invalid
+    else {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid action. Use ?action=approve or ?action=reject",
+      });
+    }
+  } catch (error) {
+    console.error("Error handling appointment request:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
   try {
@@ -471,10 +559,11 @@ const updateAdvisorSchedule = async (req, res) => {
 
 module.exports = {
   getAdvisorDashboard,
-  getAdvisorSchedule,
+  getAppointmentRequests,
   markAllRequestsAsRead,
   markRequestAsRead,
-  getAppointmentRequests,
   getAppointmentRequestDetails,
+  handleAppointmentRequest,
   updateAdvisorSchedule,
+  getAdvisorSchedule,
 };

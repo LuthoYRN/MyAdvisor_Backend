@@ -14,9 +14,7 @@ router
   .route("/:advisorID/requests/:requestID")
   .patch(advisorController.markRequestAsRead)
   .get(advisorController.getAppointmentRequestDetails)
-  .post();
-//approve or reject
-router.route("/:advisorID/requests/:requestID?approve=true").post();
+  .post(advisorController.handleAppointmentRequest);
 //updating schedule
 router
   .route("/:advisorID/schedule")
