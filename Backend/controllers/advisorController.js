@@ -40,7 +40,7 @@ const getAdvisorDashboard = async (req, res) => {
         "office",
         "profile_url",
         "advisor_level",
-      ], // Include 'id' to use it later
+      ],
     });
 
     if (!theAdvisor) {
@@ -113,6 +113,68 @@ const getAdvisorDashboard = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching advisor appointments:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+//API call to get the appointment requests
+// Controller for fetching appointment requests for advisor
+const getAppointmentRequests = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+    // Check if advisor exists
+    const advisorExists = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!advisorExists) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Advisor not found" });
+    }
+
+    // Fetch appointment requests that are pending for the advisor
+    const appointmentRequests = await appointmentRequest.findAll({
+      include: [
+        {
+          model: appointment,
+          where: {
+            advisorID: advisorExists.id,
+            status: "Pending",
+          },
+          include: [
+            {
+              model: student,
+              attributes: ["name", "surname"],
+            },
+          ],
+        },
+      ],
+      attributes: ["id", "is_read", "createdAt", "appointmentID"], // Add createdAt for sorting
+      order: [["createdAt", "DESC"]], // Order by newest first
+    });
+
+    // Map the appointment requests to the desired response format
+    const requests = appointmentRequests.map((request) => ({
+      id: request.id,
+      appointmentID: request.appointment.uuid, // Include appointment UUID
+      studentName: `${request.appointment.student.name} ${request.appointment.student.surname}`, // Student full name
+      isRead: request.is_read, // Read status
+      createdAt: moment(request.createdAt).format("YYYY-MM-DD HH:mm"), // Format createdAt
+    }));
+
+    // Return the response
+    return res.status(200).json({
+      status: "success",
+      data: {
+        requests, // Return the requests array
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching appointment requests:", error.message);
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",
@@ -246,5 +308,6 @@ const updateAdvisorSchedule = async (req, res) => {
 module.exports = {
   getAdvisorDashboard,
   getAdvisorSchedule,
+  getAppointmentRequests,
   updateAdvisorSchedule,
 };
