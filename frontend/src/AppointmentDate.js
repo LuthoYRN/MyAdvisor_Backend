@@ -20,6 +20,9 @@ const AppointmentDate = () => {
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
   const [value, onChange] = React.useState();
+  const [date, setDate] = React.useState();
+  const [selectedTime, setSelectedTime] = React.useState();
+  const [selectedIndex, setSelectedIndex] = React.useState();
 
   const handleConfirmationModal = () => {
     setShowConfirmationModal(true);
@@ -28,6 +31,42 @@ const AppointmentDate = () => {
   const handleCloseModal = () => {
     setShowConfirmationModal(false);
   };
+  const handleDateSelect = (date) => {
+    // Save the date to the database
+    setDate(date.startStr);
+    setSelectedIndex(null);
+    setSelectedTime(null);
+  };
+
+  const handleTimeSelect = (index) => {
+    // Save the time to the database
+    setSelectedTime(availableTimes[index]);
+    setSelectedIndex(index);
+  };
+
+  const availableSlots = [
+    {
+      date: "2024-09-09",
+      times: ["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM"],
+    },
+    { date: "2024-09-10", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
+    { date: "2024-09-11", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
+    { date: "2024-09-12", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
+    { date: "2024-09-13", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
+    {
+      date: "2024-09-14",
+      times: ["10:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"],
+    },
+    { date: "2024-09-15", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
+    { date: "2024-09-16", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
+    { date: "2024-09-17", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
+    { date: "2024-09-18", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
+
+    // Add more objects for other dates and times
+  ];
+
+  const selectedDateSlots = availableSlots.find((slot) => slot.date === date);
+  const availableTimes = selectedDateSlots ? selectedDateSlots.times : [];
 
   return (
     <Main>
@@ -35,17 +74,11 @@ const AppointmentDate = () => {
         <Text type="heading" classNames="mb-16">
           Appointment Details
         </Text>
-        <Text type="sm-heading" classNames="mb-4">
-          Student Advisor
-        </Text>
-        <Text type="paragraph" classNames="mb-8">
-          {/* Replace the placeholder tex with the actual name*/}
-          John Doe
-        </Text>
+
         <div class="flex gap-72 flex-auto">
           <div class="flex flex-auto flex-col w-1/2 justify-between">
             <div>
-              <Calendar/>
+              <Calendar onDateSelect={handleDateSelect} />
             </div>
             <div>
               <Button
@@ -58,19 +91,31 @@ const AppointmentDate = () => {
 
           <div class="w-1/2 flex-auto">
             <Text type="sm-heading" classNames="mb-4">
+              Student Advisor
+            </Text>
+            <Text type="paragraph" classNames="mb-8">
+              {/* Replace the placeholder tex with the actual name*/}
+              John Doe
+            </Text>
+            <Text type="sm-heading" classNames="mb-4">
               Available Times
             </Text>
             <div class="flex gap-4 mb-8">
-              <Pill text="9:00 AM" />
-              <Pill text="10:00 AM" />
-              <Pill text="11:00 AM" />
+              {availableTimes.map((time, index) => (
+                <Pill
+                  key={index}
+                  text={time}
+                  active={index === selectedIndex}
+                  onClick={() => handleTimeSelect(index)}
+                />
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {showConfirmationModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      {showConfirmationModal && selectedTime && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
               Confirmation
@@ -90,13 +135,13 @@ const AppointmentDate = () => {
                   Date
                 </Text>
                 <Text type="paragraph" classNames="mb-2">
-                  20 April 2024
+                  {date}
                 </Text>
                 <Text type="paragraph-strong" classNames="mb-2">
                   Time
                 </Text>
                 <Text type="paragraph" classNames="mb-2">
-                  4:20 PM
+                  {selectedTime}
                 </Text>
               </div>
               <div>
@@ -116,6 +161,19 @@ const AppointmentDate = () => {
               </div>
             </div>
             <Button text="Confirm" onClick={handleCloseModal} />
+          </div>
+        </div>
+      )}
+      {showConfirmationModal && !selectedTime && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8">
+            <Text type="sm-heading" classNames="mb-4">
+              Error
+            </Text>
+            <Text type="sm-subheading" classNames="mb-8">
+              Please select a time slot to confirm the appointment
+            </Text>
+            <Button text="Close" onClick={handleCloseModal} />
           </div>
         </div>
       )}
