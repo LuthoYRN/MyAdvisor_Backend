@@ -17,11 +17,12 @@ import MeetingNotes from './MeetingNotes';
 import MeetingRecording from './MeetingRecording';
 import AddCourse from './AddCourse';
 import AdvisorDashboard from './AdvisorDashboard';
+import UpdateSchedule from './UpdateSchedule';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AdvisorDashboard />
+    <UpdateSchedule />
   </React.StrictMode>
 );
 
