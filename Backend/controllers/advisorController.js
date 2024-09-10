@@ -518,7 +518,7 @@ const recordMeetingNotes = async (req, res) => {
       notes,
       createdAt: new Date(), // Automatically set the time of creation
     });
-    
+
     return res.status(201).json({
       status: "success",
       message: "Meeting notes recorded successfully.",
@@ -532,6 +532,61 @@ const recordMeetingNotes = async (req, res) => {
     });
   }
 };
+//API call to get the advisor's advice log
+const getLog = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Check if the advisor exists
+    const advisorExists = await advisor.findOne({ where: { uuid: advisorID } });
+    if (!advisorExists) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Advisor not found",
+      });
+    }
+
+    // Fetch all advice logs for the advisor, ordered by createdAt
+    const adviceLogs = await adviceLog.findAll({
+      where: {
+        "$appointment.advisorID$": advisorExists.id, // Ensure it's linked to the advisor
+      },
+      include: {
+        model: appointment,
+        include: {
+          model: student,
+          attributes: ["name", "surname"],
+        },
+        attributes: ["date", "time"],
+      },
+      order: [["createdAt", "DESC"]], // Sort by createdAt to show latest logs first
+    });
+
+    // Map the logs to the response format
+    const response = adviceLogs.map((log) => ({
+      studentName: `${log.appointment.student.name} ${log.appointment.student.surname}`,
+      appointmentDate: moment(log.appointment.date).format("DD MMM YYYY"),
+      appointmentTime: moment(log.appointment.time, "HH:mm:ss").format(
+        "hh:mm A"
+      ),
+      createdAt: moment(log.createdAt).format("DD MMM YYYY, hh:mm A"),
+      type: log.notes ? "Note" : "Video", // If notes are null, it's a video recording
+      logNotes: log.notes, 
+    }));
+
+    return res.status(200).json({
+      status: "success",
+      data: response,
+    });
+  } catch (error) {
+    console.error("Error fetching advisor logs:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
   try {
@@ -664,6 +719,7 @@ module.exports = {
   handleAppointmentRequest,
   getAppointmentDetails,
   recordMeetingNotes,
+  getLog,
   updateAdvisorSchedule,
   getAdvisorSchedule,
 };

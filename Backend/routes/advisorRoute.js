@@ -12,6 +12,8 @@ router
 router
   .route("/:advisorID/appointment/:appointmentID/note")
   .post(advisorController.recordMeetingNotes);
+//log
+router.route("/:advisorID/log").get(advisorController.getLog);
 //appointmentrequests
 router
   .route("/:advisorID/requests")
