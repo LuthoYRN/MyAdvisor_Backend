@@ -657,6 +657,7 @@ const bookAppointment = async (req, res) => {
         appointmentID: newAppointment.id,
         filePathURL: documentUrl,
         fileName: req.file.originalname,
+        uploadedBy: "student",
       });
     }
 

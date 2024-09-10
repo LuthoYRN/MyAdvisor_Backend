@@ -9,6 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      uuid: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+      },
       appointmentID: {
         type: Sequelize.INTEGER,
       },
@@ -18,9 +22,9 @@ module.exports = {
       filePathURL: {
         type: Sequelize.STRING,
       },
-      uuid: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+      uploadedBy: {
+        type: Sequelize.ENUM("student", "advisor"), // New column to differentiate
+        allowNull: false,
       },
     });
   },

@@ -378,6 +378,7 @@ const getAppointmentRequestDetails = async (req, res) => {
               model: uploadedFile,
               as: "uploadedFiles", // Ensure the alias matches the association
               attributes: ["filePathURL", "fileName"], // Include the file URL and name
+              where: { uploadedBy: "student" }, // Filter only files uploaded by student
             },
           ],
         },
@@ -538,6 +539,7 @@ const getAppointmentDetails = async (req, res) => {
           model: uploadedFile, // Include uploaded files
           as: "uploadedFiles", // Ensure this matches the association
           attributes: ["filePathURL", "fileName"], // Fetch file URL and name
+          where: { uploadedBy: "student" }, // Filter only files uploaded by student
         },
       ],
     });
@@ -619,6 +621,8 @@ const recordMeetingNotes = async (req, res) => {
     });
   }
 };
+//API call to save a video recording of meeting
+
 //API call to get the advisor's advice log
 const getLog = async (req, res) => {
   try {

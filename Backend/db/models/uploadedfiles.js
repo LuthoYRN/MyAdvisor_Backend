@@ -39,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
       },
+      uploadedBy: {
+        type: DataTypes.ENUM("student", "advisor"), // New column to differentiate
+        allowNull: false,
+      },
     },
     {
       sequelize,

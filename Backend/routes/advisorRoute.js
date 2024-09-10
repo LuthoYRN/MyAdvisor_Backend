@@ -1,7 +1,7 @@
 const express = require("express");
 const advisorController = require("./../controllers/advisorController");
 const router = express.Router();
-const { uploadImage } = require("../middlewares/upload");
+const { uploadImage,uploadVideo } = require("../middlewares/upload");
 //dashboard
 router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
 //profile-picture
@@ -18,6 +18,10 @@ router
 router
   .route("/:advisorID/appointment/:appointmentID/note")
   .post(advisorController.recordMeetingNotes);
+//record-video
+//router
+//.route("/:advisorID/appointment/:appointmentID/video")
+//.post(uploadVideo.single("video"),advisorController.recordVideo);
 //log
 router.route("/:advisorID/log").get(advisorController.getLog);
 //appointmentrequests
