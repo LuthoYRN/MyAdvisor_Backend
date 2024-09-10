@@ -1,4 +1,6 @@
 const { ValidationError, Op } = require("sequelize");
+const path = require("path");
+const fs = require("fs");
 const { sequelize } = require("../db/models");
 const moment = require("moment"); //for date manipulation
 const {
@@ -144,7 +146,8 @@ const getAdvisorDashboard = async (req, res) => {
 const updateProfilePicture = async (req, res) => {
   try {
     const { advisorID } = req.params;
-    // Find the student record to get the existing profile picture
+
+    // Find the advisor record to get the existing profile picture
     const the_advisor = await advisor.findOne({ where: { uuid: advisorID } });
     if (!the_advisor) {
       return res
@@ -158,31 +161,24 @@ const updateProfilePicture = async (req, res) => {
       currentProfilePicture === "/db/uploads/profile-pictures/default.png";
 
     if (currentProfilePicture && !isDefaultPicture) {
-      // Extract the relative path from the full URL
-      const relativePicturePath = currentProfilePicture.replace(
-        `${req.protocol}://${req.get("host")}`,
-        ""
-      );
       // Construct the absolute path to the old profile picture
-      const oldPicturePath = path.join(__dirname, "..", relativePicturePath);
+      const oldPicturePath = path.join(__dirname, "..", currentProfilePicture);
       // Delete the old profile picture (silently handle any errors)
       fs.unlink(oldPicturePath, (err) => {
         // Silently handle any error, no need to log
       });
     }
 
-    // Construct the new profile picture URL
-    const protocol = req.protocol;
-    const host = req.get("host");
+    // Construct the relative path for the new profile picture
     const newProfilePicture = req.file
-      ? `${protocol}://${host}/db/uploads/profile-pictures/${req.file.filename}`
+      ? `/db/uploads/profile-pictures/${req.file.filename}`
       : null;
 
     if (!newProfilePicture) {
       throw new Error("No file uploaded");
     }
 
-    // Update the student record with the new profile picture URL
+    // Update the advisor record with the new profile picture relative path
     await advisor.update(
       { profile_url: newProfilePicture },
       { where: { uuid: advisorID } }
@@ -191,14 +187,17 @@ const updateProfilePicture = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Profile picture updated successfully!",
+      data: { profile_url: newProfilePicture }, // Return the relative path to the frontend
     });
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({
       status: "error",
       message: "Error uploading profile picture",
     });
   }
 };
+
 //API call to get the appointment requests
 const getAppointmentRequests = async (req, res) => {
   try {

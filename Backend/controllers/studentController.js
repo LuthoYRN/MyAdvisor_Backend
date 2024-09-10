@@ -200,6 +200,7 @@ const getStudentDashboard = async (req, res) => {
 const updateProfilePicture = async (req, res) => {
   try {
     const { studentID } = req.params;
+
     // Find the student record to get the existing profile picture
     const the_student = await student.findOne({ where: { uuid: studentID } });
     if (!the_student) {
@@ -214,31 +215,23 @@ const updateProfilePicture = async (req, res) => {
       currentProfilePicture === "/db/uploads/profile-pictures/default.png";
 
     if (currentProfilePicture && !isDefaultPicture) {
-      // Extract the relative path from the full URL
-      const relativePicturePath = currentProfilePicture.replace(
-        `${req.protocol}://${req.get("host")}`,
-        ""
-      );
       // Construct the absolute path to the old profile picture
-      const oldPicturePath = path.join(__dirname, "..", relativePicturePath);
+      const oldPicturePath = path.join(__dirname, "..", currentProfilePicture);
       // Delete the old profile picture (silently handle any errors)
       fs.unlink(oldPicturePath, (err) => {
         // Silently handle any error, no need to log
       });
     }
-
-    // Construct the new profile picture URL
-    const protocol = req.protocol;
-    const host = req.get("host");
+    // Construct the relative path for the new profile picture
     const newProfilePicture = req.file
-      ? `${protocol}://${host}/db/uploads/profile-pictures/${req.file.filename}`
+      ? `/db/uploads/profile-pictures/${req.file.filename}`
       : null;
 
     if (!newProfilePicture) {
       throw new Error("No file uploaded");
     }
 
-    // Update the student record with the new profile picture URL
+    // Update the student record with the new profile picture relative path
     await student.update(
       { profile_url: newProfilePicture },
       { where: { uuid: studentID } }
@@ -247,6 +240,7 @@ const updateProfilePicture = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Profile picture updated successfully!",
+      data: { profile_url: newProfilePicture }, // Return the relative path to the frontend
     });
   } catch (error) {
     res.status(500).json({
@@ -255,7 +249,6 @@ const updateProfilePicture = async (req, res) => {
     });
   }
 };
-
 //Get all notifications
 const getStudentNotifications = async (req, res) => {
   try {
