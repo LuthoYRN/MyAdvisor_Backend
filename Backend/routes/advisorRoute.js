@@ -19,9 +19,9 @@ router
   .route("/:advisorID/appointment/:appointmentID/note")
   .post(advisorController.recordMeetingNotes);
 //record-video
-//router
-//.route("/:advisorID/appointment/:appointmentID/video")
-//.post(uploadVideo.single("video"),advisorController.recordVideo);
+router
+.route("/:advisorID/appointment/:appointmentID/video")
+.post(uploadVideo.single("video"),advisorController.recordVideo);
 //log
 router.route("/:advisorID/log").get(advisorController.getLog);
 //appointmentrequests

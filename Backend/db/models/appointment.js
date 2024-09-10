@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       });
       Appointment.hasMany(models.uploadedFile, {
         foreignKey: "appointmentID",
-        as: "uploadedFiles",
       });
     }
   }

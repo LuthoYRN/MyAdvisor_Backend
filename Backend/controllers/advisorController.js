@@ -622,7 +622,69 @@ const recordMeetingNotes = async (req, res) => {
   }
 };
 //API call to save a video recording of meeting
+const recordVideo = async (req, res) => {
+  try {
+    const { appointmentID } = req.params; // Extract appointmentID from request params
 
+    // Find the appointment by its UUID (appointmentID)
+    const appointmentExists = await appointment.findOne({
+      where: { uuid: appointmentID }, // Search using UUID
+    });
+
+    // If no appointment is found
+    if (!appointmentExists) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Appointment not found",
+      });
+    }
+
+    // Ensure a video file is uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        status: "fail",
+        message: "No video file uploaded",
+      });
+    }
+
+    const videoUrl = `/db/uploads/videos/${req.file.filename}`; // Store relative path to the video
+
+    // Store the video file in the uploadedFile table, linking it to the appointment
+    const newVideoRecord = await uploadedFile.create({
+      appointmentID: appointmentExists.id, // Store appointment's actual ID from the DB (not UUID)
+      fileName: req.file.originalname,
+      filePathURL: videoUrl,
+      uploadedBy: "advisor", // Indicates that this file was uploaded by the advisor
+    });
+
+    // Create a new advice log entry and associate it with the appointment
+    const newAdviceLog = await adviceLog.create({
+      appointmentID: appointmentExists.id, // Store appointment's actual ID from the DB
+      notes: null,
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "Meeting video recorded successfully.",
+      data: {
+        id: newAdviceLog.id,
+        appointmentID: newAdviceLog.appointmentID,
+        notes: newAdviceLog.notes,
+        createdAt: newAdviceLog.createdAt,
+        video: {
+          fileName: newVideoRecord.fileName,
+          filePathURL: newVideoRecord.filePathURL,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error recording video:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
 //API call to get the advisor's advice log
 const getLog = async (req, res) => {
   try {
@@ -642,28 +704,53 @@ const getLog = async (req, res) => {
       where: {
         "$appointment.advisorID$": advisorExists.id, // Ensure it's linked to the advisor
       },
-      include: {
-        model: appointment,
-        include: {
-          model: student,
-          attributes: ["name", "surname"],
+      include: [
+        {
+          model: appointment,
+          include: [
+            {
+              model: student,
+              attributes: ["name", "surname"],
+            },
+            {
+              model: uploadedFile,
+              as: "uploadedFiles",
+              attributes: ["filePathURL", "fileName"],
+              where: { uploadedBy: "advisor" }, // Only fetch advisor's uploaded video
+              required: false, // Allow logs with no video
+            },
+          ],
+          attributes: ["date", "time"],
         },
-        attributes: ["date", "time"],
-      },
+      ],
       order: [["createdAt", "DESC"]], // Sort by createdAt to show latest logs first
     });
 
     // Map the logs to the response format
-    const response = adviceLogs.map((log) => ({
-      studentName: `${log.appointment.student.name} ${log.appointment.student.surname}`,
-      appointmentDate: moment(log.appointment.date).format("DD MMM YYYY"),
-      appointmentTime: moment(log.appointment.time, "HH:mm:ss").format(
-        "hh:mm A"
-      ),
-      createdAt: moment(log.createdAt).format("DD MMM YYYY, hh:mm A"),
-      type: log.notes ? "Note" : "Video", // If notes are null, it's a video recording
-      logNotes: log.notes,
-    }));
+    const response = adviceLogs.map((log) => {
+      // Check if there are uploaded files (videos), and only assign if notes are null
+      const videoFile =
+        !log.notes && log.appointment.uploadedFiles
+          ? log.appointment.uploadedFiles[0]
+          : null;
+
+      return {
+        studentName: `${log.appointment.student.name} ${log.appointment.student.surname}`,
+        appointmentDate: moment(log.appointment.date).format("DD MMM YYYY"),
+        appointmentTime: moment(log.appointment.time, "HH:mm:ss").format(
+          "hh:mm A"
+        ),
+        createdAt: moment(log.createdAt).format("DD MMM YYYY, hh:mm A"),
+        type: log.notes ? "Note" : videoFile ? "Video" : "None", // Determine if it's a note or video
+        logNotes: log.notes,
+        video: videoFile
+          ? {
+              fileName: videoFile.fileName,
+              filePathURL: videoFile.filePathURL,
+            }
+          : null, // Only show video if there is no note and video exists
+      };
+    });
 
     return res.status(200).json({
       status: "success",
@@ -811,6 +898,7 @@ module.exports = {
   handleAppointmentRequest,
   getAppointmentDetails,
   recordMeetingNotes,
+  recordVideo,
   getLog,
   updateAdvisorSchedule,
   getAdvisorSchedule,
