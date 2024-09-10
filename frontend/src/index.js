@@ -16,12 +16,12 @@ import AdviceLog from './AdviceLog';
 import MeetingNotes from './MeetingNotes';
 import MeetingRecording from './MeetingRecording';
 import AddCourse from './AddCourse';
-import SeniorAdvisorDashboard from './SeniorAdvisorDashboard';
+import AdvisorDashboard from './AdvisorDashboard';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <SeniorAdvisorDashboard />
+    <AdvisorDashboard />
   </React.StrictMode>
 );
 
