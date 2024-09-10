@@ -144,21 +144,47 @@ const getAdvisorDashboard = async (req, res) => {
 const updateProfilePicture = async (req, res) => {
   try {
     const { advisorID } = req.params;
-    const protocol = req.protocol; // http or https
-    const host = req.get("host"); // localhost:5000 or your domain
+    // Find the student record to get the existing profile picture
+    const the_advisor = await advisor.findOne({ where: { uuid: advisorID } });
+    if (!the_advisor) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Advisor not found" });
+    }
 
-    // Construct the full URL for the profile picture
-    const profilePicture = req.file
+    // If there's an existing profile picture that's not the default, delete it
+    const currentProfilePicture = the_advisor.profile_url;
+    const isDefaultPicture =
+      currentProfilePicture === "/db/uploads/profile-pictures/default.png";
+
+    if (currentProfilePicture && !isDefaultPicture) {
+      // Extract the relative path from the full URL
+      const relativePicturePath = currentProfilePicture.replace(
+        `${req.protocol}://${req.get("host")}`,
+        ""
+      );
+      // Construct the absolute path to the old profile picture
+      const oldPicturePath = path.join(__dirname, "..", relativePicturePath);
+      // Delete the old profile picture (silently handle any errors)
+      fs.unlink(oldPicturePath, (err) => {
+        // Silently handle any error, no need to log
+      });
+    }
+
+    // Construct the new profile picture URL
+    const protocol = req.protocol;
+    const host = req.get("host");
+    const newProfilePicture = req.file
       ? `${protocol}://${host}/db/uploads/profile-pictures/${req.file.filename}`
       : null;
 
-    if (!profilePicture) {
+    if (!newProfilePicture) {
       throw new Error("No file uploaded");
     }
 
     // Update the student record with the new profile picture URL
     await advisor.update(
-      { profile_url: profilePicture },
+      { profile_url: newProfilePicture },
       { where: { uuid: advisorID } }
     );
 
@@ -167,7 +193,6 @@ const updateProfilePicture = async (req, res) => {
       message: "Profile picture updated successfully!",
     });
   } catch (error) {
-    console.error("Error details:", error);
     res.status(500).json({
       status: "error",
       message: "Error uploading profile picture",

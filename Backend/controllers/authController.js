@@ -111,6 +111,7 @@ const signup = async (req, res) => {
       email,
       password: bcrypt.hashSync(confirmPassword, 10), // Hash password for security // Ensure your model handles hashing
       programmeID: programmeID || null, // If no programme selected, set to null
+      profile_url: "/db/uploads/profile-pictures/default.png",
     });
 
     const result = newStudent.toJSON();
