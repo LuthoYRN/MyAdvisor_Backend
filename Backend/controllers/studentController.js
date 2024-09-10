@@ -12,6 +12,7 @@ const {
   studentsMajor,
   department,
   faculty,
+  uploadedFile,
   appointmentRequest,
   notification,
   advisorMajor,
@@ -647,6 +648,17 @@ const bookAppointment = async (req, res) => {
       is_read: false,
       createdAt: new Date(), // Automatically set to the current time
     });
+
+    if (req.file) {
+      const documentUrl = `/db/uploads/documents/${req.file.filename}`;
+
+      // Create a new uploadedFile record linked to the appointment
+      await uploadedFile.create({
+        appointmentID: newAppointment.id,
+        filePathURL: documentUrl,
+        fileName: req.file.originalname,
+      });
+    }
 
     return res.status(201).json({
       status: "success",

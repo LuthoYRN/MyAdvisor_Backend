@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       Appointment.belongsTo(models.advisor, {
         foreignKey: "advisorID",
       });
+      Appointment.hasMany(models.uploadedFile, {
+        foreignKey: "appointmentID",
+        as: "uploadedFiles",
+      });
     }
   }
 

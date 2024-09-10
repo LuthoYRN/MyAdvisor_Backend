@@ -1,7 +1,7 @@
 const express = require("express");
 const studentController = require("./../controllers/studentController");
 const router = express.Router();
-const { uploadImage } = require("../middlewares/upload");
+const { uploadImage, uploadDocument } = require("../middlewares/upload");
 //dashboard
 router.route("/:studentID").get(studentController.getStudentDashboard);
 //profile-pic-update
@@ -28,6 +28,6 @@ router
 router
   .route("/:studentID/:advisorID/appointment/availability")
   .get(studentController.getAdvisorAvailability)
-  .post(studentController.bookAppointment);
+  .post(uploadDocument.single("document"), studentController.bookAppointment);
 
 module.exports = router;

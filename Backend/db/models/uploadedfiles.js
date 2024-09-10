@@ -22,10 +22,6 @@ module.exports = (sequelize, DataTypes) => {
       appointmentID: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: "appointment", // Link to appointments table
-          key: "id",
-        },
       },
       fileName: {
         validate: {
@@ -35,9 +31,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       filePathURL: {
-        validate: {
-          isUrl: true,
-        },
         type: DataTypes.STRING,
         allowNull: false,
       },

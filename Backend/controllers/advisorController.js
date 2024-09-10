@@ -9,6 +9,7 @@ const {
   availability,
   student,
   notification,
+  uploadedFile,
   appointment,
   adviceLog,
   appointmentRequest,
@@ -368,10 +369,17 @@ const getAppointmentRequestDetails = async (req, res) => {
         {
           model: appointment,
           attributes: ["date", "time", "comment"],
-          include: {
-            model: student,
-            attributes: ["name", "surname"],
-          },
+          include: [
+            {
+              model: student,
+              attributes: ["name", "surname"],
+            },
+            {
+              model: uploadedFile,
+              as: "uploadedFiles", // Ensure the alias matches the association
+              attributes: ["filePathURL", "fileName"], // Include the file URL and name
+            },
+          ],
         },
       ],
     });
@@ -387,6 +395,14 @@ const getAppointmentRequestDetails = async (req, res) => {
     const attached_appointment = appointmentRequestDetails.appointment;
     const { name, surname } = attached_appointment.student;
 
+    // Safely check if uploadedFiles exists
+    const uploadedFiles = attached_appointment.uploadedFiles
+      ? attached_appointment.uploadedFiles.map((file) => ({
+          fileName: file.fileName,
+          fileURL: file.filePathURL,
+        }))
+      : []; // Default to an empty array if no files are attached
+
     // Format the response
     return res.status(200).json({
       status: "success",
@@ -395,7 +411,7 @@ const getAppointmentRequestDetails = async (req, res) => {
         date: moment(attached_appointment.date).format("DD MMMM YYYY"),
         time: moment(attached_appointment.time, "HH:mm:ss").format("h:mm a"),
         comment: attached_appointment.comment,
-        // File upload details to be implemented later
+        documents: uploadedFiles, // Include the uploaded documents in the response
       },
     });
   } catch (error) {
@@ -509,6 +525,7 @@ const getAppointmentDetails = async (req, res) => {
         message: "Advisor not found",
       });
     }
+
     // Find the appointment details
     const appointmentDetails = await appointment.findOne({
       where: { uuid: appointmentID, advisorID: advisorExists.id },
@@ -516,6 +533,11 @@ const getAppointmentDetails = async (req, res) => {
         {
           model: student,
           attributes: ["name", "surname"],
+        },
+        {
+          model: uploadedFile, // Include uploaded files
+          as: "uploadedFiles", // Ensure this matches the association
+          attributes: ["filePathURL", "fileName"], // Fetch file URL and name
         },
       ],
     });
@@ -537,6 +559,14 @@ const getAppointmentDetails = async (req, res) => {
       where: { appointmentID: appointmentDetails.id },
     });
 
+    // Map uploaded files if they exist
+    const uploadedFiles = appointmentDetails.uploadedFiles
+      ? appointmentDetails.uploadedFiles.map((file) => ({
+          fileName: file.fileName,
+          fileURL: file.filePathURL,
+        }))
+      : [];
+
     // Format the response data
     return res.status(200).json({
       status: "success",
@@ -546,7 +576,7 @@ const getAppointmentDetails = async (req, res) => {
         comment: appointmentDetails.comment,
         isFutureAppointment, // true if the appointment is in the future
         hasAdviceLog: !!adviceLogExists, // true if advice log exists
-        // uploadedFiles: [] // Will handle uploads later
+        uploadedFiles, // List of uploaded files
       },
     });
   } catch (error) {

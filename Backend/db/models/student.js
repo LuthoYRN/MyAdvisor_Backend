@@ -25,11 +25,6 @@ module.exports = (sequelize, DataTypes) => {
       Student.hasMany(models.completedCourse, {
         foreignKey: "studentID",
       });
-
-      // One-to-Many relationship with UploadedFiles
-      Student.hasMany(models.uploadedFile, {
-        foreignKey: "studentID",
-      });
     }
   }
 
