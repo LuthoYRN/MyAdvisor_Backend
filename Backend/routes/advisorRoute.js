@@ -1,9 +1,15 @@
 const express = require("express");
 const advisorController = require("./../controllers/advisorController");
 const router = express.Router();
-
+const { uploadImage } = require("../middlewares/upload");
 //dashboard
 router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
+//profile-picture
+router.post(
+  "/:advisorID/uploadProfilePicture",
+  uploadImage.single("profilePicture"),
+  advisorController.updateProfilePicture
+);
 //appointment details
 router
   .route("/:advisorID/appointment/:appointmentID")

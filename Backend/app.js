@@ -8,4 +8,5 @@ app.use(express.json());
 app.use("/api/auth/", authRouter);
 app.use("/api/student/", studentRouter);
 app.use("/api/advisor/", advisorRouter);
+app.use("db/uploads", express.static("db/uploads"));
 module.exports = app;

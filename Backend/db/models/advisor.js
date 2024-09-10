@@ -81,9 +81,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       profile_url: {
-        validate: {
-          isUrl: true,
-        },
         allowNull: true,
         type: DataTypes.STRING,
       },

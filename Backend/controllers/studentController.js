@@ -193,6 +193,42 @@ const getStudentDashboard = async (req, res) => {
     });
   }
 };
+
+//API call to update profile picture
+const updateProfilePicture = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+    const protocol = req.protocol; // http or https
+    const host = req.get("host"); // localhost:5000 or your domain
+
+    // Construct the full URL for the profile picture
+    const profilePicture = req.file
+      ? `${protocol}://${host}/db/uploads/profile-pictures/${req.file.filename}`
+      : null;
+
+    if (!profilePicture) {
+      throw new Error("No file uploaded");
+    }
+
+    // Update the student record with the new profile picture URL
+    await student.update(
+      { profile_url: profilePicture },
+      { where: { uuid: studentID } }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Profile picture updated successfully!",
+    });
+  } catch (error) {
+    console.error("Error details:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Error uploading profile picture",
+    });
+  }
+};
+
 //Get all notifications
 const getStudentNotifications = async (req, res) => {
   try {
@@ -611,6 +647,7 @@ const bookAppointment = async (req, res) => {
 
 module.exports = {
   getStudentDashboard,
+  updateProfilePicture,
   getStudentNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
