@@ -28,6 +28,7 @@ export default function Calendar({onDateSelect}) {
       }}
       selectable={true}
       select={onSelect}
+      height={500}
     />
   )
 }

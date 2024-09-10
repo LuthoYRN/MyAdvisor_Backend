@@ -27,7 +27,7 @@ const AppointmentDetails = () => {
 
   return (
     <Main>
-      <div className="flex flex-col flex-auto">
+      <div className="flex flex-col flex-auto p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
         </Text>

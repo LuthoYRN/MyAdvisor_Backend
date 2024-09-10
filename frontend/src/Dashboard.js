@@ -10,7 +10,7 @@ import Main from "./layout/Main";
 
 const Dashboard = () => {
   return (
-    <Main>
+    <Main userType={"student"} activeMenuItem={"home"}>
       <div class="mb-10 max-h-36" >
         <Header
           user="Jared Petersen"

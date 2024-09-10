@@ -11,7 +11,7 @@ const Pill = ({ text, active, onClick }) => {
 
   return (
     <div
-      className={`px-4 py-2 ease-in-out duration-200 rounded-2xl cursor-pointer  ${active ? "bg-secondary" : "bg-gray-200"}`}
+      className={`px-4 py-2 ease-in-out duration-200 rounded-2xl cursor-pointer text-center  ${active ? "bg-secondary" : "bg-gray-200"}`}
       onClick={handleClick}
     >
       <Text classNames="select-none" color={active ? "white": "black"}> {text}</Text> 

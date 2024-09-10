@@ -69,7 +69,7 @@ const AppointmentDate = () => {
   const availableTimes = selectedDateSlots ? selectedDateSlots.times : [];
 
   return (
-    <Main>
+    <Main userType={"student"} activeMenuItem={"bookAppointment"}>
       <div className="flex flex-col flex-auto">
         <Text type="heading" classNames="mb-16">
           Appointment Details
