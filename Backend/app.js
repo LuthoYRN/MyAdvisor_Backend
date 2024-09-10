@@ -4,8 +4,9 @@ const authRouter = require("./routes/authRoute");
 const studentRouter = require("./routes/studentRoute");
 const advisorRouter = require("./routes/advisorRoute");
 const path = require("path");
+const cors = require("cors");
 app.use(express.json());
-
+app.use(cors());
 app.use("/api/auth/", authRouter);
 app.use("/api/student/", studentRouter);
 app.use("/api/advisor/", advisorRouter);
