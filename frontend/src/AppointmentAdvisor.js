@@ -122,7 +122,7 @@ const Appointment = () => {
   };
 
   return (
-    <Main>
+    <Main  userType={"student"} activeMenuItem={"bookAppointment"}>
       <div className="flex flex-col flex-auto">
         <div class="flex-auto">
           <Text type="heading" classNames="mb-16">
