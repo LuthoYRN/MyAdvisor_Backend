@@ -4,6 +4,14 @@ const router = express.Router();
 
 //dashboard
 router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
+//appointment details
+router
+  .route("/:advisorID/appointment/:appointmentID")
+  .get(advisorController.getAppointmentDetails);
+//record-meeting
+router
+  .route("/:advisorID/appointment/:appointmentID/note")
+  .post(advisorController.recordMeetingNotes);
 //appointmentrequests
 router
   .route("/:advisorID/requests")

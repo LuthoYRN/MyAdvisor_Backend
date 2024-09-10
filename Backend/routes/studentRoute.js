@@ -9,10 +9,11 @@ router
   .route("/:studentID/notifications")
   .get(studentController.getStudentNotifications)
   .patch(studentController.markAllNotificationsAsRead);
-//single-noti
+//on-notification click
 router
   .route("/:studentID/notifications/:notificationID")
-  .patch(studentController.markNotificationAsRead);
+  .patch(studentController.markNotificationAsRead)
+  .delete();
 //booking an appointment
 router
   .route("/:studentID/advisors")

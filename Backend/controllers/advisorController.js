@@ -8,6 +8,7 @@ const {
   student,
   notification,
   appointment,
+  adviceLog,
   appointmentRequest,
   course,
   completedCourse,
@@ -126,7 +127,7 @@ const getAdvisorDashboard = async (req, res) => {
         appointments: confirmedAppointments.map((appt) => ({
           id: appt.uuid,
           studentName: `${appt.student.name} ${appt.student.surname}`,
-          time: appt.time,
+          time: moment(appt.time, "HH:mm:ss").format("h:mm a"),
         })),
         unreadAppointmentRequests,
       },
@@ -269,9 +270,7 @@ const markAllRequestsAsRead = async (req, res) => {
 
     // Mark all unread requests as read
     const updatedCount = await Promise.all(
-      unreadRequests.map((request) =>
-        request.update({ is_read: true })
-      )
+      unreadRequests.map((request) => request.update({ is_read: true }))
     );
 
     // Return success with the number of requests updated
@@ -438,6 +437,101 @@ const handleAppointmentRequest = async (req, res) => {
   }
 };
 
+// API to get details of an appointment
+const getAppointmentDetails = async (req, res) => {
+  try {
+    const { advisorID, appointmentID } = req.params;
+
+    // Check if advisor exists
+    const advisorExists = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+    if (!advisorExists) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Advisor not found",
+      });
+    }
+    // Find the appointment details
+    const appointmentDetails = await appointment.findOne({
+      where: { uuid: appointmentID, advisorID: advisorExists.id },
+      include: [
+        {
+          model: student,
+          attributes: ["name", "surname"],
+        },
+      ],
+    });
+
+    if (!appointmentDetails) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Appointment not found",
+      });
+    }
+
+    // Check if the appointment is in the future
+    const appointmentDate = moment(appointmentDetails.date).startOf("day");
+    const today = moment().startOf("day");
+    const isFutureAppointment = appointmentDate.isAfter(today);
+
+    // Check if there's already a log in the adviceLog
+    const adviceLogExists = await adviceLog.findOne({
+      where: { appointmentID: appointmentDetails.id },
+    });
+
+    // Format the response data
+    return res.status(200).json({
+      status: "success",
+      data: {
+        id: appointmentID,
+        name: `${appointmentDetails.student.name} ${appointmentDetails.student.surname}`,
+        comment: appointmentDetails.comment,
+        isFutureAppointment, // true if the appointment is in the future
+        hasAdviceLog: !!adviceLogExists, // true if advice log exists
+        // uploadedFiles: [] // Will handle uploads later
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching appointment details:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+//API to take notes of meeting
+const recordMeetingNotes = async (req, res) => {
+  try {
+    const { advisorID, appointmentID } = req.params;
+    const { notes } = req.body;
+
+    // Check if the advisor exists
+    const advisorExists = await advisor.findOne({ where: { uuid: advisorID } });
+    // Check if the appointment exists and is linked to the advisor
+    const appointmentExists = await appointment.findOne({
+      where: { uuid: appointmentID, advisorID: advisorExists.id },
+    });
+    // Create a new advice log
+    const newAdviceLog = await adviceLog.create({
+      appointmentID: appointmentExists.id,
+      notes,
+      createdAt: new Date(), // Automatically set the time of creation
+    });
+    
+    return res.status(201).json({
+      status: "success",
+      message: "Meeting notes recorded successfully.",
+      data: newAdviceLog,
+    });
+  } catch (error) {
+    console.error("Error recording meeting notes:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
   try {
@@ -568,6 +662,8 @@ module.exports = {
   markRequestAsRead,
   getAppointmentRequestDetails,
   handleAppointmentRequest,
+  getAppointmentDetails,
+  recordMeetingNotes,
   updateAdvisorSchedule,
   getAdvisorSchedule,
 };
