@@ -91,7 +91,7 @@ const MeetingNotes = () => {
       setSelectedTimes([...selectedTimes, text]);
     }
   };
-  
+
   React.useEffect(() => {
     const updatedTimes = times.map((day) => {
       const dayName = Object.keys(day)[0];
@@ -104,7 +104,7 @@ const MeetingNotes = () => {
   }, [selectedDate, selectedTimes]);
 
   return (
-    <Main userType={"advisor"} activeMenuItem={"updateSchedule"}>
+    <Main userType={"seniorAdvisor"} activeMenuItem={"updateSchedule"}>
       <div class="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Update Schedule
