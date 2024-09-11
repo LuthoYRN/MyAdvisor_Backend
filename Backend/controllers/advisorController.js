@@ -379,6 +379,7 @@ const getAppointmentRequestDetails = async (req, res) => {
               as: "uploadedFiles", // Ensure the alias matches the association
               attributes: ["filePathURL", "fileName"], // Include the file URL and name
               where: { uploadedBy: "student" }, // Filter only files uploaded by student
+              required: false, // Allow for no uploaded files
             },
           ],
         },
@@ -540,6 +541,7 @@ const getAppointmentDetails = async (req, res) => {
           as: "uploadedFiles", // Ensure this matches the association
           attributes: ["filePathURL", "fileName"], // Fetch file URL and name
           where: { uploadedBy: "student" }, // Filter only files uploaded by student
+          required: false,
         },
       ],
     });
