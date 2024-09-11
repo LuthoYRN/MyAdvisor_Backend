@@ -64,6 +64,7 @@ const Notifications = () => {
                 onClick={() => {
                   setNotificationDetails(notification);
                 }}
+                classNames="mb-4"
               />
             ))}
           </div>

@@ -64,7 +64,7 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="flex-auto grid grid-cols-2 gap-14 justify-between">
+      <div className="flex-auto grid grid-cols-2 gap-14 justify-between ">
         {/* Upcoming Appointments */}
         <div className="flex flex-col p-8 rounded-2xl bg-white shadow-xl">
           <Text type="heading" classNames="mb-8">
