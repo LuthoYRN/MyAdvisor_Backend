@@ -28,7 +28,7 @@ const AppointmentDetails = () => {
   };
 
   const handleAppointment = (status) => () => {
-    fetch(`api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
+    fetch(`https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,7 +36,6 @@ const AppointmentDetails = () => {
     })
       .then((response) => {
         console.log("response", response);
-        console.log("Appointment", location);
 
       })
       .catch((error) => {
