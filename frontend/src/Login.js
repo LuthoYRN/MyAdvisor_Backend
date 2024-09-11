@@ -55,9 +55,12 @@ function Login() {
           // Redirect the user to the appropriate page
           console.log("Login Success");
           console.log(result);
-          navigate("/dashboard", { state: result.user_id});
+          
           localStorage.setItem("user_id", result.user_id);
-         
+          if (role === "student") {
+            navigate("/dashboard", { state: result.user_id});
+          } else{
+          navigate("/advisorDashboard", { state: result.user_id});}
         }
       })
       .catch(error => {

@@ -6,6 +6,7 @@ import video from "./assets/Video.svg";
 import Pill from "./components/Pill";
 import Calendar from "./components/Calendar";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 /* 
 Data Needed:
@@ -20,12 +21,13 @@ Data Needed:
 const AppointmentDate = () => {
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
-  const [value, onChange] = React.useState();
   const [date, setDate] = React.useState();
   const [selectedTime, setSelectedTime] = React.useState();
   const [selectedIndex, setSelectedIndex] = React.useState();
+  const [availableTime, setAvailableSlots] = React.useState([]);
 
   let navigate = useNavigate();
+  let location = useLocation();
 
   const handleConfirmationModal = () => {
     setShowConfirmationModal(true);
@@ -33,6 +35,39 @@ const AppointmentDate = () => {
 
   const handleCloseModal = () => {
     setShowConfirmationModal(false);
+    const handleConfirmationModal = async () => {
+      setShowConfirmationModal(true);
+      try {
+        const formData = new FormData();
+        formData.append("date", date);
+        formData.append("time", selectedTime);
+        formData.append("comment", location.state.adviceRequired);
+        // Add file upload if needed
+        // formData.append("document", file);
+
+        const response = await fetch(
+          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
+          {
+            method: "POST",
+            headers: {
+              "ngrok-skip-browser-warning": "69420",
+              "content-type": "multipart/form-data",
+            },
+            body: formData,
+          }
+        );
+        if (response.ok) {
+          // Handle successful appointment booking
+          console.log("Appointment booked successfully!");
+        } else {
+          // Handle error in appointment booking
+          console.error("Error booking appointment:", response.status);
+        }
+      } catch (error) {
+        console.error("Error booking appointment:", error);
+      }
+    };
+    handleConfirmationModal();
   };
   const handleDateSelect = (date) => {
     // Save the date to the database
@@ -43,33 +78,35 @@ const AppointmentDate = () => {
 
   const handleTimeSelect = (index) => {
     // Save the time to the database
-    setSelectedTime(availableTimes[index]);
+    setSelectedTime(availableTime[index]);
     setSelectedIndex(index);
   };
 
-  const availableSlots = [
-    {
-      date: "2024-09-09",
-      times: ["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM"],
-    },
-    { date: "2024-09-10", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
-    { date: "2024-09-11", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
-    { date: "2024-09-12", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
-    { date: "2024-09-13", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
-    {
-      date: "2024-09-14",
-      times: ["10:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"],
-    },
-    { date: "2024-09-15", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
-    { date: "2024-09-16", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
-    { date: "2024-09-17", times: ["09:00 AM", "10:00 AM", "11:00 AM"] },
-    { date: "2024-09-18", times: ["02:00 PM", "03:00 PM", "04:00 PM"] },
+  React.useEffect(() => {
+    const fetchTimes = async () => {
+      try {
+        console.log("Fetching advisors...");
+        const response = await fetch(
+          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability?date=${date}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        console.log("response", response);
+        const data = await response.json();
+        setAvailableSlots(data.data.availableTimes);
+        console.log("Available Times:", availableTime);
+      } catch (error) {
+        console.error("Error fetching times:", error);
+      }
+    };
 
-    // Add more objects for other dates and times
-  ];
-
-  const selectedDateSlots = availableSlots.find((slot) => slot.date === date);
-  const availableTimes = selectedDateSlots ? selectedDateSlots.times : [];
+    fetchTimes();
+  }, [date, location.state.advisor.uuid]);
 
   return (
     <Main userType={"student"} activeMenuItem={"bookAppointment"}>
@@ -88,7 +125,11 @@ const AppointmentDate = () => {
                 text="Book appointment"
                 onClick={handleConfirmationModal}
               />
-              <Button text="Back" type="secondary" onClick={()=> navigate("/appointmentDetails")} />
+              <Button
+                text="Back"
+                type="secondary"
+                onClick={() => navigate("/appointmentDetails")}
+              />
             </div>
           </div>
 
@@ -98,20 +139,21 @@ const AppointmentDate = () => {
             </Text>
             <Text type="paragraph" classNames="mb-8">
               {/* Replace the placeholder tex with the actual name*/}
-              John Doe
+              {location.state.advisor.name}
             </Text>
             <Text type="sm-heading" classNames="mb-4">
               Available Times
             </Text>
-            <div class="flex gap-4 mb-8">
-              {availableTimes.map((time, index) => (
-                <Pill
-                  key={index}
-                  text={time}
-                  active={index === selectedIndex}
-                  onClick={() => handleTimeSelect(index)}
-                />
-              ))}
+            <div class="flex gap-4 mb-8 w-9/12 overflow-auto flex-wrap">
+              {availableTime &&
+                availableTime.map((time, index) => (
+                  <Pill
+                    key={index}
+                    text={time}
+                    active={index === selectedIndex}
+                    onClick={() => handleTimeSelect(index)}
+                  />
+                ))}
             </div>
           </div>
         </div>
@@ -132,7 +174,7 @@ const AppointmentDate = () => {
                   Student Advisor
                 </Text>
                 <Text type="paragraph" classNames="mb-2">
-                  John Doe
+                  {location.state.advisor.name}
                 </Text>
                 <Text type="paragraph-strong" classNames="mb-2">
                   Date
@@ -152,14 +194,13 @@ const AppointmentDate = () => {
                   Major(s)
                 </Text>
                 <Text type="paragraph" classNames="mb-2">
-                  Computer Science Business Computing
+                  {location.state.advisor.majors}
                 </Text>
                 <Text type="paragraph-strong" classNames="mb-2">
                   Office
                 </Text>
                 <Text type="paragraph" classNames="mb-2">
-                  HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking
-                  Afrika
+                  {location.state.advisor.office}
                 </Text>
               </div>
             </div>

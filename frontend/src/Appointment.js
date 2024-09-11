@@ -30,7 +30,7 @@ const Appointment = () => {
   const handleContinue = () => {
     // Save the comment to the database
     console.log(comment);
-    navigate("/appointmentDate");
+    navigate("/appointmentDate", { state: { advisor: location.state, adviceRequired : comment } });
   }
 
   return (

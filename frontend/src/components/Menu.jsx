@@ -57,6 +57,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={request}
               text="Appointment Requests"
               isActive={activeMenuItem === "appointmentRequests"}
+              onClick={() => {navigate("/appointmentRequests")}}
             />
           </>
         )}
@@ -66,6 +67,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
+              onClick={() => {navigate("/advisordashboard")}}
             />
             <MenuItem
               imageSrc={group}

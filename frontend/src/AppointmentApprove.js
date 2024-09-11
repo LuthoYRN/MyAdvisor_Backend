@@ -27,8 +27,26 @@ const AppointmentDetails = () => {
     setShowRecordingModal(false);
   };
 
+  const handleAppointment = (status) => () => {
+    fetch(`api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        console.log("response", response);
+        console.log("Appointment", location);
+
+      })
+      .catch((error) => {
+        // handle the error
+        console.log("Error:", error);
+      });
+  };
+
   return (
-    <Main>
+    <Main  userType={"advisor"} activeMenuItem={"notifications"} >
       <div className="flex flex-col flex-auto p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
@@ -41,7 +59,7 @@ const AppointmentDetails = () => {
               </Text>
               <Text type="paragraph" classNames="mb-8">
                 {/* Replace the placeholder tex with the actual name*/}
-                {location.state.studentName}
+                {location.state.notificationDetails.studentName}
               </Text>
               <div className="flex flex-row gap-4 justify-between">
                 <div>
@@ -50,7 +68,7 @@ const AppointmentDetails = () => {
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
                     {/* Replace the placeholder tex with the actual date*/}
-                    12th August 2021
+                    {location.state.notificationDetails.date}
                   </Text>
                 </div>
                 <div>
@@ -59,7 +77,7 @@ const AppointmentDetails = () => {
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
                     {/* Replace the placeholder tex with the actual time*/}
-                    12:00 PM
+                    {location.state.notificationDetails.time}
                   </Text>
                 </div>
               </div>
@@ -67,11 +85,12 @@ const AppointmentDetails = () => {
                 Reason for Appointment
               </Text>
               <Text type="paragraph" classNames="mb-8">
-                {location.state.comment}
+              {location.state.notificationDetails.comment}
               </Text>
             </div>
             <div>
-              <Button text="Record Meeting" onClick={handleRecordMeeting} />
+              <Button text="Approve" onClick={handleAppointment("approve")} />
+              <Button text="Reject" type="secondary" onClick={handleAppointment("reject")}/>
               <Button text="Back" type="secondary" />
             </div>
           </div>
