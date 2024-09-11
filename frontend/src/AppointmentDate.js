@@ -38,27 +38,27 @@ const AppointmentDate = () => {
     const handleConfirmationModal = async () => {
       setShowConfirmationModal(true);
       try {
-        const formData = new FormData();
-        formData.append("date", date);
-        formData.append("time", selectedTime);
-        formData.append("comment", location.state.adviceRequired);
-        // Add file upload if needed
-        // formData.append("document", file);
-
+        const data = {
+          date: date,
+          time: selectedTime,
+          comment: location.state.adviceRequired
+        };
         const response = await fetch(
           `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
           {
             method: "POST",
             headers: {
               "ngrok-skip-browser-warning": "69420",
-              "content-type": "multipart/form-data",
+              "Content-Type": "application/json",
             },
-            body: formData,
+            body: JSON.stringify(data),
           }
         );
+        
         if (response.ok) {
           // Handle successful appointment booking
           console.log("Appointment booked successfully!");
+          console.log("response", response);
         } else {
           // Handle error in appointment booking
           console.error("Error booking appointment:", response.status);
