@@ -5,6 +5,13 @@ const Button = ({ text, onClick, type, disabled }) => {
     let buttonContent;
     let buttonClassName = '';
 
+    const handleOnclick = (event) => {
+        event.preventDefault();
+        if (onClick) {
+            onClick(event);
+        }
+    }
+
     switch (type) {
         case 'primary':
             buttonClassName = 'bg-blue-950 rounded-2xl w-full h-10 text-center p-2 my-2';
@@ -22,7 +29,7 @@ const Button = ({ text, onClick, type, disabled }) => {
     }
 
     return buttonContent = (
-        <button className={buttonClassName} onClick={onClick} disabled={disabled}>
+        <button className={buttonClassName} onClick={handleOnclick} disabled={disabled}>
             <Text type="paragraph" color={disabled ? 'gray' : type === 'secondary' ? 'black': 'white'}>{text}</Text>
         </button>
     );

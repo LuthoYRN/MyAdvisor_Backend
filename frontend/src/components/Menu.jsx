@@ -12,8 +12,11 @@ import list from "../assets/list.svg";
 import notification from "../assets/notificationWhite.svg";
 import book from "../assets/book.png";
 import rule from "../assets/rule.svg";
+import { useNavigate } from "react-router-dom";
 
 const Menu = ({ userType, activeMenuItem }) => {
+  let navigate = useNavigate();
+
   return (
     <div className="flex flex-col h-full my-auto bg-primary rounded-2xl">
       <img className="m-8" src={uct} alt="uct" />
@@ -54,6 +57,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={request}
               text="Appointment Requests"
               isActive={activeMenuItem === "appointmentRequests"}
+              onClick={() => {navigate("/appointmentRequests")}}
             />
           </>
         )}
@@ -63,6 +67,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
+              onClick={() => {navigate("/advisordashboard")}}
             />
             <MenuItem
               imageSrc={group}
@@ -92,16 +97,19 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
+              onClick={() => {navigate("/dashboard")}}
             />
             <MenuItem
               imageSrc={book}
               text="Book Appointment"
               isActive={activeMenuItem === "bookAppointment"}
+              onClick={() => {navigate("/bookappointment")}}
             />
             <MenuItem
               imageSrc={notification}
               text="Notifications"
               isActive={activeMenuItem === "notifications"}
+              onClick={() => {navigate("/notifications")}}
             />
           </>
         )}

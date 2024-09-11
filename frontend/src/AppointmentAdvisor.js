@@ -7,6 +7,7 @@ import FileUploader from "./components/FileUploader";
 import TextArea from "./components/TextArea";
 import UserCard from "./components/UserCard";
 import melissa from "./assets/Melissa.png";
+import { useNavigate } from "react-router-dom";
 /* 
 Data Needed:
 - Student Name
@@ -18,73 +19,11 @@ Data Needed:
 */
 
 const Appointment = () => {
-  const advisors = [
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-    {
-      name: "Melissa Densmore",
-      majors: "Computer Science Business Computing",
-      office:
-        "HPI Lab, 4th Floor, Hasso Plattner School of Design Thinking Afrika",
-      image: melissa,
-    },
-  ];
+  const [advisors, setAdvisors] = React.useState([]);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
+
+  let navigate = useNavigate();
 
   const handleAdvisorClick = (index) => {
     setSelectedAdvisor(advisors[index]);
@@ -94,7 +33,7 @@ const Appointment = () => {
   const handleContinue = () => {
     // Do something with the selected advisor
     if (selectedAdvisor) {
-      console.log("Selected Advisor:", selectedAdvisor);
+       navigate("/appointmentDetails", { state: selectedAdvisor });
       // Add your logic here to save the selected advisor
     } else {
       console.log("No advisor selected");
@@ -121,8 +60,34 @@ const Appointment = () => {
     setActiveIndex(null);
   };
 
+  React.useEffect(() => {
+    const fetchAdvisors = async () => {
+      try {
+        console.log("Fetching advisors...");
+        const response = await fetch(
+          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/advisors`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        console.log("response", response);
+        const data = await response.json();
+        setAdvisors(data.data);
+        console.log("Advisors:", advisors);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchAdvisors();
+  }, []);
+
   return (
-    <Main  userType={"student"} activeMenuItem={"bookAppointment"}>
+    <Main userType={"student"} activeMenuItem={"bookAppointment"}>
       <div className="flex flex-col flex-auto">
         <div class="flex-auto">
           <Text type="heading" classNames="mb-16">
@@ -138,7 +103,7 @@ const Appointment = () => {
                 name={advisor.name}
                 majors={advisor.majors}
                 office={advisor.office}
-                image={advisor.image}
+                image={"https://sloth-relevant-basilisk.ngrok-free.app" + advisor.profile_url}
                 active={index === activeIndex}
                 onClick={() => handleAdvisorClick(index)}
               />

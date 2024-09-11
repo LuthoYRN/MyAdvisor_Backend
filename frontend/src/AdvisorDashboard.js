@@ -1,52 +1,87 @@
 import React from "react";
-import robot from "./assets/robot.svg";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Text from "./components/Text.jsx";
 import Card from "./components/Card.jsx";
-import ChatLine from "./components/ChatLine.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
 import Calendar from "./components/Calendar.jsx";
 
 const AdvisorDashboard = () => {
   const [date, setDate] = React.useState(null);
+  const [userData, setUserData] = React.useState(null);
   const [advisorType, setAdvisorType] = React.useState("seniorAdvisor");
+  const [loading, setLoading] = React.useState(true);
+  const [appointments, setAppointments] = React.useState([]);
+  let location = useLocation();
+
   const handleDateSelect = (date) => {
     setDate(date.startStr);
     console.log(date);
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch(
+          `https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}?date=${date.startStr}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        const data = await response.json();
+        setAppointments(data.data.appointments);
+        console.log("Appointments:", appointments);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
+
+    fetchAppointments();
   };
 
-  const appointments = [
-    {
-      date: "2024-09-11",
-      title: "Meeting with Dr. Smith",
-      info: "View Details",
-      time: "12:00 PM",
-    },
-    {
-      date: "2024-09-12",
-      title: "Meeting with Dr. Smith",
-      info: "View Details",
-      time: "12:00 PM",
-    },
-    {
-      date: "2024-09-12",
-      title: "Meeting with Dr. Smith",
-      info: "View Details",
-      time: "12:00 PM",
-    },
-  ];
+  useEffect(() => {
+    if (!location.state) {
+      console.error("No state found in location");
+      return;
+    }
 
-  const filteredAppointments = appointments.filter(
-    (appointment) => appointment.date === date
-  );
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        const data = await response.json();
+        setUserData(data.data);
+        localStorage.setItem("userData", JSON.stringify(data.data));
+        setAppointments(data.data.appointments);
+        console.log("User Data:", userData);
+        localStorage.setItem("userData", JSON.stringify(data.data));
+        setLoading(false); // Stop loading when data is fetched
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false); // Stop loading on error
+      }
+    };
 
+    fetchData();
+  }, []);
+
+ 
   return (
     <Main userType={advisorType} activeMenuItem={"home"}>
       <div class="mb-10 max-h-36">
         <Header
-          user="Aslam Safla"
-          info="Department of Computer Science"
-          subinfo="2nd Year"
+          user={`${userData?.advisor?.name}`}
+          info={userData?.advisor?.office}
         />
       </div>
       <div class="flex-auto grid grid-cols-2 gap-14 justify-between bg-white rounded-2xl  shadow-xl ">
@@ -63,7 +98,7 @@ const AdvisorDashboard = () => {
             </Text>
           )}
           {date &&
-            filteredAppointments.map((appointment) => (
+            appointments.map((appointment) => (
               <Card
                 heading={appointment.title}
                 info={appointment.info}
@@ -73,7 +108,7 @@ const AdvisorDashboard = () => {
           {!date && (
             <Text type="paragraph">Select a date to view appointments</Text>
           )}
-          {date && filteredAppointments.length === 0 && (
+          {date && appointments.length === 0 && (
             <Text type="paragraph">No appointments found for this date</Text>
           )}
         </div>

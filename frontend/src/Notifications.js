@@ -8,21 +8,45 @@ import Menu from "./components/Menu.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
 
-/*
-    Data Needed:
-    - Student Details
-    - List of Notifications
-    - Notification Details
-  */
-
 const Notifications = () => {
+  const [notifications, setNotifications] = React.useState([]);
+  const [notificationDetails, setNotificationDetails] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        console.log("Fetching notifications...");
+        const response = await fetch(
+          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/notifications`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        console.log("response", response);
+        const data = await response.json();
+        setNotifications(data.data);
+        console.log("Notifications:", notifications);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
   return (
-    <Main>
+    <Main userType={"student"} activeMenuItem={"notifications"}>
       <div class="mb-10 max-h-36">
         <Header
-          user="Jared Petersen"
-          info="B.Com Computer Science and Information Systems"
-          subinfo="2nd Year"
+          user={`${JSON.parse(localStorage.getItem("userData")).student.name} ${JSON.parse(localStorage.getItem("userData")).student.surname}`}
+          info={
+            JSON.parse(localStorage.getItem("userData")).student
+              .majorOrProgramme
+          }
         />
       </div>
       <div class="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
@@ -31,36 +55,31 @@ const Notifications = () => {
             Notifications
           </Text>
           <div class="items-center">
-            <Card
-              heading="Appointment Appoval"
-              info="Melissa Densmore"
-              side="12:00 PM"
-              classNames="mb-6"
-            />
-            <Card
-              heading="Appointment Rejection"
-              info="Melissa Densmore"
-              side="12:00 PM"
-              classNames="mb-6"
-              active={true}
-            />
+            {notifications.map((notification) => (
+              <Card
+                imgSrc={robot}
+                heading={notification.type}
+                info={notification.appointment.advisorName}
+                side={notification.appointment.time}
+                onClick={() => {
+                  setNotificationDetails(notification);
+                }}
+              />
+            ))}
           </div>
         </div>
         <div class="flex w-2/3 border-l border-gray-200">
           <div class="flex flex-col flex-auto  gap-8 col-span-2 p-8 m-8  rounded-2xl bg-white shadow-xl">
-            <Text type="sm-heading" classNames="mb-8">
-              Appointment Rejection
-            </Text>
-            <Text type="paragraph" classNames="mb-8">
-              Hi Jared, Thank you for your enquiry regarding the number of
-              electives you need to take. After reviewing your attached
-              transcript, I can confirm that you need to complete two more Level
-              6 electives. I recommend considering SLL2021F and FTX2000S.
-              Additionally, you can refer to SmartAdvisor for more elective
-              suggestions. Given the simplicity of this matter, I believe it can
-              be resolved via this message, so I have not approved the
-              appointment request. Regards, Melissa Densmore
-            </Text>
+            {notificationDetails && (
+              <>
+                <Text type="sm-heading" classNames="mb-8">
+                  {notificationDetails.type}
+                </Text>
+                <Text type="paragraph" classNames="mb-8">
+                  {notificationDetails.message}
+                </Text>
+              </>
+            )}
           </div>
         </div>
       </div>
