@@ -5,6 +5,7 @@ import Button from "./components/Button";
 import video from "./assets/Video.svg";
 import Pill from "./components/Pill";
 import Calendar from "./components/Calendar";
+import { useNavigate } from "react-router-dom";
 
 /* 
 Data Needed:
@@ -23,6 +24,8 @@ const AppointmentDate = () => {
   const [date, setDate] = React.useState();
   const [selectedTime, setSelectedTime] = React.useState();
   const [selectedIndex, setSelectedIndex] = React.useState();
+
+  let navigate = useNavigate();
 
   const handleConfirmationModal = () => {
     setShowConfirmationModal(true);
@@ -85,7 +88,7 @@ const AppointmentDate = () => {
                 text="Book appointment"
                 onClick={handleConfirmationModal}
               />
-              <Button text="Back" type="secondary" />
+              <Button text="Back" type="secondary" onClick={()=> navigate("/appointmentDetails")} />
             </div>
           </div>
 
