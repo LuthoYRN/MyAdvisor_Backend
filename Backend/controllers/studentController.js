@@ -661,12 +661,18 @@ const bookAppointment = async (req, res) => {
     });
 
     if (req.file) {
-      const documentUrl = `/db/uploads/documents/${req.file.filename}`;
+      console.log(req.file);
+      const fileBuffer = req.file.buffer; // Get the file buffer from multer
+      const fileName = `documents/${Date.now()}_${req.file.originalname}`; // Define a path in the S3 bucket
+      const mimeType = req.file.mimetype;
+
+      // Upload the document to S3
+      const documentUrl = await uploadToS3(fileBuffer, fileName, mimeType);
 
       // Create a new uploadedFile record linked to the appointment
       await uploadedFile.create({
         appointmentID: newAppointment.id,
-        filePathURL: documentUrl,
+        filePathURL: documentUrl, // Store the S3 URL in the database
         fileName: req.file.originalname,
         uploadedBy: "student",
       });

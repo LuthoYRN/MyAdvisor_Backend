@@ -651,17 +651,19 @@ const recordVideo = async (req, res) => {
         message: "No video file uploaded",
       });
     }
+    // Upload the video to S3
+    const fileBuffer = req.file.buffer; // Get the file buffer from multer
+    const fileName = `videos/${Date.now()}_${req.file.originalname}`; // Define a path in the S3 bucket
+    const mimeType = req.file.mimetype;
 
-    const videoUrl = `/db/uploads/videos/${req.file.filename}`; // Store relative path to the video
-
+    const videoUrl = await uploadToS3(fileBuffer, fileName, mimeType); // Upload the video to S3
     // Store the video file in the uploadedFile table, linking it to the appointment
     const newVideoRecord = await uploadedFile.create({
       appointmentID: appointmentExists.id, // Store appointment's actual ID from the DB (not UUID)
       fileName: req.file.originalname,
-      filePathURL: videoUrl,
+      filePathURL: videoUrl, // Use the S3 URL instead of a relative path
       uploadedBy: "advisor", // Indicates that this file was uploaded by the advisor
     });
-
     // Create a new advice log entry and associate it with the appointment
     const newAdviceLog = await adviceLog.create({
       appointmentID: appointmentExists.id, // Store appointment's actual ID from the DB
