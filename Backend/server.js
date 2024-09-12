@@ -1,9 +1,16 @@
 require("dotenv").config({ path: `${process.cwd()}/.env` });
 const { sequelize } = require("./db/models");
 const app = require("./app");
+
 const PORT = process.env.APP_PORT || 4000;
-app.listen(PORT, "127.0.0.1", async () => {
-  console.log(`Server is running on port ${PORT}`);
-  await sequelize.authenticate();
-  console.log("Database connected!");
+const HOST = "0.0.0.0"; // Allows access from anywhere
+
+app.listen(PORT, HOST, async () => {
+  try {
+    console.log(`Server is running on ${HOST}:${PORT}`);
+    await sequelize.authenticate();
+    console.log("Connected to AWS PostgreSQL successfully!");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
 });

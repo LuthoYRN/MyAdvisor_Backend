@@ -1,4 +1,5 @@
 const { ValidationError, Op } = require("sequelize");
+const { uploadToS3, deleteFromS3 } = require("../utils/s3"); // Import S3 utility functions
 const path = require("path");
 const fs = require("fs");
 const { sequelize } = require("../db/models");
@@ -159,43 +160,45 @@ const updateProfilePicture = async (req, res) => {
     // If there's an existing profile picture that's not the default, delete it
     const currentProfilePicture = the_advisor.profile_url;
     const isDefaultPicture =
-      currentProfilePicture === "/db/uploads/profile-pictures/default.png";
+      currentProfilePicture ===
+      "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png";
 
+    // If there's an existing profile picture that's not the default, delete it
     if (currentProfilePicture && !isDefaultPicture) {
-      // Construct the absolute path to the old profile picture
-      const oldPicturePath = path.join(__dirname, "..", currentProfilePicture);
-      // Delete the old profile picture (silently handle any errors)
-      fs.unlink(oldPicturePath, (err) => {
-        // Silently handle any error, no need to log
-      });
+      // Extract the key (file name) from the current profile picture URL
+      const currentProfilePictureKey = currentProfilePicture.split(".com/")[1];
+      await deleteFromS3(currentProfilePictureKey); // Delete the file from S3
     }
-
-    // Construct the relative path for the new profile picture
-    const newProfilePicture = req.file
-      ? `/db/uploads/profile-pictures/${req.file.filename}`
-      : null;
-
-    if (!newProfilePicture) {
+    if (req.file) {
+      const fileBuffer = req.file.buffer; // Get file buffer from multer
+      const fileName = `profile-pictures/${Date.now()}_${
+        req.file.originalname
+      }`;
+      const mimeType = req.file.mimetype;
+      // Upload the new profile picture to S3
+      const profilePictureUrl = await uploadToS3(
+        fileBuffer,
+        fileName,
+        mimeType
+      );
+      // Update the advisor record with the new profile picture relative path
+      await advisor.update(
+        { profile_url: profilePictureUrl },
+        { where: { uuid: advisorID } }
+      );
+      res.status(200).json({
+        status: "success",
+        message: "Profile picture updated successfully!",
+        data: { profile_url: profilePictureUrl }, // Return the S3 URL to frontend
+      });
+    } else {
       throw new Error("No file uploaded");
     }
-
-    // Update the advisor record with the new profile picture relative path
-    await advisor.update(
-      { profile_url: newProfilePicture },
-      { where: { uuid: advisorID } }
-    );
-
-    res.status(200).json({
-      status: "success",
-      message: "Profile picture updated successfully!",
-      data: { profile_url: newProfilePicture }, // Return the relative path to the frontend
-    });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      status: "error",
-      message: "Error uploading profile picture",
-    });
+    console.error("Error uploading profile picture:", error.message);
+    res
+      .status(500)
+      .json({ status: "error", message: "Error uploading profile picture" });
   }
 };
 
