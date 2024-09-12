@@ -12,13 +12,9 @@ import { useLocation } from "react-router-dom";
 const Dashboard = () => {
   const location = useLocation();
   const [userData, setUserData] = useState(null); // Changed to null to handle loading state
-  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
-    if (!location.state) {
-      console.error("No state found in location");
-      return;
-    }
+  
 
     const fetchData = async () => {
       try {
@@ -35,22 +31,17 @@ const Dashboard = () => {
         const data = await response.json();
         setUserData(data.data);
         localStorage.setItem("userData", JSON.stringify(data.data));
-        setLoading(false); // Stop loading when data is fetched
       } catch (error) {
         console.error("Error fetching data:", error);
-        setLoading(false); // Stop loading on error
       }
     };
 
     fetchData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
+ 
   if (!userData) {
-    return <div>No data available</div>;
+    return <div>Loading..</div>;
   }
 
   const { student, upcomingAppointments, pastAppointments } = userData;
@@ -64,7 +55,7 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="flex-auto grid grid-cols-2 gap-14 justify-between ">
+      <div className="flex-auto grid grid-cols-2 gap-14 justify-between">
         {/* Upcoming Appointments */}
         <div className="flex flex-col p-8 rounded-2xl bg-white shadow-xl">
           <Text type="heading" classNames="mb-8">

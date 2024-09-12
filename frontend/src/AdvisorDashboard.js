@@ -100,9 +100,9 @@ const AdvisorDashboard = () => {
           {date &&
             appointments.map((appointment) => (
               <Card
-                heading={appointment.title}
-                info={appointment.info}
+                heading={appointment.studentName}
                 side={appointment.time}
+                {...console.log(appointment)}
               />
             ))}
           {!date && (

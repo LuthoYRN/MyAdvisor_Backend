@@ -58,7 +58,7 @@ function Login() {
           
           localStorage.setItem("user_id", result.user_id);
           if (role === "student") {
-            navigate("/dashboard", { state: result.user_id});
+            navigate("/dashboard");
           } else{
           navigate("/advisorDashboard", { state: result.user_id});}
         }

@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const AppointmentRequests = () => {
   const [requests, setRequests] = React.useState([]);
-  const [notificationDetails, setNotificationDetails] = React.useState([]);
+  const [notificationDetails, setNotificationDetails] = React.useState(null);
   const [requestID, setRequestID] = React.useState(null);
   let navigate = useNavigate();
 
@@ -103,7 +103,7 @@ const AppointmentRequests = () => {
             {notificationDetails && (
               <>
                 <Text type="sm-heading" classNames="mb-8">
-                  "{notificationDetails.studentName}" has requested an appointment
+                  {notificationDetails.studentName} has requested an appointment
                 </Text>
                 <Text type="paragraph" classNames="mb-8">
                   {notificationDetails.comment}
