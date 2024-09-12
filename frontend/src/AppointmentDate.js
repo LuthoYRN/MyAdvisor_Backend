@@ -21,6 +21,7 @@ Data Needed:
 const AppointmentDate = () => {
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
   const [date, setDate] = React.useState();
   const [selectedTime, setSelectedTime] = React.useState();
   const [selectedIndex, setSelectedIndex] = React.useState();
@@ -35,30 +36,33 @@ const AppointmentDate = () => {
 
   const handleCloseModal = () => {
     setShowConfirmationModal(false);
+    setShowSuccessModal(false);
     const handleConfirmationModal = async () => {
-      setShowConfirmationModal(true);
       try {
-        const data = {
-          date: date,
-          time: selectedTime,
-          comment: location.state.adviceRequired
-        };
+        const formData = new FormData();
+        formData.append("date", date);
+        formData.append("time", selectedTime);
+        formData.append("comment", location.state.adviceRequired);
+        // Add file upload if needed
+        // formData.append("document", file);
+
         const response = await fetch(
           `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
           {
             method: "POST",
             headers: {
               "ngrok-skip-browser-warning": "69420",
-              "Content-Type": "application/json",
             },
-            body: JSON.stringify(data),
+            body: formData,
+
           }
         );
-        
         if (response.ok) {
-          // Handle successful appointment booking
-          console.log("Appointment booked successfully!");
-          console.log("response", response);
+          
+            console.log("Appointment booked successfully!");
+            // Show confirmation modal
+            setShowSuccessModal(true);
+         
         } else {
           // Handle error in appointment booking
           console.error("Error booking appointment:", response.status);
@@ -221,8 +225,22 @@ const AppointmentDate = () => {
           </div>
         </div>
       )}
+      {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8">
+            <Text type="sm-heading" classNames="mb-4">
+              Sucess
+            </Text>
+            <Text type="sm-subheading" classNames="mb-8">
+              Booking confirmed successfully
+            </Text>
+            <Button text="Close" onClick={()=> setShowSuccessModal(false)} />
+          </div>
+        </div>
+      )}
     </Main>
   );
+  
 };
 
 export default AppointmentDate;

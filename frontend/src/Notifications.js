@@ -61,10 +61,11 @@ const Notifications = () => {
                 heading={notification.type}
                 info={notification.appointment.advisorName}
                 side={notification.appointment.time}
+                classNames="mb-4"
                 onClick={() => {
                   setNotificationDetails(notification);
                 }}
-                classNames="mb-4"
+                
               />
             ))}
           </div>
@@ -77,7 +78,10 @@ const Notifications = () => {
                   {notificationDetails.type}
                 </Text>
                 <Text type="paragraph" classNames="mb-8">
-                  {notificationDetails.message}
+
+                  {notificationDetails.type === "Approval"
+                    ? `${notificationDetails.appointment.advisorName} has approved your appointment request`
+                    : `${notificationDetails.message}`}
                 </Text>
               </>
             )}

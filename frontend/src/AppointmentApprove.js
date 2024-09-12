@@ -17,6 +17,7 @@ Data Needed:
 
 const AppointmentDetails = () => {
   const [showRecordingModal, setShowRecordingModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
   let location = useLocation();
 
   const handleRecordMeeting = () => {
@@ -36,6 +37,13 @@ const AppointmentDetails = () => {
     })
       .then((response) => {
         console.log("response", response);
+        if (response.ok) {
+          // Show confirmation modal
+          console.log("Appointment status updated successfully");
+          setShowConfirmationModal(true);
+        } else {
+          console.log("Failed to update appointment status");
+        }
 
       })
       .catch((error) => {
@@ -141,6 +149,19 @@ const AppointmentDetails = () => {
               </div>
             </div>
             <Button text="Close" onClick={handleCloseModal} />
+          </div>
+        </div>
+      )}
+       {showConfirmationModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8">
+            <Text type="sm-heading" classNames="mb-4">
+              Sucess
+            </Text>
+            <Text type="sm-subheading" classNames="mb-8">
+              Appointment status updated successfully
+            </Text>
+            <Button text="Close" onClick={()=> setShowConfirmationModal(false)} />
           </div>
         </div>
       )}
