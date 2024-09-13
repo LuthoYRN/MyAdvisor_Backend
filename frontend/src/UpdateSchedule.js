@@ -1,72 +1,16 @@
 import React from "react";
 import Text from "./components/Text.jsx";
 import Main from "./layout/Main.jsx";
-import TextArea from "./components/TextArea.jsx";
 import Button from "./components/Button.jsx";
 import Pill from "./components/Pill.jsx";
-
-/*
-    Data Needed:
-    - Save Meeting Notes
-  */
+import config from "./config.js";
+import { useNavigate } from "react-router-dom";
 
 const MeetingNotes = () => {
   const [selectedTimes, setSelectedTimes] = React.useState([]);
   const [selectedDate, setSelectedDate] = React.useState("");
-  const [times, setTimes] = React.useState([
-    { Monday: ["08:00", "09:00", "10:00", "14:00", "15:00", "16:00", "17:00"] },
-    {
-      Tuesday: [
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-      ],
-    },
-    {
-      Wednesday: [
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "13:00",
-        "17:00",
-      ],
-    },
-    {
-      Thursday: [
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-      ],
-    },
-    {
-      Friday: [
-        "08:00",
-        "09:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-      ],
-    },
-  ]);
+  const [times, setTimes] = React.useState([]);
+  let navigate = useNavigate();
 
   const handleSelectDate = (text) => {
     setSelectedDate(text);
@@ -80,8 +24,29 @@ const MeetingNotes = () => {
     }
   };
 
-  const handleSaveNotes = () => {
-    // TODO: Save notes to the database
+  const handleSaveSchedule = () => {
+    const saveSchedule = async () => {
+      try {
+        const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ schedule: times }),
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+          console.log("Schedule saved successfully:", result.data);
+        } else {
+          console.error("Failed to save schedule:", result);
+        }
+      } catch (error) {
+        console.error("Error saving schedule:", error);
+      }
+    };
+
+    saveSchedule();
   };
 
   const handleSelectPill = (text) => {
@@ -92,116 +57,74 @@ const MeetingNotes = () => {
     }
   };
 
+ 
   React.useEffect(() => {
-    const updatedTimes = times.map((day) => {
-      const dayName = Object.keys(day)[0];
-      if (selectedDate.includes(dayName)) {
-        return { [dayName]: selectedTimes };
+    const fetchSchedule = async () => {
+      try {
+        const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`);
+        const result = await response.json();
+        if (result.status === "success") {
+          const fetchedTimes = result.data.map((day) => ({
+            [day.dayOfWeek]: day.times,
+          }));
+          console.log("Fetched times:", result.data);
+          setTimes(fetchedTimes);
+        }
+      } catch (error) {
+        console.error("Error fetching schedule:", error);
       }
-      return day;
-    });
-    setTimes(updatedTimes);
-  }, [selectedDate, selectedTimes]);
+    };
+
+    fetchSchedule();
+  }, []);
+
+
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const timesOfDay = [
+    "08:00", "09:00", "10:00", "11:00", "12:00",
+    "13:00", "14:00", "15:00", "16:00", "17:00"
+  ];
 
   return (
     <Main userType={"seniorAdvisor"} activeMenuItem={"updateSchedule"}>
-      <div class="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
+      <div className="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Update Schedule
         </Text>
-        <div class="flex flex-col flex-auto justify-between">
-          <div class="flex flex-row justify-between">
-            <div class="flex flex-col border border-gray-200 rounded-2xl p-8 gap-4 w-5/12 mr-32">
+        <div className="flex flex-col flex-auto justify-between">
+          <div className="flex flex-row justify-between">
+            <div className="flex flex-col border border-gray-200 rounded-2xl p-8 gap-4 w-5/12 mr-32">
               <Text type="sm-heading" classNames="mb-4">
-                Days of the weeks
+                Days of the week
               </Text>
-              <Pill
-                text="Monday"
-                onClick={() => handleSelectDate("Monday")}
-                active={selectedDate.includes("Monday")}
-              />
-              <Pill
-                text="Tuesday"
-                onClick={() => handleSelectDate("Tuesday")}
-                active={selectedDate.includes("Tuesday")}
-              />
-              <Pill
-                text="Wednesday"
-                onClick={() => handleSelectDate("Wednesday")}
-                active={selectedDate.includes("Wednesday")}
-              />
-              <Pill
-                text="Thursday"
-                onClick={() => handleSelectDate("Thursday")}
-                active={selectedDate.includes("Thursday")}
-              />
-              <Pill
-                text="Friday"
-                onClick={() => handleSelectDate("Friday")}
-                active={selectedDate.includes("Friday")}
-              />
+              {daysOfWeek.map((day) => (
+                <Pill
+                  key={day}
+                  text={day}
+                  onClick={() => handleSelectDate(day)}
+                  active={selectedDate.includes(day)}
+                />
+              ))}
             </div>
-            <div class="flex flex-col">
+            <div className="flex flex-col">
               <Text type="sm-heading" classNames="mb-4">
                 Select Available times
               </Text>
-              <div class="flex-row flex h-fit flex-wrap w-7/12 gap-4">
-                <Pill
-                  text="08:00"
-                  onClick={() => handleSelectPill("08:00")}
-                  active={selectedTimes.includes("08:00")}
-                />
-                <Pill
-                  text="09:00"
-                  onClick={() => handleSelectPill("09:00")}
-                  active={selectedTimes.includes("09:00")}
-                />
-                <Pill
-                  text="10:00"
-                  onClick={() => handleSelectPill("10:00")}
-                  active={selectedTimes.includes("10:00")}
-                />
-                <Pill
-                  text="11:00"
-                  onClick={() => handleSelectPill("11:00")}
-                  active={selectedTimes.includes("11:00")}
-                />
-                <Pill
-                  text="12:00"
-                  onClick={() => handleSelectPill("12:00")}
-                  active={selectedTimes.includes("12:00")}
-                />
-                <Pill
-                  text="13:00"
-                  onClick={() => handleSelectPill("13:00")}
-                  active={selectedTimes.includes("13:00")}
-                />
-                <Pill
-                  text="14:00"
-                  onClick={() => handleSelectPill("14:00")}
-                  active={selectedTimes.includes("14:00")}
-                />
-                <Pill
-                  text="15:00"
-                  onClick={() => handleSelectPill("15:00")}
-                  active={selectedTimes.includes("15:00")}
-                />
-                <Pill
-                  text="16:00"
-                  onClick={() => handleSelectPill("16:00")}
-                  active={selectedTimes.includes("16:00")}
-                />
-                <Pill
-                  text="17:00"
-                  onClick={() => handleSelectPill("17:00")}
-                  active={selectedTimes.includes("17:00")}
-                />
+              <div className="flex-row flex h-fit flex-wrap w-7/12 gap-4">
+                {timesOfDay.map((time) => (
+                  <Pill
+                    key={time}
+                    text={time}
+                    onClick={() => handleSelectPill(time)}
+                    active={selectedTimes.includes(time)}
+                  />
+                ))}
               </div>
             </div>
           </div>
-          <div class="flex flex-row gap-8 max-w-md">
-            <Button text="Save" onClick={handleSaveNotes} />
-            <Button text="Back" type="secondary" />
+          <div className="flex flex-row gap-8 max-w-md">
+            <Button text="Save" onClick={handleSaveSchedule} />
+            <Button text="Back" type="secondary" onClick={()=>navigate("/advisorDashboard")}/>
           </div>
         </div>
       </div>

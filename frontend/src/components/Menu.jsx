@@ -42,6 +42,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={clock}
               text="Update Schedule"
               isActive={activeMenuItem === "updateSchedule"}
+              onClick={() => {navigate("/updateSchedule")}}
             />
             <MenuItem
               imageSrc={badge}
@@ -78,6 +79,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={clock}
               text="Update Schedule"
               isActive={activeMenuItem === "updateSchedule"}
+              onClick={() => {navigate("/updateSchedule")}}
             />
             <MenuItem
               imageSrc={badge}
