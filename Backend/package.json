@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "MyAdvisor System backend",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "concurrently \"nodemon server.js\" \"ngrok http --domain=sloth-relevant-basilisk.ngrok-free.app 3000\"",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
