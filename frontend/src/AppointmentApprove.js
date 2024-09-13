@@ -4,6 +4,7 @@ import Text from "./components/Text";
 import Button from "./components/Button";
 import video from "./assets/Video.svg";
 import { useLocation } from "react-router-dom";
+import config from "./config";
 
 /* 
 Data Needed:
@@ -29,7 +30,7 @@ const AppointmentDetails = () => {
   };
 
   const handleAppointment = (status) => () => {
-    fetch(`https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
+    fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -7,6 +7,7 @@ import Text from "./components/Text";
 import image from "./assets/advisor.png";
 import Select from "./components/Select";
 import { useNavigate } from "react-router-dom";
+import config from "./config";
 
 function Login() {
   let navigate = useNavigate();
@@ -33,7 +34,7 @@ function Login() {
       role: role
     };
 
-    fetch("https://sloth-relevant-basilisk.ngrok-free.app/api/auth/login", {
+    fetch(`${config.backendUrl}/api/auth/login`, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
@@ -68,6 +69,7 @@ function Login() {
         console.error(error);
       });
   };
+
 
 
   return (

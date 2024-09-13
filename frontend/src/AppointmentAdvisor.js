@@ -2,12 +2,9 @@ import React from "react";
 import Main from "./layout/Main";
 import Text from "./components/Text";
 import Button from "./components/Button";
-import video from "./assets/Video.svg";
-import FileUploader from "./components/FileUploader";
-import TextArea from "./components/TextArea";
 import UserCard from "./components/UserCard";
-import melissa from "./assets/Melissa.png";
 import { useNavigate } from "react-router-dom";
+import config from "./config";
 /* 
 Data Needed:
 - Student Name
@@ -65,7 +62,7 @@ const Appointment = () => {
       try {
         console.log("Fetching advisors...");
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/advisors`,
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/advisors`,
           {
             method: "GET",
             headers: {
@@ -96,14 +93,14 @@ const Appointment = () => {
           <Text type="sm-heading" classNames="mb-4">
             Choose an advisor
           </Text>
-          <div class="grid grid-cols-3 grid-rows-2 gap-4 overflow-x-auto w-full">
+          <div class="grid grid-cols-3 grid-rows-2 gap-4  w-full">
             {displayedAdvisors.map((advisor, index) => (
               <UserCard
                 key={index}
                 name={advisor.name}
-                majors={advisor.majors}
+                majors={advisor.majors.join(', ')}
                 office={advisor.office}
-                image={"https://sloth-relevant-basilisk.ngrok-free.app" + advisor.profile_url}
+                image={advisor.profile_url}
                 active={index === activeIndex}
                 onClick={() => handleAdvisorClick(index)}
               />

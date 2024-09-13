@@ -1,14 +1,12 @@
 import React from "react";
-import Container from "./layout/Container.jsx";
 import robot from "./assets/robot.svg";
 import Text from "./components/Text.jsx";
 import Card from "./components/Card.jsx";
-import ChatLine from "./components/ChatLine.jsx";
-import Menu from "./components/Menu.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
 import Button from "./components/Button.jsx";
 import { useNavigate } from "react-router-dom";
+import config from "./config";
 
 const AppointmentRequests = () => {
   const [requests, setRequests] = React.useState([]);
@@ -20,7 +18,7 @@ const AppointmentRequests = () => {
     try {
       console.log("Fetching request details...");
       const response = await fetch(
-        `https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}/requests/${request.id}`,
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${request.id}`,
         {
           method: "GET",
           headers: {
@@ -43,7 +41,7 @@ const AppointmentRequests = () => {
       try {
         console.log("Fetching notifications...");
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}/requests`,
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests`,
           {
             method: "GET",
             headers: {

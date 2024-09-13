@@ -2,11 +2,11 @@ import React from "react";
 import Main from "./layout/Main";
 import Text from "./components/Text";
 import Button from "./components/Button";
-import video from "./assets/Video.svg";
 import Pill from "./components/Pill";
 import Calendar from "./components/Calendar";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import config from "./config";
 
 /* 
 Data Needed:
@@ -47,7 +47,7 @@ const AppointmentDate = () => {
         // formData.append("document", file);
 
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
           {
             method: "POST",
             headers: {
@@ -91,7 +91,7 @@ const AppointmentDate = () => {
       try {
         console.log("Fetching advisors...");
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability?date=${date}`,
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability?date=${date}`,
           {
             method: "GET",
             headers: {
