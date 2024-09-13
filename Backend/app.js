@@ -10,5 +10,4 @@ app.use(cors());
 app.use("/api/auth/", authRouter);
 app.use("/api/student/", studentRouter);
 app.use("/api/advisor/", advisorRouter);
-app.use("/db/uploads", express.static(path.join(__dirname, "db/uploads")));
 module.exports = app;
