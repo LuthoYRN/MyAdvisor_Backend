@@ -3,10 +3,9 @@ import Container from "./layout/Container.jsx";
 import robot from "./assets/robot.svg";
 import Text from "./components/Text.jsx";
 import Card from "./components/Card.jsx";
-import ChatLine from "./components/ChatLine.jsx";
-import Menu from "./components/Menu.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
+import config from "./config";
 
 const Notifications = () => {
   const [notifications, setNotifications] = React.useState([]);
@@ -17,7 +16,7 @@ const Notifications = () => {
       try {
         console.log("Fetching notifications...");
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}/notifications`,
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/notifications`,
           {
             method: "GET",
             headers: {

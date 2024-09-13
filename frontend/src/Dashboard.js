@@ -4,10 +4,10 @@ import robot from "./assets/robot.svg";
 import Text from "./components/Text";
 import Card from "./components/Card";
 import ChatLine from "./components/ChatLine.jsx";
-import Menu from "./components/Menu.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main";
 import { useLocation } from "react-router-dom";
+import config from "./config";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -19,7 +19,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/student/${localStorage.getItem("user_id")}`,
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}`,
           {
             method: "GET",
             headers: {

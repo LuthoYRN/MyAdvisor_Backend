@@ -9,8 +9,8 @@ const UserCard = ({name, majors, office, image, active, onClick}) => {
 
 
   return (
-    <div onClick={handleClick} className={`p-8 gap-8 max-w-[450px] max-h-72 rounded-2xl shadow-lg flex ${active ? 'border-secondary border bg-secondary bg-opacity-5 shadow-lg' : ''}`}>
-      <img className="w-full h-1/2" src={image} alt="User" />
+    <div onClick={handleClick} className={`p-8 gap-8 max-w-[450px] max-h-64 rounded-2xl shadow-lg flex ${active ? 'border-secondary border bg-secondary bg-opacity-5 shadow-lg' : ''}`}>
+      <img className="w-24 h-24 rounded-full" src={image} alt="User" />
       <div>
         <Text type="paragraph-strong">Name</Text>
         <Text classNames="mb-2" type="paragraph">{name}</Text>    

@@ -6,6 +6,7 @@ import Card from "./components/Card.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
 import Calendar from "./components/Calendar.jsx";
+import config from "./config";
 
 const AdvisorDashboard = () => {
   const [date, setDate] = React.useState(null);
@@ -21,7 +22,7 @@ const AdvisorDashboard = () => {
     const fetchAppointments = async () => {
       try {
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}?date=${date.startStr}`,
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}?date=${date.startStr}`,
           {
             method: "GET",
             headers: {
@@ -50,7 +51,7 @@ const AdvisorDashboard = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://sloth-relevant-basilisk.ngrok-free.app/api/advisor/${localStorage.getItem("user_id")}`,
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}`,
           {
             method: "GET",
             headers: {
