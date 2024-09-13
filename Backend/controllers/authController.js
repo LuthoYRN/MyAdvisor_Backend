@@ -76,9 +76,17 @@ const signup = async (req, res) => {
       email,
       password,
       confirmPassword,
-      majors,
-      programmeID,
+      majors, // Can be an array of major IDs
+      programmeID, // Can be a single programme ID
     } = req.body;
+
+    // Ensure either majors or programme is provided, but not both being null
+    if (!majors && !programmeID) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Either majors or programme must be selected.",
+      });
+    }
 
     // Check if the email is already used
     const existingStudent = await student.findOne({
@@ -92,6 +100,7 @@ const signup = async (req, res) => {
         message: "Email is already in use",
       });
     }
+
     // Ensure password and confirmPassword match
     if (password !== confirmPassword) {
       return res.status(400).json({
@@ -104,12 +113,34 @@ const signup = async (req, res) => {
         message: "Password should be between 6 and 255 characters long.",
       });
     }
+
+    // Validate majors if provided
+    if (majors && majors.length > 0) {
+      const validMajors = await major.findAll({
+        where: { id: majors },
+        attributes: ["id"],
+      });
+
+      const validMajorIDs = validMajors.map((major) => major.id);
+
+      // Check if all provided majors are valid
+      if (validMajorIDs.length !== majors.length) {
+        return res.status(400).json({
+          status: "fail",
+          message: "One or more provided majors are invalid.",
+        });
+      }
+    } //
+    else if (programmeID) {
+      //yet to implement
+    }
+
     // Create the new student
     const newStudent = await student.create({
       name,
       surname,
       email,
-      password: bcrypt.hashSync(confirmPassword, 10), // Hash password for security // Ensure your model handles hashing
+      password: bcrypt.hashSync(confirmPassword, 10), // Hash password for security
       programmeID: programmeID || null, // If no programme selected, set to null
       profile_url:
         "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png",
@@ -117,14 +148,18 @@ const signup = async (req, res) => {
 
     const result = newStudent.toJSON();
 
-    // Assign majors to the student if provided
+    // Assign majors to the student if majors are provided
     if (majors && majors.length > 0) {
-      majors.forEach(async (majorID) => {
-        await studentsMajor.create({
-          studentID: result.id,
-          majorID: majorID,
-        });
-      });
+      await Promise.all(
+        majors.map(async (majorID) => {
+          await studentsMajor.create({
+            studentID: result.id,
+            majorID: majorID,
+          });
+        })
+      );
+    } else if (programmeID) {
+      // When the programme implementation is ready
     }
 
     return res.status(201).json({
@@ -133,14 +168,12 @@ const signup = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during signup:", error.message);
-    if (error.name == "SequelizeValidationError") {
-      const validationErrors = error.errors.map((err) => err.message); // Collect all validation error messages
-      const fieldErrors = error.errors.map((err) => err.path); // Collect which fields caused the error
+    if (error.name === "SequelizeValidationError") {
+      const validationErrors = error.errors.map((err) => err.message);
+      const fieldErrors = error.errors.map((err) => err.path);
 
-      // Initialize default error message
       let message = [];
 
-      // Check for specific field errors
       if (fieldErrors.includes("name")) {
         message.push("Name cannot be empty.");
       }
