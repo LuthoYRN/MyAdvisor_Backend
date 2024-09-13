@@ -35,7 +35,7 @@ root.render(
       <Route path="/appointmentDetails" element={<Appointment />} />
       <Route path="/appointmentDate" element={<AppointmentDate />} />
       <Route path="/appointmentApprove" element={<AppointmentDetails />} />
-      
+      <Route path="/courseSelection" element={<CourseSelection />} />
       <Route path="/appointment" element={<Appointment />} />
       <Route path="/adviceLog" element={<AdviceLog />} />
       <Route path="/meetingNotes" element={<MeetingNotes />} />
