@@ -7,6 +7,7 @@ const {
   course,
   completedCourse,
   major,
+  facultyAdmin,
   department,
   sharedCourse,
   studentsMajor,
@@ -199,22 +200,21 @@ const signup = async (req, res) => {
 // Login function
 const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
-    // Check if email, password, and role are provided
-    if (!email || !password || !role) {
+    // Check if email and password are provided
+    if (!email || !password) {
       return res.status(400).json({
         status: "fail",
-        message: "Please provide email, password, and role",
+        message: "Please provide email and password",
       });
     }
 
-    // Handle student login
-    if (role === "student") {
-      const result = await student.findOne({ where: { email } });
-
-      // If student not found or passwords don't match
-      if (!result || !(await bcrypt.compare(password, result.password))) {
+    // First check if the user is a student
+    let result = await student.findOne({ where: { email } });
+    if (result) {
+      // If the student is found, check password
+      if (!(await bcrypt.compare(password, result.password))) {
         return res.status(400).json({
           status: "fail",
           message: "Incorrect email or password",
@@ -227,30 +227,51 @@ const login = async (req, res) => {
         user_type: "student",
         user_id: logged_in.uuid,
       });
+    }
 
-      // Handle advisor login
-    } else if (role === "advisor") {
-      const result = await advisor.findOne({ where: { email } });
-
-      // If advisor not found or passwords don't match
-      if (!result || !(await bcrypt.compare(password, result.password))) {
+    // If not a student, check if the user is an advisor
+    result = await advisor.findOne({ where: { email } });
+    if (result) {
+      // If the advisor is found, check password
+      if (!(await bcrypt.compare(password, result.password))) {
         return res.status(400).json({
           status: "fail",
           message: "Incorrect email or password",
         });
       }
-      const logged_in = result.toJSON();
 
+      const logged_in = result.toJSON();
       return res.status(200).json({
         status: "success",
         user_type: "advisor",
         user_id: logged_in.uuid,
       });
-    } else {
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Invalid role provided" });
     }
+
+    // If not an advisor, check if the user is a faculty admin
+    result = await facultyAdmin.findOne({ where: { email } });
+    if (result) {
+      // If the faculty admin is found, check password
+      if (!(await bcrypt.compare(password, result.password))) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Incorrect email or password",
+        });
+      }
+
+      const logged_in = result.toJSON();
+      return res.status(200).json({
+        status: "success",
+        user_type: "facultyAdmin",
+        user_id: logged_in.uuid,
+      });
+    }
+
+    // If the email is not found in any table
+    return res.status(400).json({
+      status: "fail",
+      message: "User not found",
+    });
   } catch (error) {
     console.error("Error during login:", error.message);
     return res
