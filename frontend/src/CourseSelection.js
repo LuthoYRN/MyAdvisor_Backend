@@ -8,7 +8,6 @@ import Select from './components/Select';
 import Progress from './components/Progress';
 import Checkbox from './components/Checkbox';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 
 function App() {
   const [courses, setCourses] = useState([]);
