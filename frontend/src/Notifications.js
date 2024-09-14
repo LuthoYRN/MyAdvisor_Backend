@@ -39,53 +39,70 @@ const Notifications = () => {
 
   return (
     <Main userType={"student"} activeMenuItem={"notifications"}>
-      <div class="mb-10 max-h-36">
+      <div className="mb-10 max-h-36">
         <Header
-          user={`${JSON.parse(localStorage.getItem("userData")).student.name} ${JSON.parse(localStorage.getItem("userData")).student.surname}`}
+          user={`${JSON.parse(localStorage.getItem("userData"))?.student?.name || ""} ${JSON.parse(localStorage.getItem("userData"))?.student?.surname || ""}`}
           info={
-            JSON.parse(localStorage.getItem("userData")).student
-              .majorOrProgramme
+            JSON.parse(localStorage.getItem("userData"))?.student
+              ?.majorOrProgramme || ""
           }
         />
       </div>
-      <div class="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
-        <div class="flex w-1/3 flex-col gap-4">
+
+      <div className="flex flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
+        {/* Left Section: Notifications */}
+        <div className="flex w-1/3 flex-col gap-4">
           <Text type="heading" classNames="mb-8">
             Notifications
           </Text>
-          <div class="items-center">
-            {notifications.map((notification) => (
-              <Card
-                imgSrc={robot}
-                heading={notification.type}
-                info={notification.appointment.advisorName}
-                side={notification.appointment.time}
-                classNames="mb-4"
-                onClick={() => {
-                  setNotificationDetails(notification);
-                }}
-                
-              />
-            ))}
-          </div>
-        </div>
-        <div class="flex w-2/3 border-l border-gray-200">
-          <div class="flex flex-col flex-auto  gap-8 col-span-2 p-8 m-8  rounded-2xl bg-white shadow-xl">
-            {notificationDetails && (
-              <>
-                <Text type="sm-heading" classNames="mb-8">
-                  {notificationDetails.type}
-                </Text>
-                <Text type="paragraph" classNames="mb-8">
 
-                  {notificationDetails.type === "Approval"
-                    ? `${notificationDetails.appointment.advisorName} has approved your appointment request`
-                    : `${notificationDetails.message}`}
-                </Text>
-              </>
-            )}
-          </div>
+          {/* Only render notifications if they exist */}
+          {notifications && notifications.length > 0 ? (
+            <div className="items-center">
+              {notifications.map((notification) => (
+                <Card
+                  key={notification.id}
+                  imgSrc={robot}
+                  heading={notification.type}
+                  info={
+                    notification.appointment?.advisorName || "No advisor name"
+                  }
+                  side={notification.appointment?.time || "No time provided"}
+                  classNames="mb-4 cursor-pointer"
+                  onClick={() => setNotificationDetails(notification)}
+                />
+              ))}
+            </div>
+          ) : (
+            <Text type="paragraph" classNames="text-gray-500">
+              No notifications available
+            </Text>
+          )}
         </div>
+
+        {/* Right Section: Notification Details - Only show if there are notifications */}
+        {notifications && notifications.length > 0 && (
+          <div className="flex w-2/3 border-l border-gray-200">
+            <div className="flex flex-col flex-auto gap-8 col-span-2 p-8 m-8 rounded-2xl bg-white shadow-xl">
+              {notificationDetails ? (
+                <>
+                  <Text type="sm-heading" classNames="mb-8">
+                    {notificationDetails.type || ""}
+                  </Text>
+                  <Text type="paragraph" classNames="mb-8">
+                    {notificationDetails.type === "Approval"
+                      ? `${notificationDetails.appointment?.advisorName || "No advisor"} has approved your appointment request`
+                      : `${notificationDetails.message || "Click on a notification"}`}
+                  </Text>
+                </>
+              ) : (
+                <Text type="paragraph" classNames="text-gray-500">
+                  Select a notification to see the details
+                </Text>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </Main>
   );

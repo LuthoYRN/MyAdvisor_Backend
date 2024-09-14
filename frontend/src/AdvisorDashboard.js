@@ -76,11 +76,11 @@ const AdvisorDashboard = () => {
     fetchData();
   }, []);
 
- 
   return (
     <Main userType={advisorType} activeMenuItem={"home"}>
       <div class="mb-10 max-h-36">
         <Header
+          profile_url={userData?.advisor?.profile_url}
           user={`${userData?.advisor?.name}`}
           info={userData?.advisor?.office}
         />
