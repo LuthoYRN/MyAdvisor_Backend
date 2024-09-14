@@ -1,6 +1,6 @@
 import React from "react";
 
-const Text = ({ type, children, color, classNames }) => {
+const Text = ({ type, children, color, classNames, onClick }) => {
   let Element;
   let classes = "";
   classNames = classNames ? classNames : "";
@@ -33,7 +33,7 @@ const Text = ({ type, children, color, classNames }) => {
     classes += ` text-${color}`;
   }
 
-  return <Element class={classNames + classes}>{children}</Element>;
+  return <Element onClick={onClick} class={classNames + classes}>{children}</Element>;
 };
 
 export default Text;
