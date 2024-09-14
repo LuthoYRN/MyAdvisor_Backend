@@ -18,7 +18,7 @@ const Menu = ({ userType, activeMenuItem }) => {
   let navigate = useNavigate();
 
   return (
-    <div className="flex flex-col h-full my-auto bg-primary rounded-2xl">
+    <div className="flex flex-col h-full my-auto bg-primary rounded-2xl shadow-xl">
       <img className="m-8" src={uct} alt="uct" />
       <div class="flex flex-col h-full justify">
         {userType === "senior" && (

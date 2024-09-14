@@ -68,7 +68,7 @@ function Login() {
 
   return (
     <Container>
-      <form class="col-span-3 flex flex-col h-full justify-center my-auto">
+      <form class="col-span-3 gap-4 flex flex-col h-full justify-center my-auto">
         <Text classNames="mb-8" type={"heading"}>
           Login
         </Text>

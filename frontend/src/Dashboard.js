@@ -62,10 +62,10 @@ const Dashboard = () => {
       <div className="flex-auto grid grid-cols-2 gap-14 justify-between">
         {/* Upcoming Appointments */}
         <div className="flex flex-col p-8 rounded-2xl bg-white shadow-xl">
-          <Text type="heading" classNames="mb-8">
+          <Text type="heading" classNames="mb-8 ml-2">
             Upcoming Appointments
           </Text>
-          <div className="items-center gap-4 flex flex-col">
+          <div className="items-center max-h-[550px] px-2 overflow-y-auto gap-4 flex flex-col">
             {upcomingAppointments.length > 0 ? (
               upcomingAppointments.map((appointment, index) => (
                 <Card

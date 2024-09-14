@@ -58,7 +58,7 @@ const AppointmentDetails = () => {
         JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
       }
     >
-      <div className="flex flex-col flex-auto p-8 rounded-2xl bg-white shadow-xl">
+      <div className="flex flex-col flex-auto p-24 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
         </Text>

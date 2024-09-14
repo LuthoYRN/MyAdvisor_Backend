@@ -99,7 +99,8 @@ const AppointmentDate = () => {
         );
         console.log("response", response);
         const data = await response.json();
-        setAvailableSlots(data.data.availableTimes);
+        const sortedAvailableTimes = data.data.availableTimes.sort((a, b) => new Date(`1970/01/01 ${a}`) - new Date(`1970/01/01 ${b}`));
+        setAvailableSlots(sortedAvailableTimes);
         console.log("Available Times:", availableTime);
       } catch (error) {
         console.error("Error fetching times:", error);
@@ -111,18 +112,18 @@ const AppointmentDate = () => {
 
   return (
     <Main userType={"student"} activeMenuItem={"bookAppointment"}>
-      <div className=" h-full flex flex-col flex-auto bg-white rounded-2xl">
+      <div className="p-8 h-full flex flex-col flex-auto bg-white rounded-2xl">
         <div>
-          <Text type="heading" classNames="mb-16 mt-12 ml-16">
+          <Text type="heading" classNames="mb-16">
             Booking Appointment
           </Text>
         </div>
-        <div class="h-full flex flex-row gap-72 flex-auto">
+        <div class="h-full flex flex-row gap-72  flex-auto">
           <div class="h-full flex flex-auto flex-col w-1/2 justify-between">
-            <div className="ml-6 p-6 bg-white rounded-lg shadow-lg mb-6 h-auto min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
+            <div className="mb-6 h-auto ">
               <CustomCalendar onDateSelect={handleDateSelect} />
             </div>
-            <div className="ml-6 mb-6">
+            <div className="mb-6">
               <Button
                 text="Book appointment"
                 onClick={handleConfirmationModal}

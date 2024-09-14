@@ -13,6 +13,7 @@ import {
   isToday,
   getMonth,
 } from "date-fns";
+import Text from "./Text";
 
 export default function CustomCalendar({ onDateSelect }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -60,12 +61,14 @@ export default function CustomCalendar({ onDateSelect }) {
           `}
           onClick={() => handleDateClick(new_day)}
         >
+          <Text type="paragraph-strong">
           {formattedDate}
           {isDisabled && (
             <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100">
               🚫
             </span>
           )}
+          </Text>
         </div>
       );
       day = addDays(day, 1);
@@ -76,22 +79,22 @@ export default function CustomCalendar({ onDateSelect }) {
   // Render the header (month/year navigation)
   const renderHeader = () => {
     return (
-      <div className="flex items-center justify-between p-4 bg-gray-200 rounded-t-lg">
-        <button
-          className="text-gray-600 hover:text-gray-800"
+      <div className="flex items-center justify-between p-4 bg-secondary rounded-t-lg">
+        <Text
+          classNames="text-white cursor-pointer hover:text-gray-800"
           onClick={handlePrevMonth}
         >
           &lt; Prev
-        </button>
-        <h2 className="text-lg font-semibold">
+        </Text>
+        <Text type="sm-heading" classNames="text-white">
           {format(currentDate, "MMMM yyyy")}
-        </h2>
-        <button
-          className="text-gray-600 hover:text-gray-800"
+        </Text>
+        <Text
+          classNames="text-white cursor-pointer hover:text-gray-800"
           onClick={handleNextMonth}
         >
           Next &gt;
-        </button>
+        </Text>
       </div>
     );
   };
@@ -100,20 +103,20 @@ export default function CustomCalendar({ onDateSelect }) {
   const renderWeekdays = () => {
     const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return weekdays.map((day) => (
-      <div
+      <Text
         key={day}
-        className="flex items-center justify-center w-12 h-12 text-gray-600 font-semibold"
+        className="flex items-center justify-center  text-gray-600 font-semibold"
       >
         {day}
-      </div>
+      </Text>
     ));
   };
 
   // Render the entire calendar
   return (
-    <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
+    <div className="min-h-60 lg:max-w-2xl md:max-w-sm sm:max-w-sm p-4 bg-white rounded-lg shadow-lg">
       {renderHeader()}
-      <div className="grid grid-cols-7 gap-2 mt-4">
+      <div className="grid grid-cols-7 gap-1 md:gap-2 lg:gap-4 xl:gap-8 my-4">
         {renderWeekdays()}
         {renderDays()}
       </div>

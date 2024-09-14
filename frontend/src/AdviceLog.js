@@ -107,6 +107,7 @@ const AdviceLog = () => {
                 ]}
               />
             </div>
+            <div className="items-center max-h-[644px] px-2 overflow-y-auto">
             {filteredLogs.map((log, index) => (
               <Card
                 key={index}
@@ -121,6 +122,7 @@ const AdviceLog = () => {
                 }}
               />
             ))}
+            </div>
           </div>
         </div>
         <div className="flex w-2/3 border-l border-gray-200">
