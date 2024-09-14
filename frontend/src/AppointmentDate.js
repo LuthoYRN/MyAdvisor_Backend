@@ -130,7 +130,7 @@ const AppointmentDate = () => {
               <Button
                 text="Back"
                 type="secondary"
-                onClick={() => navigate("/appointmentDetails")}
+                onClick={() => navigate("/appointment")}
               />
             </div>
           </div>

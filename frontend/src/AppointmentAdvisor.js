@@ -30,7 +30,7 @@ const Appointment = () => {
   const handleContinue = () => {
     // Do something with the selected advisor
     if (selectedAdvisor) {
-      navigate("/appointmentDetails", { state: selectedAdvisor });
+       navigate("/appointment", { state: selectedAdvisor });
       // Add your logic here to save the selected advisor
     } else {
       console.log("No advisor selected");
