@@ -30,7 +30,7 @@ const Appointment = () => {
   const handleContinue = () => {
     // Do something with the selected advisor
     if (selectedAdvisor) {
-       navigate("/appointmentDetails", { state: selectedAdvisor });
+       navigate("/appointment", { state: selectedAdvisor });
       // Add your logic here to save the selected advisor
     } else {
       console.log("No advisor selected");
@@ -85,10 +85,10 @@ const Appointment = () => {
 
   return (
     <Main userType={"student"} activeMenuItem={"bookAppointment"}>
-      <div className="flex flex-col flex-auto">
-        <div class="flex-auto">
-          <Text type="heading" classNames="mb-16">
-            Appointment Details
+      <div className="flex flex-col flex-auto bg-white rounded-xl ">
+        <div class="flex-auto ml-6">
+          <Text type="heading" classNames="mb-16 mt-10">
+            Booking Appointment
           </Text>
           <Text type="sm-heading" classNames="mb-4">
             Choose an advisor
@@ -98,7 +98,7 @@ const Appointment = () => {
               <UserCard
                 key={index}
                 name={advisor.name}
-                majors={advisor.majors.join(', ')}
+                majors={advisor.majors.join(", ")}
                 office={advisor.office}
                 image={advisor.profile_url}
                 active={index === activeIndex}
@@ -107,7 +107,7 @@ const Appointment = () => {
             ))}
           </div>
         </div>
-        <div class="flex flex-row gap-8 max-w-md">
+        <div class="flex flex-row gap-8 max-w-md ml-6">
           {page > 1 ? (
             <Button text="Previous" onClick={handlePreviousPage} />
           ) : page === 1 ? (
@@ -120,7 +120,7 @@ const Appointment = () => {
             <Button text="Next" type="secondary" disabled={true} />
           ) : null}
         </div>
-        <div class="flex flex-row gap-8 max-w-md">
+        <div class="flex flex-row gap-8 max-w-md ml-6">
           <Button text="Continue" onClick={handleContinue} />
           <Button text="Back" type="secondary" />
         </div>

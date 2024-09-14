@@ -4,6 +4,8 @@ import Text from "./components/Text";
 import Button from "./components/Button";
 import video from "./assets/Video.svg";
 import { useLocation } from "react-router-dom";
+import config from "./config";
+import { useNavigate } from "react-router-dom";
 
 /* 
 Data Needed:
@@ -17,7 +19,9 @@ Data Needed:
 
 const AppointmentDetails = () => {
   const [showRecordingModal, setShowRecordingModal] = React.useState(false);
+  const [appointment, setAppointment] = React.useState(null);
   let location = useLocation();
+  let navigate = useNavigate();
 
   const handleRecordMeeting = () => {
     setShowRecordingModal(true);
@@ -27,8 +31,25 @@ const AppointmentDetails = () => {
     setShowRecordingModal(false);
   };
 
+  React.useEffect(() => { 
+    if (location.state) {
+      fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state.id}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success") {
+            setAppointment(data.data);
+            console.log(data.data); 
+          }
+        })
+        .catch(error => console.error('Error fetching appointment details:', error));
+      console.log(location.state);
+    } else {
+      console.error('Appointment details are not available in location.state');
+    }
+  }, []);
+
   return (
-    <Main>
+    <Main userType={"seniorAdvisor"}>
       <div className="flex flex-col flex-auto p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
@@ -41,7 +62,7 @@ const AppointmentDetails = () => {
               </Text>
               <Text type="paragraph" classNames="mb-8">
                 {/* Replace the placeholder tex with the actual name*/}
-                {location.state.studentName}
+                {location.state.studentName ? location.state.studentName : "N/A"}
               </Text>
               <div className="flex flex-row gap-4 justify-between">
                 <div>
@@ -49,8 +70,7 @@ const AppointmentDetails = () => {
                     Date
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {/* Replace the placeholder tex with the actual date*/}
-                    12th August 2021
+                    {appointment ? appointment.date : "N/A"}
                   </Text>
                 </div>
                 <div>
@@ -58,8 +78,7 @@ const AppointmentDetails = () => {
                     Time
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {/* Replace the placeholder tex with the actual time*/}
-                    12:00 PM
+                  {location.state.time ? location.state.time : "N/A"}
                   </Text>
                 </div>
               </div>
@@ -67,12 +86,12 @@ const AppointmentDetails = () => {
                 Reason for Appointment
               </Text>
               <Text type="paragraph" classNames="mb-8">
-                {location.state.comment}
+                {appointment ? appointment.comment : "N/A"}
               </Text>
             </div>
             <div>
-              <Button text="Record Meeting" onClick={handleRecordMeeting} />
-              <Button text="Back" type="secondary" />
+              <Button disabled={appointment && appointment.hasAdviceLog} text="Record Meeting" onClick={handleRecordMeeting} />
+              <Button text="Back" type="secondary" onClick={()=> navigate("/advisorDashboard")} />
             </div>
           </div>
 
@@ -113,13 +132,13 @@ const AppointmentDetails = () => {
                 <Text type="paragraph" classNames="mb-2">
                   Video
                 </Text>
-                <img class="cursor-pointer" src={video} alt="video" />
+                <img onClick={()=> navigate("/meetingRecording", {state: location.state.id})} class="cursor-pointer" src={video} alt="video" />
               </div>
               <div>
                 <Text type="paragraph" classNames="mb-2">
                   Text
                 </Text>
-                <img class="cursor-pointer" src={video} alt="video" />
+                <img onClick={()=> navigate("/meetingNotes", {state: location.state.id})} class="cursor-pointer" src={video} alt="video" />
               </div>
             </div>
             <Button text="Close" onClick={handleCloseModal} />

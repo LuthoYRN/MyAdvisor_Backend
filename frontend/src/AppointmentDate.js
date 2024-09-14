@@ -3,7 +3,7 @@ import Main from "./layout/Main";
 import Text from "./components/Text";
 import Button from "./components/Button";
 import Pill from "./components/Pill";
-import Calendar from "./components/Calendar";
+import CustomCalendar from "./components/customCalendar";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import config from "./config";
@@ -54,15 +54,12 @@ const AppointmentDate = () => {
               "ngrok-skip-browser-warning": "69420",
             },
             body: formData,
-
           }
         );
         if (response.ok) {
-          
-            console.log("Appointment booked successfully!");
-            // Show confirmation modal
-            setShowSuccessModal(true);
-         
+          console.log("Appointment booked successfully!");
+          // Show confirmation modal
+          setShowSuccessModal(true);
         } else {
           // Handle error in appointment booking
           console.error("Error booking appointment:", response.status);
@@ -75,7 +72,7 @@ const AppointmentDate = () => {
   };
   const handleDateSelect = (date) => {
     // Save the date to the database
-    setDate(date.startStr);
+    setDate(date);
     setSelectedIndex(null);
     setSelectedTime(null);
   };
@@ -114,17 +111,18 @@ const AppointmentDate = () => {
 
   return (
     <Main userType={"student"} activeMenuItem={"bookAppointment"}>
-      <div className="flex flex-col flex-auto">
-        <Text type="heading" classNames="mb-16">
-          Appointment Details
-        </Text>
-
-        <div class="flex gap-72 flex-auto">
-          <div class="flex flex-auto flex-col w-1/2 justify-between">
-            <div>
-              <Calendar onDateSelect={handleDateSelect} />
+      <div className=" h-full flex flex-col flex-auto bg-white rounded-2xl">
+        <div>
+          <Text type="heading" classNames="mb-16 mt-12 ml-16">
+            Booking Appointment
+          </Text>
+        </div>
+        <div class="h-full flex flex-row gap-72 flex-auto">
+          <div class="h-full flex flex-auto flex-col w-1/2 justify-between">
+            <div className="ml-6 p-6 bg-white rounded-lg shadow-lg mb-6 h-auto min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
+              <CustomCalendar onDateSelect={handleDateSelect} />
             </div>
-            <div>
+            <div className="ml-6 mb-6">
               <Button
                 text="Book appointment"
                 onClick={handleConfirmationModal}
@@ -132,7 +130,7 @@ const AppointmentDate = () => {
               <Button
                 text="Back"
                 type="secondary"
-                onClick={() => navigate("/appointmentDetails")}
+                onClick={() => navigate("/appointment")}
               />
             </div>
           </div>
@@ -229,18 +227,17 @@ const AppointmentDate = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
-              Sucess
+              Success
             </Text>
             <Text type="sm-subheading" classNames="mb-8">
               Booking confirmed successfully
             </Text>
-            <Button text="Close" onClick={()=> setShowSuccessModal(false)} />
+            <Button text="Close" onClick={() => navigate("/dashboard")} />
           </div>
         </div>
       )}
     </Main>
   );
-  
 };
 
 export default AppointmentDate;

@@ -22,42 +22,54 @@ const Appointment = () => {
   const [comment, setComment] = React.useState("");
   let location = useLocation();
   let navigate = useNavigate();
- 
+
   const handleCommentChange = (value) => {
     setComment(value);
-  }
+  };
 
   const handleContinue = () => {
     // Save the comment to the database
     console.log(comment);
-    navigate("/appointmentDate", { state: { advisor: location.state, adviceRequired : comment } });
-  }
+    navigate("/appointmentDate", {
+      state: { advisor: location.state, adviceRequired: comment },
+    });
+  };
 
   return (
     <Main userType={"student"} activeMenuItem={"bookAppointment"}>
-      <div className="flex flex-col flex-auto">
-        <Text type="heading" classNames="mb-16">
-          Appointment Details
-        </Text>
-        <Text type="sm-heading" classNames="mb-4">
-          Student Advisor
-        </Text>
-        <Text type="paragraph" classNames="mb-8">
-        {location.state.name}
-        </Text>
-        <div class="flex gap-64 flex-auto">
-          <div class="flex flex-col w-1/2 justify-between">
-            <div class="flex-auto">
-              <TextArea label={"Comments"} placeholder={"What advice is required?"} onValueChange={handleCommentChange}></TextArea>
+      <div className="h-full flex flex-col flex-auto bg-white rounded-xl ">
+        <div className="flex-auto  ml-6">
+          <Text type="heading" classNames="mb-16 mt-10">
+            Booking Appointment
+          </Text>
+          <Text type="sm-heading" classNames="mb-4">
+            Student Advisor
+          </Text>
+          <Text type="paragraph" classNames="mb-8">
+            {location.state.name}
+          </Text>
+          <div class="h-[500px] md:h-[400px] sm:h-[100px] flex gap-32 flex-auto">
+            <div class="flex flex-col w-1/2 justify-between">
+              <div class="flex-auto">
+                <TextArea
+                  label={"Comments"}
+                  placeholder={"What advice is required?"}
+                  onValueChange={handleCommentChange}
+                ></TextArea>
+              </div>
+              <div class="flex flex-row gap-8">
+                <Button text="Continue" onClick={handleContinue} />
+                <Button
+                  text="Back"
+                  type="secondary"
+                  onClick={() => navigate("/bookAppointment")}
+                />
+              </div>
             </div>
-            <div class="flex flex-row gap-8">
-              <Button text="Continue" onClick={handleContinue}/>
-              <Button text="Back" type="secondary" onClick={() => navigate("/bookAppointment")} />
-            </div>
-          </div>
 
-          <div class="w-1/2 flex flex-auto">
-            <FileUploader />
+            <div class="w-1/2 flex flex-auto">
+              <FileUploader />
+            </div>
           </div>
         </div>
       </div>

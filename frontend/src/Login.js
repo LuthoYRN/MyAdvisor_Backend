@@ -14,24 +14,24 @@ function Login() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [role, setRole] = React.useState("student");
-  
+
   const handleUsernameChange = (value) => {
     setUsername(value);
-  }
+  };
 
   const handlePasswordChange = (value) => {
     setPassword(value);
-  }
+  };
 
   const handleSelect = (value) => {
     setRole(value);
-  }
+  };
 
   const handleLogin = () => {
     const data = {
       email: username,
       password: password,
-      role: role
+      role: role,
     };
 
     fetch(`${config.backendUrl}/api/auth/login`, {
@@ -41,11 +41,11 @@ function Login() {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*", // Allow requests from any origin
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE", // Allow the specified HTTP methods
-        "Access-Control-Allow-Headers": "Content-Type" // Allow the specified headers
-      }
+        "Access-Control-Allow-Headers": "Content-Type", // Allow the specified headers
+      },
     })
-      .then(response => response.json())
-      .then(result => {
+      .then((response) => response.json())
+      .then((result) => {
         // Handle the response from the API
         console.log(result);
         if (result.status === "fail") {
@@ -56,21 +56,20 @@ function Login() {
           // Redirect the user to the appropriate page
           console.log("Login Success");
           console.log(result);
-          
+
           localStorage.setItem("user_id", result.user_id);
           if (role === "student") {
             navigate("/dashboard");
-          } else{
-          navigate("/advisorDashboard", { state: result.user_id});}
+          } else {
+            navigate("/advisorDashboard", { state: result.user_id });
+          }
         }
       })
-      .catch(error => {
+      .catch((error) => {
         // Handle any errors that occur during the request
         console.error(error);
       });
   };
-
-
 
   return (
     <Container>
@@ -78,8 +77,19 @@ function Login() {
         <Text classNames="mb-8" type={"heading"}>
           Login
         </Text>
-        <CustomInput classNames="mb-1" label={"Username"} placeholder="Enter your username" onValueChange={handleUsernameChange}/>
-        <CustomInput classNames="mb-1" label={"Password"} placeholder="Enter your password" onValueChange={handlePasswordChange}/>
+        <CustomInput
+          classNames="mb-1"
+          label={"Username"}
+          placeholder="Enter your username"
+          onValueChange={handleUsernameChange}
+        />
+        <CustomInput
+          classNames="mb-1"
+          label={"Password"}
+          placeholder="Enter your password"
+          onValueChange={handlePasswordChange}
+          type="password" // This ensures the password is masked
+        />
         <Select
           label={"Role"}
           options={[
@@ -89,9 +99,9 @@ function Login() {
           classNames="mb-1"
           onChange={handleSelect}
         />
-        <Button text={"Login"} onClick={handleLogin}/>
+        <Button text={"Login"} onClick={handleLogin} />
         <Text onClick={()=>navigate("/signup")} classNames="mt-2" type={"paragraph"}>
-          Don't have an account? Sign up
+          Don't have an account? <span className="text-blue-600">Sign up</span>
         </Text>
       </form>
       <img class="col-span-8 col-start-7  my-auto" src={image} alt="advisor" />

@@ -14,8 +14,6 @@ const Dashboard = () => {
   const [userData, setUserData] = useState(null); // Changed to null to handle loading state
 
   useEffect(() => {
-  
-
     const fetchData = async () => {
       try {
         const response = await fetch(
@@ -39,19 +37,25 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
- 
   if (!userData) {
     return <div>Loading..</div>;
   }
 
-  const { student, upcomingAppointments, pastAppointments } = userData;
+  const {
+    student,
+    upcomingAppointments,
+    pastAppointments,
+    unreadNotifications,
+  } = userData;
 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
       <div className="mb-10 max-h-36">
         <Header
+          profile_url={student.profile_url}
           user={`${student.name} ${student.surname}`}
           info={student.majorOrProgramme}
+          unreadCount={unreadNotifications}
         />
       </div>
 
@@ -61,13 +65,14 @@ const Dashboard = () => {
           <Text type="heading" classNames="mb-8">
             Upcoming Appointments
           </Text>
-          <div className="items-center">
+          <div className="items-center gap-4 flex flex-col">
             {upcomingAppointments.length > 0 ? (
               upcomingAppointments.map((appointment, index) => (
                 <Card
                   key={index}
                   heading={`Meeting with ${appointment.advisorName}`}
                   info={appointment.office}
+                  //slice appointment to only show hh:mm using moment
                   side={appointment.time}
                 />
               ))
@@ -89,9 +94,18 @@ const Dashboard = () => {
           <div className="border-b border-gray-500"></div>
 
           <div className="flex flex-col p-8">
-            <ChatLine text="Hi Jared, how can I help you today?" type="chat" />
-            <ChatLine text="Hi Jared, how can I help you today?" type="user" />
-            <ChatLine text="Hi Jared, how can I help you today?" type="chat" />
+            <ChatLine
+              text={`Hi ${student.name}, how can I help you today?`}
+              type="chat"
+            />
+            <ChatLine
+              text={`Hi ${student.name}, how can I help you today?`}
+              type="user"
+            />
+            <ChatLine
+              text={`Hi ${student.name}, how can I help you today?`}
+              type="chat"
+            />
             <div className="flex w-4/6 justify-end ml-auto flex-wrap">
               <ChatLine text="Credit Calculation" type="option" />
               <ChatLine text="Remaining courses" type="option" />
