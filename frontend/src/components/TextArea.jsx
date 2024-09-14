@@ -1,8 +1,8 @@
 import React from 'react';
 import Text from './Text';
 
-const CustomInput = ({label, placeholder, icon, disabled, classNames, onValueChange}) => {
-    const [value, setValue] = React.useState('');
+const CustomInput = ({label, placeholder, icon, disabled, classNames, onValueChange, text}) => {
+    const [value, setValue] = React.useState(text);
 
     const handleChange = (event) => {
         setValue(event.target.value);

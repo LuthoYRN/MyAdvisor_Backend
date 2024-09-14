@@ -27,11 +27,13 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
+              onClick={() => {navigate("/advisorDashboard")}}
             />
             <MenuItem
               imageSrc={group}
               text="My Advice Log"
               isActive={activeMenuItem === "adviceLog"}
+              onClick={() => {navigate("/adviceLog")}}
             />
             <MenuItem
               imageSrc={list}
@@ -73,6 +75,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={group}
               text="Advice Log"
               isActive={activeMenuItem === "adviceLog"}
+              onClick={() => {navigate("/advicelog")}}
             />
             <MenuItem
               imageSrc={clock}
