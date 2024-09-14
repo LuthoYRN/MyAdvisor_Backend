@@ -126,33 +126,7 @@ const AppointmentDetails = () => {
         </div>
       </div>
 
-      {showRecordingModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-2xl p-8">
-            <Text type="sm-heading" classNames="mb-4">
-              Recording Options
-            </Text>
-            <Text type="sm-subheading" classNames="mb-8">
-              Select which format you would like to record in.
-            </Text>
-            <div className="flex gap-8 mb-4">
-              <div>
-                <Text type="paragraph" classNames="mb-2">
-                  Video
-                </Text>
-                <img class="cursor-pointer" src={video} alt="video" />
-              </div>
-              <div>
-                <Text type="paragraph" classNames="mb-2">
-                  Text
-                </Text>
-                <img class="cursor-pointer" src={video} alt="video" />
-              </div>
-            </div>
-            <Button text="Close" onClick={handleCloseModal} />
-          </div>
-        </div>
-      )}
+    
        {showConfirmationModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">

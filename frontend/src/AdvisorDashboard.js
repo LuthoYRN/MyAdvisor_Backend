@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Text from "./components/Text.jsx";
 import Card from "./components/Card.jsx";
 import Header from "./components/Header.jsx";
@@ -15,6 +16,7 @@ const AdvisorDashboard = () => {
   const [loading, setLoading] = React.useState(true);
   const [appointments, setAppointments] = React.useState([]);
   let location = useLocation();
+  let navigate = useNavigate();
 
   const handleDateSelect = (date) => {
     setDate(date.startStr);
@@ -103,7 +105,7 @@ const AdvisorDashboard = () => {
               <Card
                 heading={appointment.studentName}
                 side={appointment.time}
-                {...console.log(appointment)}
+                onClick={() => {navigate("/appointmentDetails", {state:  appointment})}}
               />
             ))}
           {!date && (

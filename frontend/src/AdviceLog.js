@@ -47,7 +47,6 @@ const AdviceLog = () => {
         console.error("Error fetching logs:", error);
       }
     };
-
     fetchLogs();
   }, []);
 

@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Text from "./components/Text.jsx";
 import Main from "./layout/Main.jsx";
 import TextArea from "./components/TextArea.jsx";
 import Button from "./components/Button.jsx";
+import { useState } from "react";
+import config from "./config.js";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 /*
     Data Needed:
@@ -10,22 +14,67 @@ import Button from "./components/Button.jsx";
   */
 
 const MeetingNotes = () => {
-  const handleSaveNotes = (
-    //TODO: Save notes to the database
-  ) => {};
+  const [notes, setNotes] = useState("");
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  let navigate = useNavigate();
+  let location = useLocation();
+
+  const handleSaveNotes = async () => {
+    console.log(location);
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/note`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ notes }),
+        }
+      );
+      const data = await response.json();
+      if (data.status === "success") {
+        setShowConfirmationModal(true);
+      }
+    } catch (error) {
+      console.error("There was an error saving the notes!", error);
+    }
+  };
 
   return (
-    <Main>
+    <Main userType={"seniorAdvisor"}>
       <div class="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Meeting Notes
         </Text>
-        <TextArea placeholder="Enter notes here" />
+        <TextArea
+          placeholder="Enter notes here"
+          onValueChange={(value) => setNotes(value)}
+        />
         <div class="flex flex-row gap-8 max-w-md">
-        <Button text="Save" onClick={handleSaveNotes} />
-        <Button text="Back" type="secondary" />
+          <Button text="Save" onClick={handleSaveNotes} />
+          <Button text="Back" type="secondary" />
         </div>
       </div>
+      {showConfirmationModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8">
+            <Text type="sm-heading" classNames="mb-4">
+              Success
+            </Text>
+            <Text type="sm-subheading" classNames="mb-8">
+              Meeting notes saved successfully!
+            </Text>
+            <Button
+              text="Close"
+              onClick={() => {
+                setShowConfirmationModal(false);
+                navigate("/advisorDashboard");
+              }}
+            />
+          </div>
+        </div>
+      )}
     </Main>
   );
 };

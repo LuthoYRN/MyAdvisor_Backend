@@ -7,7 +7,7 @@ import Signup from "./Signup";
 import CourseSelection from "./CourseSelection";
 import reportWebVitals from "./reportWebVitals";
 import Dashboard from "./Dashboard";
-import AppointmentDetails from "./AppointmentApprove";
+import AppointmentApprove from "./AppointmentApprove";
 import UserManagement from "./UserManagement";
 import Notifications from "./Notifications";
 import AppointmentDate from "./AppointmentDate";
@@ -21,6 +21,7 @@ import AdvisorDashboard from "./AdvisorDashboard";
 import UpdateSchedule from "./UpdateSchedule";
 import AppointmentRequests from "./AppointmentRequests";
 import App from "./App";
+import AppointmentDetails from "./AppointmentDetails";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -32,11 +33,12 @@ root.render(
       <Route path="/signup" element={<Signup />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/bookappointment" element={<AppointmentAdvisor />} />
-      <Route path="/appointmentDetails" element={<Appointment />} />
+      <Route path="/appointment" element={<Appointment />} />
       <Route path="/appointmentDate" element={<AppointmentDate />} />
-      <Route path="/appointmentApprove" element={<AppointmentDetails />} />
+      <Route path="/appointmentApprove" element={<AppointmentApprove />} />
       
       <Route path="/appointment" element={<Appointment />} />
+      <Route path="/appointmentDetails" element={<AppointmentDetails />} />
       <Route path="/adviceLog" element={<AdviceLog />} />
       <Route path="/meetingNotes" element={<MeetingNotes />} />
       <Route path="/meetingRecording" element={<MeetingRecording />} />
