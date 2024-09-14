@@ -22,6 +22,7 @@ import UpdateSchedule from "./UpdateSchedule";
 import AppointmentRequests from "./AppointmentRequests";
 import App from "./App";
 import AppointmentDetails from "./AppointmentDetails";
+import CurriculumManagement from "./CurriculumManagement";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -46,6 +47,9 @@ root.render(
       <Route path="/updateSchedule" element={<UpdateSchedule />} />
       <Route path="/userManagement" element={<UserManagement />} />
       <Route path="/appointmentRequests" element={<AppointmentRequests />} />
+      <Route path="/userManagement" element={<UserManagement />} />
+      <Route path="/curriculumManagement" element={<CurriculumManagement />} />
+      <Route path="/addCourse" element={<AddCourse/>} />
             
     </Routes>
   </Router>

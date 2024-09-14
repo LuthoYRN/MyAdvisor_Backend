@@ -46,11 +46,7 @@ const AdvisorDashboard = () => {
   };
 
   useEffect(() => {
-    if (!location.state) {
-      console.error("No state found in location");
-      return;
-    }
-
+   
     const fetchData = async () => {
       try {
         const response = await fetch(

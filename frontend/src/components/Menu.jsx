@@ -50,6 +50,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={badge}
               text="Manage Majors"
               isActive={activeMenuItem === "manageMajors"}
+              onClick={() => {navigate("/curriculumManagement")}}
             />
             <MenuItem
               imageSrc={cluster}
