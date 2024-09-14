@@ -163,7 +163,15 @@ const AppointmentDate = () => {
 
       {showConfirmationModal && selectedTime && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <Text
+              type="paragraph-strong"
+              onClick={() => setShowConfirmationModal(false)}
+              classNames="absolute top-4 right-4 cursor-pointer text-3xl
+              text-gray-600 hover:text-gray-900"
+            >
+              &times;
+            </Text>
             <Text type="sm-heading" classNames="mb-4">
               Confirmation
             </Text>
