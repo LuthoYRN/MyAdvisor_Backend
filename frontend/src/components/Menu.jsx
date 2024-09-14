@@ -174,6 +174,9 @@ const Menu = ({ userType, activeMenuItem }) => {
           imageSrc={logout}
           text="Logout"
           isActive={activeMenuItem === "logout"}
+          onClick={() => {
+            navigate("/");
+          }}
         />
       </div>
     </div>

@@ -41,32 +41,34 @@ function App() {
   };
 
   const handleRegister = () => {
+    const selectedMajors = [firstMajor, secondMajor, thirdMajor].filter(Boolean);
+
     fetch(`${config.backendUrl}/api/auth/signup`, {
       method: "POST",
       headers: {
-      "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-      name: firstName,
-      surname: surname,
-      email: email,
-      password: password,
-      confirmPassword: confirmPassword,
-      majors: [firstMajor, secondMajor, thirdMajor],
-      programmeID: null,
+        name: firstName,
+        surname: surname,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        majors: selectedMajors,
+        programmeID: null,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-      if (data.status === "fail") {
-        alert(data.message);
-      } else {
-        localStorage.setItem("user_id", data.user_id);
-        navigate("/courseSelection");
-      }
+        if (data.status === "fail") {
+          alert(data.message);
+        } else {
+          localStorage.setItem("user_id", data.user_id);
+          navigate("/courseSelection");
+        }
       })
       .catch((error) => {
-      console.error("Error:", error);
+        console.error("Error:", error);
       });
   };
 
@@ -105,33 +107,35 @@ function App() {
               classNames={"w-full"}
               label={"First Name"}
               placeholder="Enter your first name"
-              onValueChange={(value)=>setFirstName(value)}
+              onValueChange={(value) => setFirstName(value)}
             />
             <CustomInput
               classNames={"w-full"}
               label={"Surname"}
               placeholder="Enter your surname"
-              onValueChange={(value)=>setSurname(value)}
+              onValueChange={(value) => setSurname(value)}
             />
           </div>
           <CustomInput
             classNames=" mb-2"
             label={"Email Address"}
             placeholder="Enter your Email Address"
-            onValueChange={(value)=>setEmail(value)}
+            onValueChange={(value) => setEmail(value)}
           />
           <div className="flex justify-between gap-8 mb-1">
             <CustomInput
               classNames={"w-full"}
               label={"Password"}
               placeholder="Enter your password"
-              onValueChange={(value)=>setPassword(value)}
+              onValueChange={(value) => setPassword(value)}
+              type="password" // This ensures the password is masked
             />
             <CustomInput
               classNames={"w-full"}
               label={"Confirm Password"}
               placeholder="Confirm your password"
-              onValueChange={(value)=>setConfirmPassword(value)}
+              onValueChange={(value) => setConfirmPassword(value)}
+              type="password" // This ensures the password is masked
             />
           </div>
 
@@ -197,11 +201,13 @@ function App() {
               onChange={(value) => setThirdMajor(value)}
             />
           </div>
-
-          <Button
+        
+            <Button
             text={"Register"}
             onClick={(e) => {
               e.preventDefault();
+              // Array of selected majors
+              const selectedMajors = [firstMajor, secondMajor, thirdMajor].filter(Boolean);
               if (
                 !firstName ||
                 !surname ||
@@ -209,11 +215,9 @@ function App() {
                 !password ||
                 !confirmPassword ||
                 !faculty ||
-                !firstMajor ||
-                !secondMajor ||
-                !thirdMajor
+                selectedMajors.length < 2 // Ensure at least two majors are selected
               ) {
-                alert("Please fill in all required fields.");
+                alert("Please fill in all required fields and select at least two majors.");
                 return;
               }
               if (password !== confirmPassword) {
@@ -222,7 +226,8 @@ function App() {
               }
               handleRegister();
             }}
-          />
+          />          
+        
         </form>
         <img
           className="col-span-8 col-start-7 my-auto"

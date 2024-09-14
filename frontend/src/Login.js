@@ -86,8 +86,14 @@ function Login() {
           type="password" // This ensures the password is masked
         />
         <Button text={"Login"} onClick={handleLogin} />
-        <Text onClick={()=>navigate("/signup")} classNames="mt-2" type={"paragraph"}>
-          Don't have an account? <span className="text-blue-600">Sign up</span>
+        <Text classNames="mt-2" type={"paragraph"}>
+          Don't have an account?{" "}
+          <span
+            className="text-blue-600 cursor-pointer underline hover:text-blue-800"
+            onClick={() => navigate("/signup")}
+          >
+            Sign up
+          </span>
         </Text>
       </form>
       <img class="col-span-8 col-start-7  my-auto" src={image} alt="advisor" />

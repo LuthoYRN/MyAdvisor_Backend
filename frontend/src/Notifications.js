@@ -123,51 +123,65 @@ const Notifications = () => {
                   <Text type="paragraph" classNames="mb-8">
                     {notificationDetails.type === "Approval" ? (
                       <>
-                        <Text type="paragraph" classNames="mb-2">
-                          Hi{" "}
-                          {
-                            JSON.parse(localStorage.getItem("userData"))
-                              ?.student?.name
-                          }
-                          ,
-                        </Text>
-                        <Text type="paragraph" classNames="mb-2">
-                          Your appointment with{" "}
-                          {notificationDetails.appointment?.advisorName} has
-                          been approved and added to your appointments.
-                        </Text>
-                        <Text
-                          type="paragraph"
-                          classNames="mb-2 font-bold underline"
-                        >
-                          Details
-                        </Text>
-                        <Text type="paragraph" classNames="mb-2">
-                          Advisor:{" "}
-                          {notificationDetails.appointment?.advisorName ||
-                            "Advisor not specified"}
-                        </Text>
-                        <Text type="paragraph" classNames="mb-2">
-                          Office:{" "}
-                          {notificationDetails.appointment?.office ||
-                            "Office not specified"}
-                        </Text>
-                        <Text type="paragraph" classNames="mb-2">
-                          Date:{" "}
-                          {notificationDetails.appointment?.date ||
-                            "Date not specified"}
-                        </Text>
-                        <Text type="paragraph" classNames="mb-2">
-                          Time:{" "}
-                          {notificationDetails.appointment?.time ||
-                            "Time not specified"}
-                        </Text>
+                        <div className="p-6 bg-white border-2 border-primary rounded-lg shadow-lg mb-6 h-auto">
+                          <Text type="paragraph" classNames="mb-2">
+                            Hi{" "}
+                            {
+                              JSON.parse(localStorage.getItem("userData"))
+                                ?.student?.name
+                            }
+                            ,
+                          </Text>
+                          <Text type="paragraph" classNames="mb-2">
+                            Your appointment with{" "}
+                            {notificationDetails.appointment?.advisorName} has
+                            been approved and added to your appointments.
+                          </Text>
+                          <Text
+                            type="paragraph"
+                            classNames="mb-2 font-bold underline"
+                          >
+                            Details
+                          </Text>
+                          <Text type="paragraph" classNames="mb-2">
+                            Advisor:{" "}
+                            {notificationDetails.appointment?.advisorName ||
+                              "Advisor not specified"}
+                          </Text>
+                          <Text type="paragraph" classNames="mb-2">
+                            Office:{" "}
+                            {notificationDetails.appointment?.office ||
+                              "Office not specified"}
+                          </Text>
+                          <Text type="paragraph" classNames="mb-2">
+                            Date:{" "}
+                            {notificationDetails.appointment?.date ||
+                              "Date not specified"}
+                          </Text>
+                          <Text type="paragraph" classNames="mb-2">
+                            Time:{" "}
+                            {notificationDetails.appointment?.time ||
+                              "Time not specified"}
+                          </Text>
+                        </div>
                       </>
                     ) : (
-                      <Text type="paragraph" classNames="mb-2">
-                        {notificationDetails.message ||
-                          "Click on a notification"}
-                      </Text>
+                      <div
+                        style={{
+                          padding: "1.5rem",
+                          border: "2px solid rgba(245, 101, 101, 0.4)", // Same color and opacity for the border
+                          borderRadius: "0.5rem",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          marginBottom: "1.5rem",
+                          height: "auto",
+                        }}
+                      >
+                        {" "}
+                        <Text type="paragraph" classNames="mb-2">
+                          {notificationDetails.message ||
+                            "Click on a notification"}
+                        </Text>
+                      </div>
                     )}
                   </Text>
                 </>
