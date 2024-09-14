@@ -123,6 +123,7 @@ const AppointmentRequests = () => {
     <Main userType={"advisor"} activeMenuItem={"notifications"}>
       <div className="mb-10 max-h-36">
         <Header
+          profile_url={`${JSON.parse(localStorage.getItem("userData")).advisor.profile_url}`}
           user={`${JSON.parse(localStorage.getItem("userData")).advisor.name}`}
           info={JSON.parse(localStorage.getItem("userData")).advisor.office}
         />
@@ -131,10 +132,10 @@ const AppointmentRequests = () => {
         <div className="flex justify-between w-1/3 flex-col gap-4">
           <div className="flex flex-col gap-4">
             <Text type="heading" classNames="mb-4">
-              Notifications
+              Appointment Requests
             </Text>
             <div className="items-center max-h-96 py-4 px-2 overflow-y-auto">
-              {requests &&
+              {requests.length > 0 ? (
                 requests.map((request) => (
                   <Card
                     key={request.id}
@@ -150,7 +151,10 @@ const AppointmentRequests = () => {
                     }}
                     classNames={"mb-4"}
                   />
-                ))}
+                ))
+              ) : (
+                <Text type="paragraph">No requests available.</Text>
+              )}
             </div>
           </div>
           <Button

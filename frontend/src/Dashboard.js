@@ -41,7 +41,12 @@ const Dashboard = () => {
     return <div>Loading..</div>;
   }
 
-  const { student, upcomingAppointments, pastAppointments } = userData;
+  const {
+    student,
+    upcomingAppointments,
+    pastAppointments,
+    unreadNotifications,
+  } = userData;
 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
@@ -50,6 +55,7 @@ const Dashboard = () => {
           profile_url={student.profile_url}
           user={`${student.name} ${student.surname}`}
           info={student.majorOrProgramme}
+          unreadCount={unreadNotifications}
         />
       </div>
 
@@ -66,6 +72,7 @@ const Dashboard = () => {
                   key={index}
                   heading={`Meeting with ${appointment.advisorName}`}
                   info={appointment.office}
+                  //slice appointment to only show hh:mm using moment
                   side={appointment.time}
                 />
               ))

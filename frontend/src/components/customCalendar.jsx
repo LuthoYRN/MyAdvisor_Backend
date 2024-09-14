@@ -43,28 +43,32 @@ export default function CustomCalendar({ onDateSelect }) {
   // Render the days of the month in a grid
   const renderDays = () => {
     const days = [];
-    let day = startDate; // Start from the first day of the calendar grid (which may include previous month)
+    let day = startDate;
     while (day <= endDate) {
       const formattedDate = format(day, "d");
       const isSelected =
         selectedDate &&
         format(selectedDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
       const isDisabled =
-        (isBefore(day, new Date()) && !isToday(day)) || isWeekend(day); // Disable past days and weekends
+        (isBefore(day, new Date()) && !isToday(day)) || isWeekend(day);
       let new_day = day;
       days.push(
         <div
           key={day}
-          className={`flex items-center justify-center w-12 h-12 rounded-full cursor-pointer 
+          className={`flex items-center justify-center w-12 h-12 rounded-full cursor-pointer relative
             ${isSelected ? "bg-primary text-white" : isDisabled ? "bg-gray-50 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-800 hover:bg-primary hover:text-white"}
           `}
           onClick={() => handleDateClick(new_day)}
         >
           {formattedDate}
+          {isDisabled && (
+            <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100">
+              🚫
+            </span>
+          )}
         </div>
       );
-
-      day = addDays(day, 1); // Move to the next day
+      day = addDays(day, 1);
     }
     return days;
   };

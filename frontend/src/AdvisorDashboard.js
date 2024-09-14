@@ -6,7 +6,9 @@ import Text from "./components/Text.jsx";
 import Card from "./components/Card.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
+import CustomCalendar from "./components/customCalendar.jsx";
 import Calendar from "./components/Calendar.jsx";
+import moment from "moment";
 import config from "./config";
 
 const AdvisorDashboard = () => {
@@ -19,12 +21,11 @@ const AdvisorDashboard = () => {
   let navigate = useNavigate();
 
   const handleDateSelect = (date) => {
-    setDate(date.startStr);
-    console.log(date);
+    setDate(date);
     const fetchAppointments = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}?date=${date.startStr}`,
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}?date=${date}`,
           {
             method: "GET",
             headers: {
@@ -85,19 +86,22 @@ const AdvisorDashboard = () => {
           profile_url={userData?.advisor?.profile_url}
           user={`${userData?.advisor?.name}`}
           info={userData?.advisor?.office}
+          unreadCount={userData?.unreadAppointmentRequests}
         />
       </div>
       <div class="flex-auto grid grid-cols-2 gap-14 justify-between bg-white rounded-2xl  shadow-xl ">
         <div class="flex flex-col p-8 ">
           <Text type="heading" classNames="mb-8">
             Appointments
-          </Text>
-          <Calendar onDateSelect={handleDateSelect} />
+          </Text>{" "}
+          <div className="ml-6 p-6 bg-white rounded-lg shadow-lg mb-6 h-auto min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
+            <CustomCalendar onDateSelect={handleDateSelect} />
+          </div>
         </div>
         <div class="border-l border-gray-200 flex flex-col h-full p-8 gap-8">
           {date && (
             <Text type="heading" classNames="mb-4">
-              {date}
+              {moment(date).format("DD/MMM/YYYY")}
             </Text>
           )}
           {date &&
@@ -105,7 +109,9 @@ const AdvisorDashboard = () => {
               <Card
                 heading={appointment.studentName}
                 side={appointment.time}
-                onClick={() => {navigate("/appointmentDetails", {state:  appointment})}}
+                onClick={() => {
+                  navigate("/appointmentDetails", { state: appointment });
+                }}
               />
             ))}
           {!date && (
