@@ -22,26 +22,6 @@ function App() {
   const [thirdMajor, setThirdMajor] = React.useState("");
   const navigate = useNavigate();
 
-  const handleFirstNameChange = (value) => {
-    setFirstName(value);
-  };
-
-  const handleSurnameChange = (value) => {
-    setSurname(value);
-  };
-
-  const handleEmailChange = (value) => {
-    setEmail(value);
-  };
-
-  const handlePasswordChange = (value) => {
-    setPassword(value);
-  };
-
-  const handleConfirmPasswordChange = (value) => {
-    setConfirmPassword(value);
-  };
-
   const handleFacultyChange = (value) => {
     setFaculty(value);
     const fetchMajors = async (facultyID) => {
@@ -60,44 +40,33 @@ function App() {
     fetchMajors(value);
   };
 
-  const handleFirstMajorChange = (value) => {
-    setFirstMajor(value);
-  };
-
-  const handleSecondMajorChange = (value) => {
-    setSecondMajor(value);
-  };
-
-  const handleThirdMajorChange = (value) => {
-    setThirdMajor(value);
-  };
-
   const handleRegister = () => {
     fetch(`${config.backendUrl}/api/auth/signup`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+      "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: firstName,
-        surname: surname,
-        email: email,
-        password: password,
-        confirmPassword: confirmPassword,
-        majors: [firstMajor, secondMajor, thirdMajor],
-        programmeID: null,
+      name: firstName,
+      surname: surname,
+      email: email,
+      password: password,
+      confirmPassword: confirmPassword,
+      majors: [firstMajor, secondMajor, thirdMajor],
+      programmeID: null,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status === "fail") {
-          alert(data.message);
-        } else {
-          navigate("/courseSelection");
-        }
+      if (data.status === "fail") {
+        alert(data.message);
+      } else {
+        localStorage.setItem("user_id", data.user_id);
+        navigate("/courseSelection");
+      }
       })
       .catch((error) => {
-        console.error("Error:", error);
+      console.error("Error:", error);
       });
   };
 
@@ -136,33 +105,33 @@ function App() {
               classNames={"w-full"}
               label={"First Name"}
               placeholder="Enter your first name"
-              onChange={handleFirstNameChange}
+              onValueChange={(value)=>setFirstName(value)}
             />
             <CustomInput
               classNames={"w-full"}
               label={"Surname"}
               placeholder="Enter your surname"
-              onChange={handleSurnameChange}
+              onValueChange={(value)=>setSurname(value)}
             />
           </div>
           <CustomInput
             classNames=" mb-2"
             label={"Email Address"}
             placeholder="Enter your Email Address"
-            onChange={handleEmailChange}
+            onValueChange={(value)=>setEmail(value)}
           />
           <div className="flex justify-between gap-8 mb-1">
             <CustomInput
               classNames={"w-full"}
               label={"Password"}
               placeholder="Enter your password"
-              onChange={handlePasswordChange}
+              onValueChange={(value)=>setPassword(value)}
             />
             <CustomInput
               classNames={"w-full"}
               label={"Confirm Password"}
               placeholder="Confirm your password"
-              onChange={handleConfirmPasswordChange}
+              onValueChange={(value)=>setConfirmPassword(value)}
             />
           </div>
 
@@ -193,7 +162,7 @@ function App() {
                     label: major.majorName,
                   })),
               ]}
-              onChange={handleFirstMajorChange}
+              onChange={(value) => setFirstMajor(value)}
             />
             <Select
               label={"Second Major"}
@@ -209,7 +178,7 @@ function App() {
                     label: major.majorName,
                   })),
               ]}
-              onChange={handleSecondMajorChange}
+              onChange={(value) => setSecondMajor(value)}
             />
             <Select
               label={"Third Major"}
@@ -225,7 +194,7 @@ function App() {
                     label: major.majorName,
                   })),
               ]}
-              onChange={handleThirdMajorChange}
+              onChange={(value) => setThirdMajor(value)}
             />
           </div>
 
