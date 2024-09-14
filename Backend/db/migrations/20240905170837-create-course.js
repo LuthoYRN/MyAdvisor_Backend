@@ -17,9 +17,20 @@ module.exports = {
       nqf_level: {
         type: Sequelize.INTEGER,
       },
-      uuid: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+      prerequisites: {
+        type: Sequelize.ARRAY(Sequelize.STRING), // Storing prerequisites as array
+      },
+      equivalents: {
+        type: Sequelize.ARRAY(Sequelize.STRING), // Storing equivalents as array
+      },
+      specialRequirements: {
+        type: Sequelize.STRING,
+      },
+      bothSemesters: {
+        type: Sequelize.BOOLEAN,
+      },
+      facultyID: {
+        type: Sequelize.INTEGER,
       },
     });
   },

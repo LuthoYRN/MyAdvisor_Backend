@@ -3,17 +3,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Course extends Model {
     static associate(models) {
-      // Association with Prerequisite (courses can have prerequisites)
-      Course.hasMany(models.prerequisite, {
-        as: "CoursePrerequisite",
-        foreignKey: "courseID",
-      });
-
-      Course.hasMany(models.prerequisite, {
-        as: "IsPrerequisiteFor",
-        foreignKey: "prerequisiteID",
-      });
-
       // Many-to-Many association with Major and Programme through SharedCourse
       Course.belongsToMany(models.major, {
         through: models.sharedCourse,
@@ -25,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
         through: models.sharedCourse,
         foreignKey: "courseID",
         otherKey: "programmeID",
+      });
+      Course.belongsTo(models.faculty, {
+        foreignKey: "facultyID",
       });
     }
   }
@@ -57,10 +49,25 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      uuid: {
+      prerequisites: {
+        type: DataTypes.ARRAY(DataTypes.STRING), // Storing prerequisites as array
+        allowNull: true, // Array of time strings
+      },
+      equivalents: {
+        type: DataTypes.ARRAY(DataTypes.STRING), // Storing equivalents as array
+        allowNull: true, // Array of time strings
+      },
+      specialRequirements: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      bothSemesters: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false, // Set default value to false
+      },
+      facultyID: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
       },
     },
     {
