@@ -10,6 +10,8 @@ const CustomInput = ({
   classNames,
   onValueChange,
   type = "text",
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [value, setValue] = useState("");
   const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -35,6 +37,9 @@ const CustomInput = ({
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          
         />
         {type === "password" && (
           <button

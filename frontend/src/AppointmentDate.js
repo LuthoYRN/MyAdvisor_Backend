@@ -227,12 +227,12 @@ const AppointmentDate = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
-              Sucess
+              Success
             </Text>
             <Text type="sm-subheading" classNames="mb-8">
               Booking confirmed successfully
             </Text>
-            <Button text="Close" onClick={() => setShowSuccessModal(false)} />
+            <Button text="Close" onClick={() => navigate("/dashboard")} />
           </div>
         </div>
       )}

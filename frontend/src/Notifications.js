@@ -84,7 +84,7 @@ const Notifications = () => {
 
           {/* Only render notifications if they exist */}
           {notifications && notifications.length > 0 ? (
-            <div className="items-center">
+            <div className="items-center max-h-[500px] px-2 overflow-y-auto">
               {notifications.map((notification) => (
                 <Card
                   key={notification.id}

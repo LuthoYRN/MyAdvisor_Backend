@@ -36,6 +36,8 @@ root.render(
       <Route path="/bookappointment" element={<AppointmentAdvisor />} />
       <Route path="/appointment" element={<Appointment />} />
       <Route path="/appointmentDate" element={<AppointmentDate />} />
+      <Route path="/appointmentApprove" element={<AppointmentDetails />} />
+      <Route path="/courseSelection" element={<CourseSelection />} />
       <Route path="/appointmentApprove" element={<AppointmentApprove />} />
       
       <Route path="/appointment" element={<Appointment />} />

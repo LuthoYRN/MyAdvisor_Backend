@@ -206,6 +206,7 @@ const AddCourse = () => {
               label={"Special Requirements"}
               placeholder={"Enter Special Requirements"}
               value={specialRequirements}
+              onValueChange={(value) => setSpecialRequirements(value)}
             />
             <CustomInput
               label="Equivalents"

@@ -98,7 +98,7 @@ const AdvisorDashboard = () => {
         <div className="border-l border-gray-200 flex flex-col h-full p-8 gap-8">
           {date && (
             <Text type="heading" classNames="mb-4">
-              {moment(date).format("DD/MMM/YYYY")}
+              {moment(date).format("DD MMM YYYY")}
             </Text>
           )}
           {date && appointments.length > 0 ? (
