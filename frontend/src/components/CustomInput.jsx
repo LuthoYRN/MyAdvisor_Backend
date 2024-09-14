@@ -8,6 +8,8 @@ const CustomInput = ({
   classNames,
   onValueChange,
   type = "text",
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [value, setValue] = React.useState("");
 
@@ -29,6 +31,9 @@ const CustomInput = ({
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          
         />
         {icon && <img src={icon} alt="icon" class="-mx-8 mb-4" />}
       </div>

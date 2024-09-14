@@ -100,7 +100,7 @@ function Login() {
           onChange={handleSelect}
         />
         <Button text={"Login"} onClick={handleLogin} />
-        <Text classNames="mt-2" type={"paragraph"}>
+        <Text onClick={()=>navigate("/signup")} classNames="mt-2" type={"paragraph"}>
           Don't have an account? <span className="text-blue-600">Sign up</span>
         </Text>
       </form>
