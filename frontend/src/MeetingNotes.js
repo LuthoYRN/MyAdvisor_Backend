@@ -7,6 +7,7 @@ import { useState } from "react";
 import config from "./config.js";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 /*
     Data Needed:
@@ -56,25 +57,7 @@ const MeetingNotes = () => {
           <Button text="Back" type="secondary" />
         </div>
       </div>
-      {showConfirmationModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8">
-            <Text type="sm-heading" classNames="mb-4">
-              Success
-            </Text>
-            <Text type="sm-subheading" classNames="mb-8">
-              Meeting notes saved successfully!
-            </Text>
-            <Button
-              text="Close"
-              onClick={() => {
-                setShowConfirmationModal(false);
-                navigate("/advisorDashboard");
-              }}
-            />
-          </div>
-        </div>
-      )}
+      {showConfirmationModal && <ConfirmationModal status={"Success"} message={"Successfully saved notes"} onConfirm={"/advisorDashboard"}/>}
     </Main>
   );
 };

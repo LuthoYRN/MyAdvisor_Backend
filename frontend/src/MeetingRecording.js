@@ -5,6 +5,9 @@ import Main from "./layout/Main.jsx";
 import Button from "./components/Button.jsx";
 import { ReactMediaRecorder } from "react-media-recorder";
 import { useRef } from "react";
+import { useLocation } from "react-router-dom";
+import config from "./config.js";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 /*
     Data Needed:
@@ -12,7 +15,32 @@ import { useRef } from "react";
   */
 
 const MeetingRecording = () => {
-  const handleSave = () => {};
+  let location = useLocation();
+  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+
+  const handleSave = async (mediaBlobUrl) => {
+    if (!mediaBlobUrl) return;
+
+    const blob = await fetch(mediaBlobUrl).then((r) => r.blob());
+    const formData = new FormData();
+    formData.append("video", blob, "meeting_recording.mp4");
+
+    try {
+      const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/video/`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+          setShowConfirmationModal(true);
+      } else {
+        console.error("Failed to save the recording:", result.message);
+      }
+    } catch (error) {
+      console.error("Error saving the recording:", error);
+    }
+  };
 
   const VideoPreview = ({ stream }) => {
     const videoRef = useRef(null);
@@ -73,7 +101,7 @@ const MeetingRecording = () => {
                 ) : status === "recording" ? (
                   <Button onClick={stopRecording} text={"Stop Recording"} />
                 ): (
-                  <Button onClick={handleSave} text={"Save Recording"} />
+                  <Button onClick={() => handleSave(mediaBlobUrl)} text={"Save Recording"} />
                 )}
                 <Button text={"Cancel"} type={"secondary"} />
               </div>
@@ -81,6 +109,7 @@ const MeetingRecording = () => {
           )}
         />
       </div>
+      {showConfirmationModal && <ConfirmationModal status={"Success"} message={"Successfully saved recording"} onConfirm={"/advisorDashboard"}/>}
     </Main>
   );
 };

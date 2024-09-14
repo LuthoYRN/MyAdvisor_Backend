@@ -38,7 +38,7 @@ const AppointmentDetails = () => {
         .then(data => {
           if (data.status === "success") {
             setAppointment(data.data);
-            console.log(location.state); 
+            console.log(data.data); 
           }
         })
         .catch(error => console.error('Error fetching appointment details:', error));
@@ -90,8 +90,8 @@ const AppointmentDetails = () => {
               </Text>
             </div>
             <div>
-              <Button text="Record Meeting" onClick={handleRecordMeeting} />
-              <Button text="Back" type="secondary" />
+              <Button disabled={appointment && appointment.hasAdviceLog} text="Record Meeting" onClick={handleRecordMeeting} />
+              <Button text="Back" type="secondary" onClick={()=> navigate("/advisorDashboard")} />
             </div>
           </div>
 

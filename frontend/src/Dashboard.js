@@ -61,7 +61,7 @@ const Dashboard = () => {
           <Text type="heading" classNames="mb-8">
             Upcoming Appointments
           </Text>
-          <div className="items-center">
+          <div className="items-center gap-4 flex flex-col">
             {upcomingAppointments.length > 0 ? (
               upcomingAppointments.map((appointment, index) => (
                 <Card
