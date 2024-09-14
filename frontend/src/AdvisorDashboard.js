@@ -90,14 +90,14 @@ const AdvisorDashboard = () => {
           <Text type="heading" classNames="mb-8">
             Appointments
           </Text>{" "}
-          <div className="ml-6 p-6 bg-white rounded-lg shadow-lg mb-6 h-auto min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
+          <div className="h-auto min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
             <CustomCalendar onDateSelect={handleDateSelect} />
           </div>
         </div>
         <div class="border-l border-gray-200 flex flex-col h-full p-8 gap-8">
           {date && (
             <Text type="heading" classNames="mb-4">
-              {moment(date).format("DD/MMM/YYYY")}
+              {moment(date).format("DD MMM YYYY")}
             </Text>
           )}
           {date &&
