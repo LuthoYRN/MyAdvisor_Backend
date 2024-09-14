@@ -43,7 +43,11 @@ const MeetingNotes = () => {
   };
 
   return (
-    <Main userType={"seniorAdvisor"}>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+    >
       <div class="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Meeting Notes
@@ -57,7 +61,13 @@ const MeetingNotes = () => {
           <Button text="Back" type="secondary" />
         </div>
       </div>
-      {showConfirmationModal && <ConfirmationModal status={"Success"} message={"Successfully saved notes"} onConfirm={"/advisorDashboard"}/>}
+      {showConfirmationModal && (
+        <ConfirmationModal
+          status={"Success"}
+          message={"Successfully saved notes"}
+          onConfirm={"/advisorDashboard"}
+        />
+      )}
     </Main>
   );
 };

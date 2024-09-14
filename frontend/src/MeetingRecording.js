@@ -16,7 +16,8 @@ import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 const MeetingRecording = () => {
   let location = useLocation();
-  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] =
+    React.useState(false);
 
   const handleSave = async (mediaBlobUrl) => {
     if (!mediaBlobUrl) return;
@@ -26,14 +27,17 @@ const MeetingRecording = () => {
     formData.append("video", blob, "meeting_recording.mp4");
 
     try {
-      const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/video/`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/video/`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const result = await response.json();
       if (result.status === "success") {
-          setShowConfirmationModal(true);
+        setShowConfirmationModal(true);
       } else {
         console.error("Failed to save the recording:", result.message);
       }
@@ -66,7 +70,11 @@ const MeetingRecording = () => {
   };
 
   return (
-    <Main>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+    >
       <div class="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Meeting Recording
@@ -93,15 +101,17 @@ const MeetingRecording = () => {
                     loop
                   />
                 )}
-                
               </div>
               <div class="flex flex-row gap-8 max-w-md">
                 {status === "idle" ? (
                   <Button onClick={startRecording} text={"Start Recording"} />
                 ) : status === "recording" ? (
                   <Button onClick={stopRecording} text={"Stop Recording"} />
-                ): (
-                  <Button onClick={() => handleSave(mediaBlobUrl)} text={"Save Recording"} />
+                ) : (
+                  <Button
+                    onClick={() => handleSave(mediaBlobUrl)}
+                    text={"Save Recording"}
+                  />
                 )}
                 <Button text={"Cancel"} type={"secondary"} />
               </div>
@@ -109,7 +119,13 @@ const MeetingRecording = () => {
           )}
         />
       </div>
-      {showConfirmationModal && <ConfirmationModal status={"Success"} message={"Successfully saved recording"} onConfirm={"/advisorDashboard"}/>}
+      {showConfirmationModal && (
+        <ConfirmationModal
+          status={"Success"}
+          message={"Successfully saved recording"}
+          onConfirm={"/advisorDashboard"}
+        />
+      )}
     </Main>
   );
 };

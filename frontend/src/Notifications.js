@@ -10,6 +10,33 @@ import config from "./config";
 const Notifications = () => {
   const [notifications, setNotifications] = React.useState([]);
   const [notificationDetails, setNotificationDetails] = React.useState([]);
+  const [activeNotificationId, setActiveNotificationId] = React.useState(null);
+
+  const markNotificationAsRead = async (notificationID) => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/notifications/${notificationID}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "read" }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to mark notification as read");
+      }
+      console.log("Notification marked as read");
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((noti) =>
+        noti.id === notificationID ? { ...noti, isRead: true } : noti
+      )
+    );
+  };
 
   React.useEffect(() => {
     const fetchNotifications = async () => {
@@ -36,7 +63,6 @@ const Notifications = () => {
 
     fetchNotifications();
   }, []);
-
   return (
     <Main userType={"student"} activeMenuItem={"notifications"}>
       <div className="mb-10 max-h-36">
@@ -64,12 +90,17 @@ const Notifications = () => {
                   key={notification.id}
                   imgSrc={robot}
                   heading={notification.type}
-                  info={
-                    notification.appointment?.advisorName || "No advisor name"
-                  }
-                  side={notification.appointment?.time || "No time provided"}
+                  info={notification.appointment?.advisorName}
+                  side={notification.appointment?.time}
+                  active={activeNotificationId === notification.id}
+                  read={notification.isRead}
+                  status={notification.type}
                   classNames="mb-4 cursor-pointer"
-                  onClick={() => setNotificationDetails(notification)}
+                  onClick={() => {
+                    setNotificationDetails(notification);
+                    setActiveNotificationId(notification.id);
+                    markNotificationAsRead(notification.id);
+                  }}
                 />
               ))}
             </div>
@@ -90,9 +121,54 @@ const Notifications = () => {
                     {notificationDetails.type || ""}
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {notificationDetails.type === "Approval"
-                      ? `${notificationDetails.appointment?.advisorName || "No advisor"} has approved your appointment request`
-                      : `${notificationDetails.message || "Click on a notification"}`}
+                    {notificationDetails.type === "Approval" ? (
+                      <>
+                        <Text type="paragraph" classNames="mb-2">
+                          Hi{" "}
+                          {
+                            JSON.parse(localStorage.getItem("userData"))
+                              ?.student?.name
+                          }
+                          ,
+                        </Text>
+                        <Text type="paragraph" classNames="mb-2">
+                          Your appointment with{" "}
+                          {notificationDetails.appointment?.advisorName} has
+                          been approved and added to your appointments.
+                        </Text>
+                        <Text
+                          type="paragraph"
+                          classNames="mb-2 font-bold underline"
+                        >
+                          Details
+                        </Text>
+                        <Text type="paragraph" classNames="mb-2">
+                          Advisor:{" "}
+                          {notificationDetails.appointment?.advisorName ||
+                            "Advisor not specified"}
+                        </Text>
+                        <Text type="paragraph" classNames="mb-2">
+                          Office:{" "}
+                          {notificationDetails.appointment?.office ||
+                            "Office not specified"}
+                        </Text>
+                        <Text type="paragraph" classNames="mb-2">
+                          Date:{" "}
+                          {notificationDetails.appointment?.date ||
+                            "Date not specified"}
+                        </Text>
+                        <Text type="paragraph" classNames="mb-2">
+                          Time:{" "}
+                          {notificationDetails.appointment?.time ||
+                            "Time not specified"}
+                        </Text>
+                      </>
+                    ) : (
+                      <Text type="paragraph" classNames="mb-2">
+                        {notificationDetails.message ||
+                          "Click on a notification"}
+                      </Text>
+                    )}
                   </Text>
                 </>
               ) : (

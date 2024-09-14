@@ -31,25 +31,33 @@ const AppointmentDetails = () => {
     setShowRecordingModal(false);
   };
 
-  React.useEffect(() => { 
+  React.useEffect(() => {
     if (location.state) {
-      fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state.id}`)
-        .then(response => response.json())
-        .then(data => {
+      fetch(
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state.id}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
           if (data.status === "success") {
             setAppointment(data.data);
-            console.log(data.data); 
+            console.log(data.data);
           }
         })
-        .catch(error => console.error('Error fetching appointment details:', error));
+        .catch((error) =>
+          console.error("Error fetching appointment details:", error)
+        );
       console.log(location.state);
     } else {
-      console.error('Appointment details are not available in location.state');
+      console.error("Appointment details are not available in location.state");
     }
   }, []);
 
   return (
-    <Main userType={"seniorAdvisor"}>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+    >
       <div className="flex flex-col flex-auto p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
@@ -62,7 +70,9 @@ const AppointmentDetails = () => {
               </Text>
               <Text type="paragraph" classNames="mb-8">
                 {/* Replace the placeholder tex with the actual name*/}
-                {location.state.studentName ? location.state.studentName : "N/A"}
+                {location.state.studentName
+                  ? location.state.studentName
+                  : "N/A"}
               </Text>
               <div className="flex flex-row gap-4 justify-between">
                 <div>
@@ -78,7 +88,7 @@ const AppointmentDetails = () => {
                     Time
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                  {location.state.time ? location.state.time : "N/A"}
+                    {location.state.time ? location.state.time : "N/A"}
                   </Text>
                 </div>
               </div>
@@ -90,8 +100,16 @@ const AppointmentDetails = () => {
               </Text>
             </div>
             <div>
-              <Button disabled={appointment && appointment.hasAdviceLog} text="Record Meeting" onClick={handleRecordMeeting} />
-              <Button text="Back" type="secondary" onClick={()=> navigate("/advisorDashboard")} />
+              <Button
+                disabled={appointment && appointment.hasAdviceLog}
+                text="Record Meeting"
+                onClick={handleRecordMeeting}
+              />
+              <Button
+                text="Back"
+                type="secondary"
+                onClick={() => navigate("/advisorDashboard")}
+              />
             </div>
           </div>
 
@@ -132,13 +150,27 @@ const AppointmentDetails = () => {
                 <Text type="paragraph" classNames="mb-2">
                   Video
                 </Text>
-                <img onClick={()=> navigate("/meetingRecording", {state: location.state.id})} class="cursor-pointer" src={video} alt="video" />
+                <img
+                  onClick={() =>
+                    navigate("/meetingRecording", { state: location.state.id })
+                  }
+                  class="cursor-pointer"
+                  src={video}
+                  alt="video"
+                />
               </div>
               <div>
                 <Text type="paragraph" classNames="mb-2">
                   Text
                 </Text>
-                <img onClick={()=> navigate("/meetingNotes", {state: location.state.id})} class="cursor-pointer" src={video} alt="video" />
+                <img
+                  onClick={() =>
+                    navigate("/meetingNotes", { state: location.state.id })
+                  }
+                  class="cursor-pointer"
+                  src={video}
+                  alt="video"
+                />
               </div>
             </div>
             <Button text="Close" onClick={handleCloseModal} />

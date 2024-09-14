@@ -13,7 +13,6 @@ function Login() {
   let navigate = useNavigate();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [role, setRole] = React.useState("student");
 
   const handleUsernameChange = (value) => {
     setUsername(value);
@@ -23,15 +22,10 @@ function Login() {
     setPassword(value);
   };
 
-  const handleSelect = (value) => {
-    setRole(value);
-  };
-
   const handleLogin = () => {
     const data = {
       email: username,
       password: password,
-      role: role,
     };
 
     fetch(`${config.backendUrl}/api/auth/login`, {
@@ -58,11 +52,12 @@ function Login() {
           console.log(result);
 
           localStorage.setItem("user_id", result.user_id);
-          if (role === "student") {
+          if (result.user_type === "student") {
             navigate("/dashboard");
-          } else {
+          } else if (result.user_type === "advisor") {
             navigate("/advisorDashboard", { state: result.user_id });
           }
+          //add facultyAdmin later
         }
       })
       .catch((error) => {
@@ -89,15 +84,6 @@ function Login() {
           placeholder="Enter your password"
           onValueChange={handlePasswordChange}
           type="password" // This ensures the password is masked
-        />
-        <Select
-          label={"Role"}
-          options={[
-            { value: "student", label: "Student" },
-            { value: "advisor", label: "Advisor" },
-          ]}
-          classNames="mb-1"
-          onChange={handleSelect}
         />
         <Button text={"Login"} onClick={handleLogin} />
         <Text classNames="mt-2" type={"paragraph"}>

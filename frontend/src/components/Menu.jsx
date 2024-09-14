@@ -21,19 +21,23 @@ const Menu = ({ userType, activeMenuItem }) => {
     <div className="flex flex-col h-full my-auto bg-primary rounded-2xl">
       <img className="m-8" src={uct} alt="uct" />
       <div class="flex flex-col h-full justify">
-        {userType === "seniorAdvisor" && (
+        {userType === "senior" && (
           <>
             <MenuItem
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
-              onClick={() => {navigate("/advisorDashboard")}}
+              onClick={() => {
+                navigate("/advisorDashboard");
+              }}
             />
             <MenuItem
               imageSrc={group}
               text="My Advice Log"
               isActive={activeMenuItem === "adviceLog"}
-              onClick={() => {navigate("/adviceLog")}}
+              onClick={() => {
+                navigate("/adviceLog");
+              }}
             />
             <MenuItem
               imageSrc={list}
@@ -44,13 +48,17 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={clock}
               text="Update Schedule"
               isActive={activeMenuItem === "updateSchedule"}
-              onClick={() => {navigate("/updateSchedule")}}
+              onClick={() => {
+                navigate("/updateSchedule");
+              }}
             />
             <MenuItem
               imageSrc={badge}
               text="Manage Majors"
               isActive={activeMenuItem === "manageMajors"}
-              onClick={() => {navigate("/curriculumManagement")}}
+              onClick={() => {
+                navigate("/curriculumManagement");
+              }}
             />
             <MenuItem
               imageSrc={cluster}
@@ -61,7 +69,9 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={request}
               text="Appointment Requests"
               isActive={activeMenuItem === "appointmentRequests"}
-              onClick={() => {navigate("/appointmentRequests")}}
+              onClick={() => {
+                navigate("/appointmentRequests");
+              }}
             />
           </>
         )}
@@ -71,19 +81,25 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
-              onClick={() => {navigate("/advisordashboard")}}
+              onClick={() => {
+                navigate("/advisordashboard");
+              }}
             />
             <MenuItem
               imageSrc={group}
               text="Advice Log"
               isActive={activeMenuItem === "adviceLog"}
-              onClick={() => {navigate("/advicelog")}}
+              onClick={() => {
+                navigate("/advicelog");
+              }}
             />
             <MenuItem
               imageSrc={clock}
               text="Update Schedule"
               isActive={activeMenuItem === "updateSchedule"}
-              onClick={() => {navigate("/updateSchedule")}}
+              onClick={() => {
+                navigate("/updateSchedule");
+              }}
             />
             <MenuItem
               imageSrc={badge}
@@ -94,6 +110,9 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={request}
               text="Appointment Requests"
               isActive={activeMenuItem === "appointmentRequests"}
+              onClick={() => {
+                navigate("/appointmentRequests");
+              }}
             />
           </>
         )}
@@ -103,19 +122,25 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
-              onClick={() => {navigate("/dashboard")}}
+              onClick={() => {
+                navigate("/dashboard");
+              }}
             />
             <MenuItem
               imageSrc={book}
               text="Book Appointment"
               isActive={activeMenuItem === "bookAppointment"}
-              onClick={() => {navigate("/bookappointment")}}
+              onClick={() => {
+                navigate("/bookappointment");
+              }}
             />
             <MenuItem
               imageSrc={notification}
               text="Notifications"
               isActive={activeMenuItem === "notifications"}
-              onClick={() => {navigate("/notifications")}}
+              onClick={() => {
+                navigate("/notifications");
+              }}
             />
           </>
         )}

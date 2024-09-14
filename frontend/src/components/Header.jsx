@@ -4,7 +4,15 @@ import notification from "../assets/notification.svg";
 import Text from "./Text";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ user, profile_url, info, subinfo, imgSrc, unreadCount }) => {
+const Header = ({
+  user,
+  user_type,
+  profile_url,
+  info,
+  subinfo,
+  imgSrc,
+  unreadCount,
+}) => {
   let navigate = useNavigate();
   return (
     <div class="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
@@ -24,7 +32,11 @@ const Header = ({ user, profile_url, info, subinfo, imgSrc, unreadCount }) => {
       </div>
       <div
         className="relative mr-12 cursor-pointer"
-        onClick={() => navigate("/notifications")}
+        onClick={() => {
+          user_type
+            ? navigate("/appointmentRequests")
+            : navigate("/notifications");
+        }}
       >
         <img src={notification} alt="notification" className="w-10 h-10" />
         {unreadCount > 0 && (

@@ -12,6 +12,7 @@ const AppointmentRequests = () => {
   const [requests, setRequests] = React.useState([]);
   const [notificationDetails, setNotificationDetails] = React.useState(null);
   const [requestID, setRequestID] = React.useState(null);
+  const [activeId, setActiveId] = React.useState(null);
   let navigate = useNavigate();
 
   const getRequestDetails = async (request) => {
@@ -23,7 +24,6 @@ const AppointmentRequests = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420",
           },
         }
       );
@@ -71,7 +71,6 @@ const AppointmentRequests = () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420",
           },
         }
       );
@@ -97,7 +96,6 @@ const AppointmentRequests = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "69420",
             },
           }
         );
@@ -120,7 +118,12 @@ const AppointmentRequests = () => {
   };
 
   return (
-    <Main userType={"advisor"} activeMenuItem={"notifications"}>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+      activeMenuItem={"appointmentRequests"}
+    >
       <div className="mb-10 max-h-36">
         <Header
           profile_url={`${JSON.parse(localStorage.getItem("userData")).advisor.profile_url}`}
@@ -144,10 +147,13 @@ const AppointmentRequests = () => {
                     info={request.studentName}
                     side={request.createdAt}
                     read={request.isRead}
+                    active={activeId == request.id}
+                    status={"Approval"}
                     onClick={() => {
                       getRequestDetails(request);
                       setRequestID(request.id);
                       markRequestAsRead(request.id);
+                      setActiveId(request.id);
                     }}
                     classNames={"mb-4"}
                   />
@@ -168,12 +174,31 @@ const AppointmentRequests = () => {
             {notificationDetails && (
               <>
                 <Text type="sm-heading" classNames="mb-8">
-                  {notificationDetails.studentName} has requested an appointment
+                  Appointment request
                 </Text>
-                <Text type="paragraph" classNames="mb-8">
-                  {notificationDetails.comment}
-                </Text>
-                <Button text="Review" onClick={handleReview} />
+                <div className="p-6 bg-white border-2 border-primary rounded-lg shadow-lg mb-6 h-auto">
+                  <Text type="paragraph" classNames="mb-8">
+                    You have received a new appointment request from{" "}
+                    {notificationDetails.studentName}. Please review the details
+                    and confirm or reject the appointment. To approve or decline
+                    this request, please log into the advisor portal or respond
+                    directly to this email. Thank you!
+                  </Text>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                  }}
+                >
+                  <Button
+                    text="Review"
+                    style={{ width: "50%" }}
+                    onClick={handleReview}
+                  />
+                </div>
               </>
             )}
           </div>

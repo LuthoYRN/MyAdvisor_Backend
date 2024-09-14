@@ -120,9 +120,15 @@ const AddCourse = () => {
   };
 
   return (
-    <Main>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+    >
       <div class="flex flex-col flex-auto gap-2 p-8 rounded-2xl bg-white shadow-xl">
-        <Text type="heading" classNames={"mb-8"}>Add Course</Text>
+        <Text type="heading" classNames={"mb-8"}>
+          Add Course
+        </Text>
         <div class="flex flex-row gap-8">
           <div class="flex flex-col gap-1 w-1/2">
             <CustomInput

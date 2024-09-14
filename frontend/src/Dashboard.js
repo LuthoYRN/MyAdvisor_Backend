@@ -77,7 +77,7 @@ const Dashboard = () => {
                 />
               ))
             ) : (
-              <p>No upcoming appointments</p>
+              <Text>No upcoming appointments</Text>
             )}
           </div>
         </div>

@@ -33,21 +33,24 @@ const MeetingNotes = () => {
         const formattedSchedule = times.map((day) => {
           const dayOfWeek = Object.keys(day)[0];
           const timesForDay = day[dayOfWeek] || []; // Ensure it sends [] instead of null
-  
+
           return {
             dayOfWeek,
             times: timesForDay,
           };
         });
-  
-        const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ schedule: formattedSchedule }),
-        });
-  
+
+        const response = await fetch(
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ schedule: formattedSchedule }),
+          }
+        );
+
         const result = await response.json();
         if (response.ok) {
           console.log("Schedule saved successfully:", result.data);
@@ -58,14 +61,13 @@ const MeetingNotes = () => {
         console.error("Error saving schedule:", error);
       }
     };
-  
+
     saveSchedule();
   };
-  
 
   const handleSelectPill = (text) => {
     let updatedTimes;
-  
+
     if (selectedTimes.includes(text)) {
       // Deselecting a time
       updatedTimes = selectedTimes.filter((time) => time !== text);
@@ -73,17 +75,19 @@ const MeetingNotes = () => {
       // Selecting a new time
       updatedTimes = [...selectedTimes, text];
     }
-  
+
     // Update the selected times state
     setSelectedTimes(updatedTimes);
-  
+
     // Also update the overall schedule state (`times`) for the selected day
     setTimes((prevTimes) => {
       const updatedTimesArray = [...prevTimes];
-  
+
       // Find the index of the day in the `times` array
-      const dayIndex = updatedTimesArray.findIndex((day) => Object.keys(day)[0] === selectedDate);
-      
+      const dayIndex = updatedTimesArray.findIndex(
+        (day) => Object.keys(day)[0] === selectedDate
+      );
+
       if (dayIndex >= 0) {
         // If day already exists in the `times`, update it
         updatedTimesArray[dayIndex][selectedDate] = updatedTimes;
@@ -91,15 +95,17 @@ const MeetingNotes = () => {
         // If day doesn't exist, add it
         updatedTimesArray.push({ [selectedDate]: updatedTimes });
       }
-  
+
       return updatedTimesArray;
     });
   };
- 
+
   React.useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`);
+        const response = await fetch(
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`
+        );
         const result = await response.json();
         if (result.status === "success") {
           const fetchedTimes = result.data.map((day) => ({
@@ -116,15 +122,27 @@ const MeetingNotes = () => {
     fetchSchedule();
   }, []);
 
-
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const timesOfDay = [
-    "08:00", "09:00", "10:00", "11:00", "12:00",
-    "13:00", "14:00", "15:00", "16:00", "17:00"
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
   ];
 
   return (
-    <Main userType={"seniorAdvisor"} activeMenuItem={"updateSchedule"}>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+      activeMenuItem={"updateSchedule"}
+    >
       <div className="flex flex-col flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Update Schedule
@@ -162,7 +180,11 @@ const MeetingNotes = () => {
           </div>
           <div className="flex flex-row gap-8 max-w-md">
             <Button text="Save" onClick={handleSaveSchedule} />
-            <Button text="Back" type="secondary" onClick={()=>navigate("/advisorDashboard")}/>
+            <Button
+              text="Back"
+              type="secondary"
+              onClick={() => navigate("/advisorDashboard")}
+            />
           </div>
         </div>
       </div>

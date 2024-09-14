@@ -51,7 +51,12 @@ const AdviceLog = () => {
   }, []);
 
   return (
-    <Main userType={"seniorAdvisor"} activeMenuItem={"adviceLog"}>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+      activeMenuItem={"adviceLog"}
+    >
       <div className="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <div className="flex w-1/3 flex-col gap-4">
           <Text type="heading" classNames="mb-8">
@@ -110,7 +115,10 @@ const AdviceLog = () => {
                 side={log.side}
                 classNames="mb-6"
                 active={index === activeIndex}
-                onClick={() => handleCardClick(log, index)}
+                status={"Approval"}
+                onClick={() => {
+                  handleCardClick(log, index);
+                }}
               />
             ))}
           </div>

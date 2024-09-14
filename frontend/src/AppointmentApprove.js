@@ -18,7 +18,8 @@ Data Needed:
 
 const AppointmentDetails = () => {
   const [showRecordingModal, setShowRecordingModal] = React.useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] =
+    React.useState(false);
   let location = useLocation();
 
   const handleRecordMeeting = () => {
@@ -30,12 +31,15 @@ const AppointmentDetails = () => {
   };
 
   const handleAppointment = (status) => () => {
-    fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    fetch(
+      `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
       .then((response) => {
         console.log("response", response);
         if (response.ok) {
@@ -45,7 +49,6 @@ const AppointmentDetails = () => {
         } else {
           console.log("Failed to update appointment status");
         }
-
       })
       .catch((error) => {
         // handle the error
@@ -54,7 +57,12 @@ const AppointmentDetails = () => {
   };
 
   return (
-    <Main  userType={"advisor"} activeMenuItem={"notifications"} >
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+      activeMenuItem={"notifications"}
+    >
       <div className="flex flex-col flex-auto p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
@@ -93,12 +101,22 @@ const AppointmentDetails = () => {
                 Reason for Appointment
               </Text>
               <Text type="paragraph" classNames="mb-8">
-              {location.state.notificationDetails.comment}
+                {location.state.notificationDetails.comment}
               </Text>
             </div>
             <div>
               <Button text="Approve" onClick={handleAppointment("approve")} />
-              <Button text="Reject" type="secondary" onClick={handleAppointment("reject")}/>
+              <Button
+                text="Reject"
+                type="secondary"
+                style={{
+                  backgroundColor: "red", // Lighter red
+                  opacity: 0.9,
+                  color: "white", // Ensures the text is white for better readability
+                  border: "2px solid white", // Adds a 2px solid white border
+                }}
+                onClick={handleAppointment("reject")}
+              />
               <Button text="Back" type="secondary" />
             </div>
           </div>
@@ -126,8 +144,7 @@ const AppointmentDetails = () => {
         </div>
       </div>
 
-    
-       {showConfirmationModal && (
+      {showConfirmationModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
@@ -136,7 +153,10 @@ const AppointmentDetails = () => {
             <Text type="sm-subheading" classNames="mb-8">
               Appointment status updated successfully
             </Text>
-            <Button text="Close" onClick={()=> setShowConfirmationModal(false)} />
+            <Button
+              text="Close"
+              onClick={() => setShowConfirmationModal(false)}
+            />
           </div>
         </div>
       )}
