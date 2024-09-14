@@ -18,25 +18,38 @@ const MeetingNotes = () => {
 
     // Load the times of the corresponding day
     const selectedDay = times.find((day) => Object.keys(day)[0] === text);
-    if (selectedDay) {
+    if (selectedDay && selectedDay[text]) {
       const dayTimes = selectedDay[text];
       setSelectedTimes(dayTimes);
+    } else {
+      setSelectedTimes([]);
     }
   };
 
   const handleSaveSchedule = () => {
     const saveSchedule = async () => {
       try {
+        // Ensure that we convert null values to empty arrays before sending the request
+        const formattedSchedule = times.map((day) => {
+          const dayOfWeek = Object.keys(day)[0];
+          const timesForDay = day[dayOfWeek] || []; // Ensure it sends [] instead of null
+  
+          return {
+            dayOfWeek,
+            times: timesForDay,
+          };
+        });
+  
         const response = await fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/schedule`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ schedule: times }),
+          body: JSON.stringify({ schedule: formattedSchedule }),
         });
-
+  
         const result = await response.json();
-        if (result.status === "success") {
+        if (response.ok) {
           console.log("Schedule saved successfully:", result.data);
         } else {
           console.error("Failed to save schedule:", result);
@@ -45,18 +58,43 @@ const MeetingNotes = () => {
         console.error("Error saving schedule:", error);
       }
     };
-
+  
     saveSchedule();
   };
+  
 
   const handleSelectPill = (text) => {
+    let updatedTimes;
+  
     if (selectedTimes.includes(text)) {
-      setSelectedTimes(selectedTimes.filter((time) => time !== text));
+      // Deselecting a time
+      updatedTimes = selectedTimes.filter((time) => time !== text);
     } else {
-      setSelectedTimes([...selectedTimes, text]);
+      // Selecting a new time
+      updatedTimes = [...selectedTimes, text];
     }
+  
+    // Update the selected times state
+    setSelectedTimes(updatedTimes);
+  
+    // Also update the overall schedule state (`times`) for the selected day
+    setTimes((prevTimes) => {
+      const updatedTimesArray = [...prevTimes];
+  
+      // Find the index of the day in the `times` array
+      const dayIndex = updatedTimesArray.findIndex((day) => Object.keys(day)[0] === selectedDate);
+      
+      if (dayIndex >= 0) {
+        // If day already exists in the `times`, update it
+        updatedTimesArray[dayIndex][selectedDate] = updatedTimes;
+      } else {
+        // If day doesn't exist, add it
+        updatedTimesArray.push({ [selectedDate]: updatedTimes });
+      }
+  
+      return updatedTimesArray;
+    });
   };
-
  
   React.useEffect(() => {
     const fetchSchedule = async () => {
