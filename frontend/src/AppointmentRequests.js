@@ -36,6 +36,57 @@ const AppointmentRequests = () => {
     }
   };
 
+  const markRequestAsRead = async (requestID) => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${requestID}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+          body: JSON.stringify({ status: "read" }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to mark request as read");
+      }
+      console.log("Request marked as read");
+    } catch (error) {
+      console.error("Error marking request as read:", error);
+    }
+    setRequests((prevRequests) =>
+      prevRequests.map((req) =>
+        req.id === requestID ? { ...req, isRead: true } : req
+      )
+    );
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to mark all requests as read");
+      }
+      console.log("All requests marked as read");
+      setRequests((prevRequests) =>
+        prevRequests.map((req) => ({ ...req, isRead: true }))
+      );
+    } catch (error) {
+      console.error("Error marking all requests as read:", error);
+    }
+  };
+
   React.useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -63,41 +114,53 @@ const AppointmentRequests = () => {
   }, []);
 
   const handleReview = () => {
-    navigate("/appointmentApprove", { state: {notificationDetails: notificationDetails, requestID: requestID} });
-  }
+    navigate("/appointmentApprove", {
+      state: { notificationDetails: notificationDetails, requestID: requestID },
+    });
+  };
 
   return (
     <Main userType={"advisor"} activeMenuItem={"notifications"}>
-      <div class="mb-10 max-h-36">
+      <div className="mb-10 max-h-36">
         <Header
           user={`${JSON.parse(localStorage.getItem("userData")).advisor.name}`}
-          info={
-            JSON.parse(localStorage.getItem("userData")).advisor.office
-          }
+          info={JSON.parse(localStorage.getItem("userData")).advisor.office}
         />
       </div>
-      <div class="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
-        <div class="flex w-1/3 flex-col gap-4">
-          <Text type="heading" classNames="mb-8">
-            Notifications
-          </Text>
-          <div class="items-center">
-            {requests && requests.map((request) => (
-              <Card
-                imgSrc={robot}
-                heading={"Appointment Request"}
-                info={request.studentName}
-                side={request.createdAt}
-                onClick={() => {
-                  getRequestDetails(request);
-                  setRequestID(request.id);
-                }}
-              />
-            ))}
+      <div className="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
+        <div className="flex justify-between w-1/3 flex-col gap-4">
+          <div className="flex flex-col gap-4">
+            <Text type="heading" classNames="mb-4">
+              Notifications
+            </Text>
+            <div className="items-center max-h-96 py-4 px-2 overflow-y-auto">
+              {requests &&
+                requests.map((request) => (
+                  <Card
+                    key={request.id}
+                    imgSrc={robot}
+                    heading={"Appointment Request"}
+                    info={request.studentName}
+                    side={request.createdAt}
+                    read={request.isRead}
+                    onClick={() => {
+                      getRequestDetails(request);
+                      setRequestID(request.id);
+                      markRequestAsRead(request.id);
+                    }}
+                    classNames={"mb-4"}
+                  />
+                ))}
+            </div>
           </div>
+          <Button
+            text="Mark All as Read"
+            onClick={markAllAsRead}
+            classNames="mt-4"
+          />
         </div>
-        <div class="flex w-2/3 border-l border-gray-200">
-          <div class="flex flex-col flex-auto  gap-8 col-span-2 p-8 m-8  rounded-2xl bg-white shadow-xl">
+        <div className="flex w-2/3 border-l border-gray-200">
+          <div className="flex flex-col flex-auto gap-8 col-span-2 p-8 m-8 rounded-2xl bg-white shadow-xl">
             {notificationDetails && (
               <>
                 <Text type="sm-heading" classNames="mb-8">
@@ -106,7 +169,7 @@ const AppointmentRequests = () => {
                 <Text type="paragraph" classNames="mb-8">
                   {notificationDetails.comment}
                 </Text>
-                <Button text="Review" onClick={handleReview}/>
+                <Button text="Review" onClick={handleReview} />
               </>
             )}
           </div>
