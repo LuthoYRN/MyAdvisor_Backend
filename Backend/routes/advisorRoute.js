@@ -1,9 +1,14 @@
 const express = require("express");
 const advisorController = require("./../controllers/advisorController");
+const curriculumController = require("./../controllers/curriculumController");
 const router = express.Router();
-const { uploadImage,uploadVideo } = require("../middlewares/upload");
+const { uploadImage, uploadVideo } = require("../middlewares/upload");
 //dashboard
 router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
+//course management
+router
+  .route("/:advisorID/curriculums")
+  .get(curriculumController.getCurriculumsAdvised);
 //profile-picture
 router.post(
   "/:advisorID/uploadProfilePicture",
@@ -20,8 +25,8 @@ router
   .post(advisorController.recordMeetingNotes);
 //record-video
 router
-.route("/:advisorID/appointment/:appointmentID/video")
-.post(uploadVideo.single("video"),advisorController.recordVideo);
+  .route("/:advisorID/appointment/:appointmentID/video")
+  .post(uploadVideo.single("video"), advisorController.recordVideo);
 //log
 router.route("/:advisorID/log").get(advisorController.getLog);
 //appointmentrequests
