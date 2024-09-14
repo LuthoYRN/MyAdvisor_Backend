@@ -297,6 +297,12 @@ const getStudentNotifications = async (req, res) => {
           isRead: notif.is_read,
           message: notif.message, // This could be the reason for rejection
           createdAt: moment(notif.createdAt).fromNow(), // e.g., "2 hours ago"
+          appointment: {
+            advisorName: `${notif.appointment.advisor.name} ${notif.appointment.advisor.surname}`,
+            office: notif.appointment.advisor.office,
+            date: moment(notif.appointment.date).format("DD MMMM YYYY"),
+            time: moment(notif.appointment.time, "HH:mm:ss").format("hh:mm A"),
+          },
         };
       }
 
