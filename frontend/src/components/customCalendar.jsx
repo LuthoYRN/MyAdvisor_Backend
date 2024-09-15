@@ -79,7 +79,7 @@ export default function CustomCalendar({ onDateSelect }) {
   // Render the header (month/year navigation)
   const renderHeader = () => {
     return (
-      <div className="flex items-center justify-between p-4 bg-secondary rounded-t-lg">
+      <div className="flex items-center justify-between p-4 bg-primary rounded-t-lg">
         <Text
           classNames="text-white cursor-pointer hover:text-gray-800"
           onClick={handlePrevMonth}
