@@ -16,11 +16,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Middleware exports
-const uploadImage = multer({
-  storage: imageStorage,
-  fileFilter,
-  limits: { fileSize: 1024 * 1024 * 2 }, // Limit image file size to 2MB
-});
+const uploadImage = multer({ storage: imageStorage });
 const uploadDocument = multer({ storage: documentStorage });
 const uploadVideo = multer({ storage: videoStorage });
 
