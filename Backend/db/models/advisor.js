@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "advisorID",
         otherKey: "studentID",
       });
+      Advisor.belongsToMany(models.programme, {
+        through: models.advisorProgramme,
+        foreignKey: "advisorID",
+      });
     }
   }
 
