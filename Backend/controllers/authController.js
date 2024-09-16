@@ -7,6 +7,7 @@ const {
   course,
   completedCourse,
   major,
+  programme,
   facultyAdmin,
   department,
   sharedCourse,
@@ -37,9 +38,11 @@ const getFaculties = async (req, res) => {
   }
 };
 //returns majors under faculty from dropdown
-const getMajorsbyFaculty = async (req, res) => {
+const getCurriculumsByFaculty = async (req, res) => {
   try {
     const { facultyID } = req.params;
+
+    // Search for majors in the given faculty
     const majors = await major.findAll({
       include: {
         model: department,
@@ -48,19 +51,42 @@ const getMajorsbyFaculty = async (req, res) => {
       },
       attributes: ["id", "majorName"],
     });
-    if (!majors || majors.length === 0) {
-      //to be implemented search for prorgammes instead
-      return res.status(404).json({
-        status: "fail",
-        message: "No majors found",
+
+    if (majors && majors.length > 0) {
+      // Return majors if found
+      return res.status(200).json({
+        status: "success",
+        curriculumsOffered: "Majors",
+        data: majors,
       });
     }
-    return res.status(200).json({
-      status: "success",
-      data: majors,
+
+    // If no majors found, search for programmes in the given faculty
+    const programmes = await programme.findAll({
+      include: {
+        model: department,
+        where: { facultyID }, // Filtering by faculty ID
+        attributes: [],
+      },
+      attributes: ["id", "programmeName"],
+    });
+
+    if (programmes && programmes.length > 0) {
+      // Return programmes if found
+      return res.status(200).json({
+        status: "success",
+        curriculumsOffered: "Programmes",
+        data: programmes,
+      });
+    }
+
+    // If no majors or programmes found
+    return res.status(404).json({
+      status: "fail",
+      message: "No majors or programmes found",
     });
   } catch (error) {
-    console.error("Error during fetching majors:", error.message);
+    console.error("Error during fetching curriculums:", error.message);
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",
@@ -133,7 +159,17 @@ const signup = async (req, res) => {
       }
     } //
     else if (programmeID) {
-      //yet to implement
+      const validProgramme = await programme.findOne({
+        where: { id: programmeID },
+        attributes: ["id"],
+      });
+
+      if (!validProgramme) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Invalid programme selected.",
+        });
+      }
     }
 
     // Create the new student
@@ -159,8 +195,6 @@ const signup = async (req, res) => {
           });
         })
       );
-    } else if (programmeID) {
-      // When the programme implementation is ready
     }
 
     return res.status(201).json({
@@ -290,28 +324,50 @@ const getCoursesForStudent = async (req, res) => {
         .status(404)
         .json({ status: "fail", message: "Student not found" });
     }
+
+    let courses = [];
+
     if (!the_student.programmeID) {
       // Find courses linked to the student's majors using the associations
       const majors = await studentsMajor.findAll({
         where: { studentID: the_student.id },
         attributes: ["majorID"],
       });
-      let courses = await sharedCourse.findAll({
+
+      if (!majors || majors.length === 0) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Student does not have any majors assigned.",
+        });
+      }
+
+      courses = await sharedCourse.findAll({
         where: { majorID: majors.map((el) => el.majorID) },
         attributes: ["courseID"],
         order: [[sequelize.literal('SUBSTRING("courseID", 4, 1)'), "ASC"]],
       });
-      //make the courses not duplicated
-      courses = [...new Set(courses.map((el) => el.courseID))];
-      // Return the courses in the expected format
-      return res.status(200).json({
-        status: "success",
-        student_id: the_student.uuid,
-        courses,
-      });
     } else {
-      //to be implemented, if the student has a programme instead of majors
+      // Student is enrolled in a programme, find courses for that programme
+      courses = await sharedCourse.findAll({
+        where: { programmeID: the_student.programmeID },
+        attributes: ["courseID"],
+        order: [[sequelize.literal('SUBSTRING("courseID", 4, 1)'), "ASC"]],
+      });
+
+      if (!courses || courses.length === 0) {
+        return res.status(404).json({
+          status: "fail",
+          message: "No courses assigned to this programme yet.",
+        });
+      }
     }
+    courses = [...new Set(courses.map((el) => el.courseID))];
+    // Return the courses in the expected format
+    return res.status(200).json({
+      status: "success",
+      student_id: the_student.uuid,
+      courses,
+    });
   } catch (error) {
     console.error("Error fetching courses for student:", error.message);
     return res.status(500).json({
@@ -376,7 +432,7 @@ module.exports = {
   signup,
   login,
   getFaculties,
-  getMajorsbyFaculty,
+  getCurriculumsByFaculty,
   getCoursesForStudent,
   addCompletedCourses,
 };
