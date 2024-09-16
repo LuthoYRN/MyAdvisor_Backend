@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       prefix: {
         type: DataTypes.STRING,
         validate: {
-          isIn: [["BBuSc", "BCom", "BscEng", "BSc", "BAS"]],
+          isIn: [["BBuSci", "BCom", "BscEng", "BSc", "BAS"]],
         },
         allowNull: false,
       },
