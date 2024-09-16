@@ -495,7 +495,7 @@ const handleAppointmentRequest = async (req, res) => {
 
       return res.status(200).json({
         status: "success",
-        
+
         message: "Appointment rejected and student notified.",
       });
     }
@@ -582,6 +582,8 @@ const getAppointmentDetails = async (req, res) => {
         id: appointmentID,
         name: `${appointmentDetails.student.name} ${appointmentDetails.student.surname}`,
         comment: appointmentDetails.comment,
+        date: appointmentDetails.date,
+        time: appointmentDetails.time,
         isFutureAppointment, // true if the appointment is in the future
         hasAdviceLog: !!adviceLogExists, // true if advice log exists
         uploadedFiles, // List of uploaded files
