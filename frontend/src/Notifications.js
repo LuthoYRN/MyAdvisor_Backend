@@ -11,6 +11,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = React.useState([]);
   const [notificationDetails, setNotificationDetails] = React.useState([]);
   const [activeNotificationId, setActiveNotificationId] = React.useState(null);
+  const [loading, setLoading] = React.useState(true); // State to track loading status
 
   const markNotificationAsRead = async (notificationID) => {
     try {
@@ -58,6 +59,8 @@ const Notifications = () => {
         console.log("Notifications:", notifications);
       } catch (error) {
         console.error("Error fetching notifications:", error);
+      } finally {
+        setLoading(false); // Ensure loading is set to false after fetching
       }
     };
 
@@ -83,7 +86,11 @@ const Notifications = () => {
           </Text>
 
           {/* Only render notifications if they exist */}
-          {notifications && notifications.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center">
+              <div className="loader"></div>{" "}
+            </div>
+          ) : notifications && notifications.length > 0 ? (
             <div className="items-center max-h-[500px] px-2 overflow-y-auto">
               {notifications.map((notification) => (
                 <Card
@@ -118,7 +125,7 @@ const Notifications = () => {
               {notificationDetails ? (
                 <>
                   <Text type="sm-heading" classNames="mb-8">
-                    {notificationDetails.type || ""}
+                    {"Appointment " + notificationDetails.type || ""}
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
                     {notificationDetails.type === "Approval" ? (

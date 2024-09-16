@@ -3,6 +3,7 @@ import Main from "./layout/Main";
 import Text from "./components/Text";
 import Button from "./components/Button";
 import video from "./assets/Video.svg";
+import moment from "moment";
 import { useLocation } from "react-router-dom";
 import config from "./config";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +21,7 @@ Data Needed:
 const AppointmentDetails = () => {
   const [showRecordingModal, setShowRecordingModal] = React.useState(false);
   const [appointment, setAppointment] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -32,26 +34,50 @@ const AppointmentDetails = () => {
   };
 
   React.useEffect(() => {
-    if (location.state) {
-      fetch(
-        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state.id}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            setAppointment(data.data);
-            console.log(data.data);
-          }
-        })
-        .catch((error) =>
-          console.error("Error fetching appointment details:", error)
-        );
-      console.log(location.state);
+    if (location.state && location.state.id) {
+      try {
+        fetch(
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state.id}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              setAppointment(data.data);
+            } else {
+              console.error(
+                "Failed to load appointment details:",
+                data.message
+              );
+            }
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error fetching appointment details:", error);
+            setLoading(false);
+          });
+      } catch (error) {
+        console.error("Error fetching appointment details:", error);
+        setLoading(false);
+      }
     } else {
       console.error("Appointment details are not available in location.state");
+      setLoading(false);
     }
-  }, []);
+  }, [location.state]);
 
+  if (loading) {
+    return (
+      <Main
+        userType={
+          JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        }
+      >
+        <div className="flex items-center justify-center p-24">
+          <div className="loader"></div>
+        </div>
+      </Main>
+    );
+  }
   return (
     <Main
       userType={
@@ -88,7 +114,9 @@ const AppointmentDetails = () => {
                     Time
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {location.state.time ? location.state.time : "N/A"}
+                    {appointment
+                      ? moment(appointment.time, "HH:mm:ss").format("HH:mm A")
+                      : "N/A"}
                   </Text>
                 </div>
               </div>
@@ -101,7 +129,7 @@ const AppointmentDetails = () => {
             </div>
             <div>
               <Button
-                disabled={appointment && appointment.hasAdviceLog}
+                disabled={appointment.isFutureAppointment || appointment.hasAdviceLog }
                 text="Record Meeting"
                 onClick={handleRecordMeeting}
               />
