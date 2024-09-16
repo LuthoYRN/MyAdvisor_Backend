@@ -8,7 +8,10 @@ router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
 //course management
 router
   .route("/:advisorID/curriculums")
-  .get(curriculumController.getCurriculumsAdvised);
+  .get(curriculumController.getCurriculumsForAdvisor);
+router
+  .route("/:advisorID/curriculums/:currID")
+  .delete(curriculumController.deleteAdvisorCurriculum);
 //profile-picture
 router.post(
   "/:advisorID/uploadProfilePicture",

@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // Define associations here
       Department.hasMany(models.major, { foreignKey: "departmentID" });
+      Department.hasMany(models.programme, { foreignKey: "departmentID" });
       Department.belongsTo(models.faculty, { foreignKey: "facultyID" });
     }
   }
