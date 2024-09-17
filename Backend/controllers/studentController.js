@@ -422,6 +422,7 @@ const markNotificationAsRead = async (req, res) => {
 };
 
 //API call to get all advisors for the student's majors
+// API call to get all advisors for the student's majors or programme
 const getAdvisorsForStudent = async (req, res) => {
   try {
     const { studentID } = req.params;
@@ -434,14 +435,67 @@ const getAdvisorsForStudent = async (req, res) => {
         .json({ status: "fail", message: "Student not found" });
     }
 
-    // Find the majors of the student
+    // If the student has a programme, find the advisors associated with the programme
+    if (the_student.programmeID) {
+      // Find advisors associated with the student's programme
+      const advisorProgrammes = await advisorProgramme.findAll({
+        where: { programmeID: the_student.programmeID },
+        attributes: [],
+        include: [
+          {
+            model: advisor,
+            attributes: ["uuid", "name", "surname", "office", "profile_url"],
+          },
+          {
+            model: programme,
+            attributes: ["programmeName"],
+          },
+        ],
+      });
+
+      // If no advisors are found for the programme
+      if (!advisorProgrammes || advisorProgrammes.length === 0) {
+        return res.status(404).json({
+          status: "fail",
+          message: "No advisors found for the student's programme",
+        });
+      }
+
+      // Use a map to group advisors by their UUID and collect their programmes
+      const advisorProgrammeMap = {};
+
+      advisorProgrammes.forEach((ap) => {
+        const advisorID = ap.advisor.uuid;
+
+        if (advisorProgrammeMap[advisorID]) {
+          advisorProgrammeMap[advisorID].programmes.push(ap.programme.programmeName);
+        } else {
+          advisorProgrammeMap[advisorID] = {
+            uuid: ap.advisor.uuid,
+            name: `${ap.advisor.name} ${ap.advisor.surname}`,
+            office: ap.advisor.office,
+            profile_url: ap.advisor.profile_url,
+            programmes: [ap.programme.programmeName], // Initialize programmes as an array
+          };
+        }
+      });
+
+      // Convert the map to an array and return the result
+      const advisorProgrammeList = Object.values(advisorProgrammeMap);
+
+      return res.status(200).json({
+        status: "success",
+        data: advisorProgrammeList,
+      });
+    }
+
+    // If the student doesn't have a programme, find the majors of the student
     const studentMajors = await studentsMajor.findAll({
       where: { studentID: the_student.id },
       attributes: ["majorID"],
     });
 
     if (!studentMajors || studentMajors.length === 0) {
-      // Search under advisor programmes table (implementation needed here)
       return res.status(404).json({
         status: "fail",
         message: "No majors found for this student",
@@ -481,11 +535,9 @@ const getAdvisorsForStudent = async (req, res) => {
     advisors.forEach((am) => {
       const advisorID = am.advisor.uuid;
 
-      // If the advisor is already in the map, push the new major to the majors array
       if (advisorMap[advisorID]) {
         advisorMap[advisorID].majors.push(am.major.majorName);
       } else {
-        // Otherwise, initialize the advisor entry with their details and majors array
         advisorMap[advisorID] = {
           uuid: am.advisor.uuid,
           name: `${am.advisor.name} ${am.advisor.surname}`,
@@ -512,6 +564,7 @@ const getAdvisorsForStudent = async (req, res) => {
     });
   }
 };
+
 
 //API call to get an advisor's available times based on queried date
 const getAdvisorAvailability = async (req, res) => {
