@@ -3,7 +3,7 @@ import Text from './Text';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
 
-const ConfirmationModal = ({ status, message, onConfirm, onCancel }) => {
+const ConfirmationModal = ({ status, message, onConfirm }) => {
     let navigate = useNavigate();
 
     return (

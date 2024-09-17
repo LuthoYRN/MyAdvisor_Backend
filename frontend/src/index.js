@@ -20,9 +20,13 @@ import AddCourse from "./AddCourse";
 import AdvisorDashboard from "./AdvisorDashboard";
 import UpdateSchedule from "./UpdateSchedule";
 import AppointmentRequests from "./AppointmentRequests";
-import App from "./App";
 import AppointmentDetails from "./AppointmentDetails";
 import CurriculumManagement from "./CurriculumManagement";
+import AddAdvisor from "./AddAdvisor";
+import AddFacultyAdmin from "./AddFacultyAdmin";
+import FacultyAdminDashboard from "./FacultyAdminDashboard";
+import FacultyRules from "./FacultyRules";
+import CourseManagement from "./CourseManagement";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -51,7 +55,11 @@ root.render(
       <Route path="/userManagement" element={<UserManagement />} />
       <Route path="/curriculumManagement" element={<CurriculumManagement />} />
       <Route path="/addCourse" element={<AddCourse/>} />
-            
+      <Route path="/addAdvisor" element={<AddAdvisor/>} />   
+      <Route path="/addFacultyAdmin" element={<AddFacultyAdmin/>} />  
+      <Route path="/FacultyAdminDashboard" element={<FacultyAdminDashboard/>} />  
+      <Route path="/facultyRules" element={<FacultyRules/>} /> 
+      <Route path="/courseManagement" element={<CourseManagement />} />
     </Routes>
   </Router>
 );
