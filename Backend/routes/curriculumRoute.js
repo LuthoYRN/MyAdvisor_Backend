@@ -6,7 +6,9 @@ router
   .route("/:currID/courses")
   .get(curriculumController.getCoursesByCurriculum);
 router
-  .route("/:currID/courses/:courseID")
-  .get(curriculumController.checkIfSafeToDelete)
-  .delete(curriculumController.deleteCourseFromCurriculum);
+  .route("/:currID/courses/:courseID") //individual course list
+  .get(curriculumController.checkIfSafeToDelete) //on delete click
+  .delete(curriculumController.deleteCourseFromCurriculum); //on delete modal click
+//add existing course to curriculum
+router.route("/:currID/courses/addExisting").get();
 module.exports = router;
