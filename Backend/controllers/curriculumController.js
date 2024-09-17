@@ -292,8 +292,105 @@ const getCoursesByCurriculum = async (req, res) => {
   }
 };
 
+// API call to check for dependencies and delete a course from a curriculum
+const checkIfSafeToDelete = async (req, res) => {
+  try {
+    const { currID, courseID } = req.params;
+    const partialCourseID = courseID.slice(0, -1); // e.g., "CSC1015"
+    // Find all courses related to the curriculum (currID) from sharedCourse
+    const sharedCourses = await sharedCourse.findAll({
+      where: {
+        [Op.or]: [{ majorID: currID }, { programmeID: currID }],
+      },
+      include: {
+        model: course,
+        attributes: [
+          "id",
+          "courseName",
+          "prerequisites",
+          "specialRequirements",
+        ],
+      },
+    });
+
+    // Find all affected courses
+    const affectedCourses = sharedCourses.filter((shared) => {
+      const course = shared.course;
+
+      // Check if the partial courseID is in the prerequisites array
+      const courseInPrerequisite =
+        course.prerequisites &&
+        course.prerequisites.some(
+          (prereq) => prereq.startsWith(partialCourseID) // Check if any prerequisite starts with the partial course ID
+        );
+
+      // Check if the partial courseID appears in the specialRequirements text
+      const courseInSpecialRequirement =
+        course.specialRequirements &&
+        course.specialRequirements.includes(partialCourseID); // Simple string check
+
+      return courseInPrerequisite || courseInSpecialRequirement;
+    });
+
+    // Sort affected courses by first digit and then semester (F before S before Z)
+    const sortedAffectedCourses = affectedCourses.sort((a, b) => {
+      const courseA = a.course.id;
+      const courseB = b.course.id;
+
+      // Extract the first digit from the course ID (CSC1016S -> 1, CSC2005S -> 2)
+      const firstDigitA = parseInt(courseA.slice(3, 4), 10);
+      const firstDigitB = parseInt(courseB.slice(3, 4), 10);
+
+      // Extract the letter part from the course ID (semester)
+      const semesterA = courseA.slice(-1); // Last character (F/S/Z)
+      const semesterB = courseB.slice(-1); // Last character (F/S/Z)
+
+      // First, compare by the first digit of the course ID
+      if (firstDigitA !== firstDigitB) {
+        return firstDigitA - firstDigitB;
+      }
+
+      // If the first digit is the same, compare by semester part (F before S before Z)
+      const order = { F: 1, S: 2, Z: 3 };
+      return order[semesterA] - order[semesterB];
+    });
+
+    // If there are affected courses, return them for confirmation
+    if (sortedAffectedCourses.length > 0) {
+      return res.status(200).json({
+        status: "success",
+        proceed: false, // Indicate that the deletion should be processed by the frontend for confirmation
+        message: `The course is a prerequisite or special requirement for other courses.`,
+        data: sortedAffectedCourses.map((affected) => ({
+          courseID: affected.course.id,
+          courseName: affected.course.courseName,
+          prerequisites: affected.course.prerequisites,
+          specialRequirements: affected.course.specialRequirements,
+        })),
+      });
+    }
+
+    // If no affected courses, return a response to proceed with deletion
+    return res.status(200).json({
+      status: "success",
+      proceed: true, // Indicate that deletion can proceed
+      message: "No dependencies found, safe to delete.",
+    });
+  } catch (error) {
+    console.error(
+      "Error during course deletion from curriculum:",
+      error.message
+    );
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   getCurriculumsForAdvisor,
   deleteAdvisorCurriculum,
   getCoursesByCurriculum,
+  checkIfSafeToDelete,
 };

@@ -5,4 +5,8 @@ const router = express.Router();
 router
   .route("/:currID/courses")
   .get(curriculumController.getCoursesByCurriculum);
+router
+  .route("/:currID/courses/:courseID")
+  .get(curriculumController.checkIfSafeToDelete)
+  .delete();
 module.exports = router;
