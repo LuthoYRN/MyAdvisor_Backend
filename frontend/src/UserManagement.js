@@ -8,6 +8,7 @@ import advisor from "./assets/advisor.svg";
 import CustomInput from "./components/CustomInput";
 import Select from "./components/Select";
 import search from "./assets/search.svg";
+import { useNavigate } from "react-router-dom";
 
 const UserManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
@@ -18,6 +19,7 @@ const UserManagement = () => {
   const handleCloseModal = () => {
     setShowAddUserModal(false);
   };
+  let navigate = useNavigate();
 
   const mockData = [
     {
@@ -74,7 +76,7 @@ const UserManagement = () => {
   ];
 
   return (
-    <Main>
+    <Main userType="SystemAdmin" activeMenuItem="home">
       <Text type="heading" classNames="mb-16">
         User Management
       </Text>
@@ -103,13 +105,13 @@ const UserManagement = () => {
               Select which type of user you want to add
             </Text>
             <div className="flex gap-8 mb-4">
-              <div>
+              <div onClick={() => navigate("/addFacultyAdmin")}>
                 <Text type="paragraph" classNames="mb-2">
                   Admin
                 </Text>
                 <img class="cursor-pointer" src={admin} alt="video" />
               </div>
-              <div>
+              <div onClick={() => navigate("/addAdvisor")}>
                 <Text type="paragraph" classNames="mb-2">
                   Advisor
                 </Text>

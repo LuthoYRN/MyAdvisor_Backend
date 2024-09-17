@@ -5,6 +5,8 @@ import Button from "./components/Button.jsx";
 import CustomInput from "./components/CustomInput.jsx";
 import Select from "./components/Select.jsx";
 import Checkbox from "./components/Checkbox.jsx";
+import Tag from "./components/Tag.jsx";
+import search from "./assets/search.svg";
 
 /*
     Data Needed:
@@ -13,7 +15,7 @@ import Checkbox from "./components/Checkbox.jsx";
 
   */
 
-const AddCourse = () => {
+const AddFacultyAdmin = () => {
   // Mock data Need to give list of faculties and departments
   const faculties = [
     "Science",
@@ -83,6 +85,13 @@ const AddCourse = () => {
   const [Faculty, setSelectedFaculty] = React.useState("");
   const [advisorType, setAdvisorType] = React.useState("");
   const [equivalents, setEquivalents] = React.useState("");
+  const [juniorAdvisors, setJuniorAdvisors] = React.useState([]);
+  const [filteredJuniorAdvisors, setFilteredJuniorAdvisors] = React.useState(
+    []
+  );
+  const [selectedJuniorAdvisors, setSelectedJuniorAdvisors] = React.useState(
+    []
+  );
 
   const handleAddAdmin = () => {};
 
@@ -90,14 +99,24 @@ const AddCourse = () => {
     (item) => item[1] === SelectedDepartment
   );
 
+  const handleAddAdvisor = (juniorAdvisor) => {
+    setSelectedJuniorAdvisors([...selectedJuniorAdvisors, juniorAdvisor]);
+  };
+
+  const handleRemoveAdvisor = (juniorAdvisor) => {
+    setSelectedJuniorAdvisors(
+      selectedJuniorAdvisors.filter((item) => item !== juniorAdvisor)
+    );
+  };
+
   return (
-    <Main>
+    <Main userType="SystemAdmin" activeMenuItem="addAdmin">
       <div className="flex flex-col flex-auto gap-2 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
-          Add Admin
+          Add Faculty Admin
         </Text>
-        <div className="flex flex-row gap-8">
-          <div className="flex flex-col gap-1 w-5/12">
+        <div className="flex flex-auto flex-col justify-between gap-8">
+          <div className="flex flex-col gap-4 w-5/12">
             <CustomInput
               label="Name"
               placeholder="Enter name"
@@ -133,43 +152,16 @@ const AddCourse = () => {
               }}
             />
 
-            <Select
-              label="Department"
-              options={Department.map((item) => ({
-                value: item,
-                label: item,
-              }))}
-              onChange={(value) => {
-                setSelectedDepartment(value);
-              }}
-            />
-
-            <div className="flex flex-row gap-4">
-              <div class="flex flex-row">
-                <Text type="paragraph" classNames="mb-2">
-                  Senior Advisor
-                </Text>
-                <Checkbox onChange={() => setAdvisorType("senior")} />
-              </div>
-            </div>
-            <div className="flex flex-row gap-8 max-w-md">
+           
+          </div>
+          <div className="flex flex-row gap-8 max-w-md">
               <Button text="Save" onClick={handleAddAdmin} />
               <Button text="Back" type="secondary" />
             </div>
-          </div>
-          <div className="flex flex-col gap-1 w-5/12">
-            <Select
-              label={"Senior Advisor"}
-              options={filteredSeniorAdvisors.map((item) => ({
-                value: item[0],
-                label: item[0],
-              }))}
-            ></Select>
-          </div>
         </div>
       </div>
     </Main>
   );
 };
 
-export default AddCourse;
+export default AddFacultyAdmin;
