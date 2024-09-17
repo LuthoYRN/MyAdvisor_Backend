@@ -13,7 +13,6 @@ const {
 } = require("../db/models");
 
 // API call to get course information for editing
-// API call to get course information for editing
 const getCourseForEditing = async (req, res) => {
   try {
     const { courseID } = req.params;
@@ -24,10 +23,10 @@ const getCourseForEditing = async (req, res) => {
       attributes: [
         "id",
         "courseName",
-        "courseCode",
         "credits",
         "nqf_level",
         "prerequisites",
+        "bothSemesters",
         "equivalents",
         "specialRequirements",
       ],
@@ -51,6 +50,7 @@ const getCourseForEditing = async (req, res) => {
         prerequisites: courseDetails.prerequisites, // Array of prerequisite IDs
         equivalents: courseDetails.equivalents, // Array of equivalent course IDs
         specialRequirements: courseDetails.specialRequirements, // Special requirements text
+        bothSemesters: courseDetails.bothSemesters,
       },
     });
   } catch (error) {
