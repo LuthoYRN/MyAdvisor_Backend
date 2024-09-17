@@ -7,6 +7,7 @@ import config from "./config";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import DeleteModal from "./components/DeleteModal";
+import Button from "./components/Button";
 
 const CurriculumManagement = () => {
   const [courses, setCourses] = useState(null);
@@ -76,10 +77,16 @@ const CurriculumManagement = () => {
       userType={
         JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
       }
+      activeMenuItem={"manageMajors"}
     >
-      <Text type="heading" classNames="mb-16">
-        Course Management
-      </Text>
+      <div className="flex justify-between items-center mb-16">
+        <Text type="heading">
+          Course Management
+        </Text>
+        <div className="flex justify-end w-48">
+          <Button text="+ Add Course" onClick={() => navigate("/addCourse", {state: { curriculumID: location.state.curriculumID }})} />
+        </div>
+      </div>
       {courses ? (
         <Table
           classNames=""

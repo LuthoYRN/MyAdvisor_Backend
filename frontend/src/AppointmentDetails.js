@@ -7,16 +7,8 @@ import moment from "moment";
 import { useLocation } from "react-router-dom";
 import config from "./config";
 import { useNavigate } from "react-router-dom";
+import download from "./assets/download.svg";
 
-/* 
-Data Needed:
-- Student Name
-- Date
-- Time
-- Reason for Appointment
-- Uploaded Documents
-
-*/
 
 const AppointmentDetails = () => {
   const [showRecordingModal, setShowRecordingModal] = React.useState(false);
@@ -43,6 +35,7 @@ const AppointmentDetails = () => {
           .then((data) => {
             if (data.status === "success") {
               setAppointment(data.data);
+              console.log("Appointment details:", data.data);
             } else {
               console.error(
                 "Failed to load appointment details:",
@@ -146,19 +139,25 @@ const AppointmentDetails = () => {
               Uploaded Documents
             </Text>
             <div class="flex gap-4 mb-8">
-              {/* Replace the placeholder image with the actual document image*/}
-              <div>
-                <img src="https://via.placeholder.com/150" alt="Student" />
-                <Text type="paragraph" classNames="text-center mt-2">
-                  Document 1
-                </Text>
-              </div>
-              <div>
-                <img src="https://via.placeholder.com/150" alt="Student" />
-                <Text type="paragraph" classNames="text-center mt-2">
-                  Document 2
-                </Text>
-              </div>
+            {appointment.uploadedFiles && appointment.uploadedFiles.length > 0 ? (
+                  appointment.uploadedFiles.map((document, index) => (
+                    <a
+                      key={index}
+                      href={document.fileURL}
+                      download
+                      target="_blank" rel="noreferrer"
+                    >
+                      <div className="flex items-center justify-center p-8 flex-col rounded-2xl shadow-lg bg-gray-200 gap-4">
+                        <img width={40} height={40} src={download} alt="file" />
+                      <Text  >{document.fileName}</Text> 
+                      </div>
+                     
+                    </a>
+                  ))
+                ) : (
+                  <Text  type="paragraph">No files uploaded.</Text>
+                  
+                )}
             </div>
           </div>
         </div>

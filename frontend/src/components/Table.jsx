@@ -69,7 +69,7 @@ const Table = ({ Tabledata, column, idRow, handleRowDelete, handleRowEdit }) => 
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+              <tr class="border-b border-gray-300" key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id}>
                     <Text type="paragraph">

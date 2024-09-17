@@ -83,6 +83,7 @@ const CurriculumManagement = () => {
       userType={
         JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
       }
+      activeMenuItem={"manageMajors"}
     >
       <Text type="heading" classNames="mb-16">
         Curriculum Management
