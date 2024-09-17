@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button";
 import Text from "./components/Text";
 import TextArea from "./components/TextArea";
-import { useNavigate } from "react-router-dom";
 import download from "./assets/download.svg";
 import config from "./config";
 import Main from "./layout/Main";
