@@ -8,5 +8,5 @@ router
 router
   .route("/:currID/courses/:courseID")
   .get(curriculumController.checkIfSafeToDelete)
-  .delete();
+  .delete(curriculumController.deleteCourseFromCurriculum);
 module.exports = router;

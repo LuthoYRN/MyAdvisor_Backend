@@ -388,9 +388,58 @@ const checkIfSafeToDelete = async (req, res) => {
   }
 };
 
+// API call to delete a course from a curriculum (major or programme)
+const deleteCourseFromCurriculum = async (req, res) => {
+  try {
+    const { currID, courseID } = req.params;
+
+    // First, try to delete the course associated with the major
+    const deletedFromMajor = await sharedCourse.destroy({
+      where: {
+        majorID: currID,
+        courseID: courseID,
+      },
+    });
+
+    // If the course wasn't deleted from major (i.e., no matching row found), try deleting from programme
+    if (!deletedFromMajor) {
+      const deletedFromProgramme = await sharedCourse.destroy({
+        where: {
+          programmeID: currID,
+          courseID: courseID,
+        },
+      });
+
+      // If the course wasn't found in programme either, return an error
+      if (!deletedFromProgramme) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Course not found in the specified curriculum.",
+        });
+      }
+    }
+
+    // Course successfully deleted from either major or programme
+    return res.status(200).json({
+      status: "success",
+      message: "Course removed from the curriculum successfully.",
+    });
+  } catch (error) {
+    console.error(
+      "Error during course removal from curriculum:",
+      error.message
+    );
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   getCurriculumsForAdvisor,
   deleteAdvisorCurriculum,
   getCoursesByCurriculum,
   checkIfSafeToDelete,
+  deleteCourseFromCurriculum,
 };
