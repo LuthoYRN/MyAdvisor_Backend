@@ -1,11 +1,11 @@
 import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
+import { FaCheckCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button";
-import { useLocation } from "react-router-dom";
-import config from "./config";
+import Text from "./components/Text";
 import TextArea from "./components/TextArea";
-import { useNavigate } from "react-router-dom";
+import config from "./config";
+import Main from "./layout/Main";
 
 const AppointmentDetails = () => {
   const [showConfirmationModal, setShowConfirmationModal] =
@@ -135,10 +135,14 @@ const AppointmentDetails = () => {
       {showConfirmationModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">
-            <Text type="sm-heading" classNames="mb-4">
-              Sucess
-            </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaCheckCircle className="text-green-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
               Appointment status updated successfully
             </Text>
             <Button
@@ -154,7 +158,7 @@ const AppointmentDetails = () => {
 
       {showRejectionModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8">
+          <div className="bg-white rounded-2xl p-8 relative">
             <Text type="sm-heading" classNames="mb-4">
               Enter reason for rejection
             </Text>

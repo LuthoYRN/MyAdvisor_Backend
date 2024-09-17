@@ -1,14 +1,13 @@
 import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button";
 import Pill from "./components/Pill";
+import Text from "./components/Text";
 import CustomCalendar from "./components/customCalendar";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import config from "./config";
-
-/* 
+import Main from "./layout/Main";
+/*
 Data Needed:
 - Student Name
 - Date
@@ -195,7 +194,7 @@ const AppointmentDate = () => {
             <Text type="sm-heading" classNames="mb-4">
               Confirmation
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
               Click confirm to finalize the appointment details{" "}
             </Text>
             <div className="grid grid-cols-2 gap-8 mb-4 max-w-96">
@@ -240,11 +239,16 @@ const AppointmentDate = () => {
       )}
       {showConfirmationModal && !selectedTime && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8">
-            <Text type="sm-heading" classNames="mb-4">
-              Error
-            </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaTimesCircle className="text-red-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+
+
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
               Please select a time slot to confirm the appointment
             </Text>
             <Button text="Close" onClick={handleCloseModal} />
@@ -253,11 +257,15 @@ const AppointmentDate = () => {
       )}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8">
-            <Text type="sm-heading" classNames="mb-4">
-              Success
-            </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaCheckCircle className="text-green-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
               Booking confirmed successfully
             </Text>
             <Button text="Close" onClick={() => navigate("/dashboard")} />
