@@ -3,48 +3,74 @@
 @tailwind utilities;
 
 body {
-    font-family: 'Montserrat', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    height: 100%;
-    
-  }
-
-html{
-    height: 100%;
-    overflow: none;
-    background-color: #F1F4FC;
+  font-family: "Montserrat", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100%;
 }
 
-h1{
-    font-size: 2.0rem;
-    font-weight: 400;
-    letter-spacing: 0.1rem;
-    opacity: 0.8;
-  }
+html {
+  height: 100%;
+  overflow: none;
+  background-color: #f1f4fc;
+}
 
-h2{
-    font-size: 1.5rem;
-    font-weight: 400;
-    margin-bottom: 1rem;
-    opacity: 0.4;
-  }  
+h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.1rem;
+  opacity: 0.8;
+}
 
-h3{
-    font-size: 1.5rem;
-    font-weight: 400;
-  }
+h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
 
-h4{
-    font-size: 0.75rem;
-    font-weight: 400;
-    opacity: 0.4;
-  }
+h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
 
-  p{
-    font-size: 1rem;
-    font-weight: 350;
+h4 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.4;
+}
+
+p {
+  font-size: 1rem;
+  font-weight: 350;
+}
+.border-like-shadow {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.25); /* Centered shadow with moderate blur */
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
   }
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top: 5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  animation: spinner 1s linear infinite;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 100%;
+  overflow: hidden;
+}

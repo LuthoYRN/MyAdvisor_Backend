@@ -8,6 +8,7 @@ import Header from "./components/Header.jsx";
 import Main from "./layout/Main";
 import { useLocation } from "react-router-dom";
 import config from "./config";
+import moment from "moment";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -38,15 +39,14 @@ const Dashboard = () => {
   }, []);
 
   if (!userData) {
-    return <div>Loading..</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
-  const {
-    student,
-    upcomingAppointments,
-    pastAppointments,
-    unreadNotifications,
-  } = userData;
+  const { student, upcomingAppointments, unreadNotifications } = userData;
 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
@@ -73,7 +73,9 @@ const Dashboard = () => {
                   heading={`Meeting with ${appointment.advisorName}`}
                   info={appointment.office}
                   //slice appointment to only show hh:mm using moment
-                  side={appointment.time}
+                  side={moment(
+                    appointment.date + " " + appointment.time
+                  ).format("DD-MM-yyyy HH:mm")}
                 />
               ))
             ) : (

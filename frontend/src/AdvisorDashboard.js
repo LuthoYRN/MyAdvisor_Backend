@@ -12,6 +12,7 @@ const AdvisorDashboard = () => {
   const [date, setDate] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingAppointments, setloadingAppointments] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const AdvisorDashboard = () => {
     setDate(selectedDate);
     const formattedDate = moment(selectedDate).format("YYYY-MM-DD"); // Formatting the date as required by the API
     const fetchAppointments = async () => {
+      setloadingAppointments(true);
       try {
         const response = await fetch(
           `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}?date=${formattedDate}`,
@@ -36,6 +38,8 @@ const AdvisorDashboard = () => {
         setAppointments(data.data.appointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
+      } finally {
+        setloadingAppointments(false);
       }
     };
     fetchAppointments();
@@ -70,7 +74,9 @@ const AdvisorDashboard = () => {
   if (loading) {
     return (
       <Main userType="Loading..." activeMenuItem="home">
-        <div className="mt-16">Loading user data...</div>
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div>
+        </div>
       </Main>
     );
   }
@@ -101,12 +107,18 @@ const AdvisorDashboard = () => {
               {moment(date).format("DD MMM YYYY")}
             </Text>
           )}
-          {date && appointments.length > 0 ? (
+          {loadingAppointments ? (
+            <div className="flex justify-center">
+              <div className="loader"></div>{" "}
+            </div>
+          ) : date && appointments.length > 0 ? (
             appointments.map((appointment) => (
               <Card
                 key={appointment.id}
                 heading={appointment.studentName}
                 side={appointment.time}
+                info="Click to view details"
+                appointmentCard={true}
                 onClick={() =>
                   navigate("/appointmentDetails", { state: appointment })
                 }

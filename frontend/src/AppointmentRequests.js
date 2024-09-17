@@ -13,6 +13,7 @@ const AppointmentRequests = () => {
   const [notificationDetails, setNotificationDetails] = React.useState(null);
   const [requestID, setRequestID] = React.useState(null);
   const [activeId, setActiveId] = React.useState(null);
+  const [loading, setLoading] = React.useState(true); // State to track loading status
   let navigate = useNavigate();
 
   const getRequestDetails = async (request) => {
@@ -105,6 +106,8 @@ const AppointmentRequests = () => {
         console.log("requests:", requests);
       } catch (error) {
         console.error("Error fetching notifications:", error);
+      } finally {
+        setLoading(false); // Ensure loading is set to false after fetching
       }
     };
 
@@ -138,7 +141,11 @@ const AppointmentRequests = () => {
               Appointment Requests
             </Text>
             <div className="items-center max-h-96 py-4 px-2 overflow-y-auto">
-              {requests.length > 0 ? (
+              {loading ? (
+                <div className="flex justify-center">
+                  <div className="loader"></div>{" "}
+                </div>
+              ) : requests.length > 0 ? (
                 requests.map((request) => (
                   <Card
                     key={request.id}

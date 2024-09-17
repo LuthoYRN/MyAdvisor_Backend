@@ -10,7 +10,8 @@ import download from "./assets/download.svg";
 
 
 const AppointmentDetails = () => {
-  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] =
+    React.useState(false);
   const [showRejectionModal, setShowRejectionModal] = React.useState(false);
   const [rejectedReason, setRejectedReason] = React.useState(null);
   let location = useLocation();
@@ -19,29 +20,31 @@ const AppointmentDetails = () => {
   console.log(location.state);
 
   const handleAppointment = (status) => () => {
-    fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
-      method: "POST",
-      headers: {
-      "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-      rejectionMessage: rejectedReason
-      })
-    })
-      .then((response) => {
-      console.log("response", response);
-      if (response.ok) {
-        // Show confirmation modal
-        console.log("Appointment status updated successfully");
-        setShowConfirmationModal(true);
-      } else {
-        console.log("Failed to update appointment status");
+    fetch(
+      `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rejectionMessage: rejectedReason,
+        }),
       }
-
+    )
+      .then((response) => {
+        console.log("response", response);
+        if (response.ok) {
+          // Show confirmation modal
+          console.log("Appointment status updated successfully");
+          setShowConfirmationModal(true);
+        } else {
+          console.log("Failed to update appointment status");
+        }
       })
       .catch((error) => {
-      // handle the error
-      console.log("Error:", error);
+        // handle the error
+        console.log("Error:", error);
       });
   };
 
@@ -142,32 +145,40 @@ const AppointmentDetails = () => {
             <Text type="sm-subheading" classNames="mb-8">
               Appointment status updated successfully
             </Text>
-            <Button text="Close" onClick={()=> {setShowConfirmationModal(false); navigate("/advisorDashboard")}} />
+            <Button
+              text="Close"
+              onClick={() => {
+                setShowConfirmationModal(false);
+                navigate("/advisorDashboard");
+              }}
+            />
           </div>
         </div>
       )}
 
-{showRejectionModal && (
+      {showRejectionModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
               Enter reason for rejection
             </Text>
-            <TextArea placeholder="Enter reason for rejection" onValueChange={(value) => setRejectedReason(value)} />
+            <TextArea
+              placeholder="Enter reason for rejection"
+              onValueChange={(value) => setRejectedReason(value)}
+            />
             <div class="flex flex-row gap-4 mt-8">
-            <Button
-              text="Cancel"
-              type="secondary"
-              onClick={() => setShowRejectionModal(false)}
-            />
-            <Button
-              text="Send"
-              onClick={() => {
-                handleAppointment("reject")();
-                setShowRejectionModal(false);
-                
-              }}
-            />
+              <Button
+                text="Cancel"
+                type="secondary"
+                onClick={() => setShowRejectionModal(false)}
+              />
+              <Button
+                text="Send"
+                onClick={() => {
+                  handleAppointment("reject")();
+                  setShowRejectionModal(false);
+                }}
+              />
             </div>
           </div>
         </div>

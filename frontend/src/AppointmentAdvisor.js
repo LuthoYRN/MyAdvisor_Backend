@@ -19,6 +19,7 @@ const Appointment = () => {
   const [advisors, setAdvisors] = React.useState([]);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
+  const [loading, setLoading] = React.useState(true); // Initial state is true, indicating data is loading
 
   let navigate = useNavigate();
 
@@ -30,12 +31,16 @@ const Appointment = () => {
   const handleContinue = () => {
     // Do something with the selected advisor
     if (selectedAdvisor) {
-       navigate("/appointment", { state: selectedAdvisor });
+      navigate("/appointment", { state: selectedAdvisor });
       // Add your logic here to save the selected advisor
     } else {
       console.log("No advisor selected");
       // Handle the case when no advisor is selected
     }
+  };
+  const handleBack = () => {
+    navigate("/dashboard");
+    // Add your logic here to save the selected advisor
   };
 
   const [page, setPage] = React.useState(1);
@@ -77,6 +82,8 @@ const Appointment = () => {
         console.log("Advisors:", advisors);
       } catch (error) {
         console.error("Error fetching notifications:", error);
+      } finally {
+        setLoading(false); // Disable loading state after fetching or if an error occurs
       }
     };
 
@@ -94,17 +101,26 @@ const Appointment = () => {
             Choose an advisor
           </Text>
           <div class="grid grid-cols-3 grid-rows-2 gap-4  w-full">
-            {displayedAdvisors.map((advisor, index) => (
-              <UserCard
-                key={index}
-                name={advisor.name}
-                majors={advisor.majors.join(", ")}
-                office={advisor.office}
-                image={advisor.profile_url}
-                active={index === activeIndex}
-                onClick={() => handleAdvisorClick(index)}
-              />
-            ))}
+            {loading ? (
+              <div class="flex justify-center items-center col-span-3">
+                {" "}
+                {/* Ensuring the loader spans all columns */}
+                <div className="loader"></div>{" "}
+                {/* Assuming .loader is defined in your CSS */}
+              </div>
+            ) : (
+              displayedAdvisors.map((advisor, index) => (
+                <UserCard
+                  key={index}
+                  name={advisor.name}
+                  majors={advisor.majors.join(", ")}
+                  office={advisor.office}
+                  image={advisor.profile_url}
+                  active={index === activeIndex}
+                  onClick={() => handleAdvisorClick(index)}
+                />
+              ))
+            )}
           </div>
         </div>
         <div class="flex flex-row gap-8 max-w-md ml-6">
@@ -122,7 +138,7 @@ const Appointment = () => {
         </div>
         <div class="flex flex-row gap-8 max-w-md ml-6">
           <Button text="Continue" onClick={handleContinue} />
-          <Button text="Back" type="secondary" />
+          <Button text="Back" onClick={handleBack} type="secondary" />
         </div>
       </div>
     </Main>

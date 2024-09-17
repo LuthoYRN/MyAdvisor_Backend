@@ -8,6 +8,7 @@ const Card = ({
   classNames,
   active,
   onClick,
+  appointmentCard = false,
   read = true,
   status,
 }) => {
@@ -25,12 +26,19 @@ const Card = ({
   };
 
   // Include condition for adding cursor pointer only if onClick is provided
-  const containerClasses = `w-full h-24 p-4 flex flex-row justify-between rounded-2xl shadow-lg ${classNames} ${getBackgroundColor()} ${onClick ? "cursor-pointer" : ""}`;
+  const containerClasses = `mt-1 mb-1 w-full h-24 p-4 flex flex-row justify-between rounded-2xl shadow-lg ${classNames} ${getBackgroundColor()} ${onClick ? "cursor-pointer" : ""} border-like-shadow`;
   return (
     <div className={containerClasses} onClick={onClick}>
       <div className="flex flex-col justify-between">
         <Text type="paragraph-strong">{heading}</Text>
-        <Text type="paragraph">{info}</Text>
+        <Text
+          type="paragraph"
+          classNames={`${
+            appointmentCard ? "underline text-gray-500 cursor-pointer" : ""
+          }`}
+        >
+          {info}
+        </Text>
       </div>
       <div className="flex flex-col justify-between items-end">
         <Text type="paragraph">{side}</Text>

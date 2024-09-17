@@ -26,6 +26,7 @@ const AppointmentDate = () => {
   const [selectedTime, setSelectedTime] = React.useState();
   const [selectedIndex, setSelectedIndex] = React.useState();
   const [availableTime, setAvailableSlots] = React.useState([]);
+  const [loadingTimes, setLoadingTimes] = React.useState(false); // State to track loading status of time slots
 
   let navigate = useNavigate();
   let location = useLocation();
@@ -92,6 +93,7 @@ console.log(formData)
 
   React.useEffect(() => {
     const fetchTimes = async () => {
+      setLoadingTimes(true); // Trigger loading state when fetching starts
       try {
         console.log("Fetching advisors...");
         const response = await fetch(
@@ -106,11 +108,15 @@ console.log(formData)
         );
         console.log("response", response);
         const data = await response.json();
-        const sortedAvailableTimes = data.data.availableTimes.sort((a, b) => new Date(`1970/01/01 ${a}`) - new Date(`1970/01/01 ${b}`));
+        const sortedAvailableTimes = data.data.availableTimes.sort(
+          (a, b) => new Date(`1970/01/01 ${a}`) - new Date(`1970/01/01 ${b}`)
+        );
         setAvailableSlots(sortedAvailableTimes);
         console.log("Available Times:", availableTime);
       } catch (error) {
         console.error("Error fetching times:", error);
+      } finally {
+        setLoadingTimes(false); // Stop loading after fetching or if an error occurs
       }
     };
 
@@ -138,7 +144,7 @@ console.log(formData)
               <Button
                 text="Back"
                 type="secondary"
-                onClick={() => navigate("/appointment")}
+                onClick={() => navigate(-1)}
               />
             </div>
           </div>
@@ -148,23 +154,36 @@ console.log(formData)
               Student Advisor
             </Text>
             <Text type="paragraph" classNames="mb-8">
-              {/* Replace the placeholder tex with the actual name*/}
               {location.state.advisor.name}
             </Text>
-            <Text type="sm-heading" classNames="mb-4">
-              Available Times
-            </Text>
-            <div class="flex gap-4 mb-8 w-9/12 overflow-auto flex-wrap">
-              {availableTime &&
-                availableTime.map((time, index) => (
-                  <Pill
-                    key={index}
-                    text={time}
-                    active={index === selectedIndex}
-                    onClick={() => handleTimeSelect(index)}
-                  />
-                ))}
-            </div>
+
+            {date && (
+              <>
+                <Text type="sm-heading" classNames="mb-4">
+                  Available Times
+                </Text>
+                <div className="flex gap-4 mb-8 w-9/12 overflow-auto flex-wrap">
+                  {loadingTimes ? (
+                    <div className="loader-container ">
+                      <div className="loader"></div>{" "}
+                    </div>
+                  ) : availableTime.length > 0 ? (
+                    availableTime.map((time, index) => (
+                      <Pill
+                        key={index}
+                        text={time}
+                        active={index === selectedIndex}
+                        onClick={() => handleTimeSelect(index)}
+                      />
+                    ))
+                  ) : (
+                    <Text type="paragraph" classNames="text-gray-500">
+                      No available times
+                    </Text>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

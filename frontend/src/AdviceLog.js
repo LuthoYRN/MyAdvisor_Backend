@@ -13,6 +13,7 @@ const AdviceLog = () => {
   const [activeIndex, setActiveIndex] = React.useState(null);
   const [content, setContent] = React.useState(null);
   const [logs, setLogs] = React.useState([]);
+  const [loading, setLoading] = React.useState(true); // State to track loading status
 
   useEffect(() => {
     setContent(logs[activeIndex]?.text || logs[activeIndex]?.src);
@@ -42,9 +43,14 @@ const AdviceLog = () => {
           }));
           setLogs(formattedLogs);
           setFilteredLogs(formattedLogs);
+        } else {
+          setFilteredLogs([]);
         }
       } catch (error) {
         console.error("Error fetching logs:", error);
+        setFilteredLogs([]);
+      } finally {
+        setLoading(false); // Ensure loading is set to false after fetching
       }
     };
     fetchLogs();
@@ -108,20 +114,28 @@ const AdviceLog = () => {
               />
             </div>
             <div className="items-center max-h-[644px] px-2 overflow-y-auto">
-            {filteredLogs.map((log, index) => (
-              <Card
-                key={index}
-                heading={log.name}
-                info={log.type}
-                side={log.side}
-                classNames="mb-6"
-                active={index === activeIndex}
-                status={"Approval"}
-                onClick={() => {
-                  handleCardClick(log, index);
-                }}
-              />
-            ))}
+              {loading ? (
+                <div className="flex justify-center">
+                  <div className="loader"></div>{" "}
+                </div>
+              ) : filteredLogs.length > 0 ? (
+                filteredLogs.map((log, index) => (
+                  <Card
+                    key={index}
+                    heading={log.name}
+                    info={log.type}
+                    side={log.side}
+                    classNames="mb-6"
+                    active={index === activeIndex}
+                    status={"Approval"}
+                    onClick={() => handleCardClick(log, index)}
+                  />
+                ))
+              ) : (
+                <Text type="paragraph" classNames="text-gray-500">
+                  No logs available.
+                </Text>
+              )}
             </div>
           </div>
         </div>
