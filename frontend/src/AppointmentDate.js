@@ -194,7 +194,7 @@ const AppointmentDate = () => {
             <Text type="sm-heading" classNames="mb-4">
               Confirmation
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
               Click confirm to finalize the appointment details{" "}
             </Text>
             <div className="grid grid-cols-2 gap-8 mb-4 max-w-96">
