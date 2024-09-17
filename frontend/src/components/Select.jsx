@@ -18,7 +18,7 @@ const Select = ({ classNames, label, placeholder, options, onChange }) => {
         </Text>
       )}
       <select
-        class="shadow appearance-auto my-auto bg-gray-200 rounded-2xl py-2 px-3 text-gray-950 mb-4 leading-tight focus:outline-none focus:shadow-outline"
+        class="shadow appearance-auto my-auto bg-gray-200 rounded-2xl py-2 px-3 text-gray-950 leading-tight focus:outline-none focus:shadow-outline"
         type="text"
         value={value}
         onChange={handleChange}

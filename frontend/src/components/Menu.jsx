@@ -105,6 +105,9 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={badge}
               text="Manage Majors"
               isActive={activeMenuItem === "manageMajors"}
+              onClick={() => {
+                navigate("/curriculumManagement");
+              }}
             />
             <MenuItem
               imageSrc={request}
@@ -150,6 +153,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
+              onClick={() => {navigate("/FacultyAdminDashboard")}}
             />
             <MenuItem
               imageSrc={group}
@@ -160,11 +164,13 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={badge}
               text="Manage Majors"
               isActive={activeMenuItem === "manageMajors"}
+              onClick={() => {navigate("/curriculumManagement")}}
             />
             <MenuItem
               imageSrc={rule}
               text="Faculty Rules"
               isActive={activeMenuItem === "facultyRules"}
+              onClick={() => {navigate("/facultyRules")}}
             />
           </>
         )}
@@ -198,6 +204,7 @@ const Menu = ({ userType, activeMenuItem }) => {
           isActive={activeMenuItem === "logout"}
           onClick={() => {
             navigate("/");
+            localStorage.clear();
           }}
         />
       </div>
