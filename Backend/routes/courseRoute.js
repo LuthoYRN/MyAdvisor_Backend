@@ -3,10 +3,10 @@ const courseController = require("../controllers/courseController");
 const router = express.Router();
 
 //add new course to system
-router.route("/add").get();
+router.route("/add").get().post();
 //edit
 router
   .route("/:courseID/edit")
   .get(courseController.getCourseForEditing)
-  .patch();
+  .patch(courseController.updateCourse);
 module.exports = router;
