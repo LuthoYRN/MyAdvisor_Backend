@@ -25,13 +25,10 @@ const Table = ({ Tabledata, column }) => {
   const table = useReactTable({
     data,
     columns,
-    state: {
-      columnFilters,
-    },
-    onColumnFiltersChange: setColumnFilters,
+    
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    manualFiltering: true,
   });
 
   console.log(table.getState().columnFilters);
@@ -46,28 +43,15 @@ const Table = ({ Tabledata, column }) => {
 
   return (
     <div class="flex-auto flex flex-col">
-      <div class="flex gap-8 mb-8 flex-row">
-        <CustomInput
-          classNames="w-5/6"
-          placeholder="Search for users"
-          icon={search}
-        />
-        <Select
-          options={[
-            { value: "student", label: "Student" },
-            { value: "advisor", label: "Advisor" },
-          ]}
-        />
-        <Button text="Add User" />
-      </div>
-      <div className="p-4 flex flex-col bg-gray-200 rounded-2xl flex-auto">
+     
+      <div className="p-8 flex flex-col bg-gray-200 rounded-2xl flex-auto">
         <table className="w-full">
-          <thead>
+          <thead class="border-b border-gray-600">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr className="text-left" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th key={header.id} colSpan={header.colSpan}>
-                    <Text type="sm-heading" classNames="mb-8">
+                    <Text type="sm-heading" classNames="mb-4">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -93,8 +77,9 @@ const Table = ({ Tabledata, column }) => {
                     </Text>
                   </td>
                 ))}
-                <td>
+                <td class="flex gap-4">
                   <Button text="Edit" />
+                  <Button type={"danger"} text="Delete" />
                 </td>
               </tr>
             ))}
@@ -151,18 +136,17 @@ const Table = ({ Tabledata, column }) => {
               className="border p-1 rounded w-16"
             />
           </span>
-          <select
+          <Select
+          classNames={"w-32"}
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
             }}
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
+            options={[10, 20, 30, 40, 50].map((pageSize) => ({
+              value: pageSize,
+              label: `Show ${pageSize}`,
+            }))}
+          />
         </div>
       </div>
     </div>

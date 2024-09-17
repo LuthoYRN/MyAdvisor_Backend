@@ -56,6 +56,8 @@ function Login() {
             navigate("/dashboard");
           } else if (result.user_type === "advisor") {
             navigate("/advisorDashboard", { state: result.user_id });
+          } else if (result.user_type === "systemAdmin") {
+            navigate("/userManagement");
           }
           //add facultyAdmin later
         }

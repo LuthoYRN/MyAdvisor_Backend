@@ -3,6 +3,7 @@ import Main from "./layout/Main";
 import Text from "./components/Text";
 import Table from "./components/Table";
 import { useEffect, useState } from "react";
+import config from "./config";
 
 const CurriculumManagement = () => {
   const [curriculums, setCurriculums] = useState([]);
@@ -11,7 +12,7 @@ const CurriculumManagement = () => {
     const fetchCurriculums = async () => {
       try {
         const advisorID = 1; // Replace with dynamic ID if needed
-        const response = await fetch(`/api/advisor/${advisorID}/curriculums`);
+        const response = await fetch(`${config.backendUrl}/api/advisor/${advisorID}/curriculums`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -79,7 +80,7 @@ const CurriculumManagement = () => {
       accessorKey: "user_permission",
     },
   ];
-
+  
   return (
     <Main
       userType={
@@ -87,7 +88,7 @@ const CurriculumManagement = () => {
       }
     >
       <Text type="heading" classNames="mb-16">
-        User Management
+        Curriculum Management
       </Text>
 
       <Table classNames="" Tabledata={mockData} column={defaultColumns} />
