@@ -55,23 +55,7 @@ const getAdvisorDashboard = async (req, res) => {
         .status(404)
         .json({ status: "fail", message: "Advisor not found" });
     }
-    // Fetch majors associated with the advisor
-    const advisorMajors = await advisorMajor.findAll({
-      where: { advisorID: theAdvisor.id },
-      include: [
-        {
-          model: major,
-          attributes: ["majorName"],
-        },
-      ],
-    });
-    // Extract major names
-    const majors = advisorMajors.map((am) => am.major.majorName);
-    // Check if no majors found
-    if (majors.length === 0) {
-      // If no majors are found, implement logic for advising programmes
-      majors = ["Advises programmes (to be implemented)"];
-    }
+
     // Determine the date to use: If a date is provided in the query, use that, otherwise use today's date
     const selectedDate = date ? moment(date, "YYYY-MM-DD", true) : moment();
 
@@ -126,7 +110,6 @@ const getAdvisorDashboard = async (req, res) => {
           office: theAdvisor.office,
           profile_url: theAdvisor.profile_url,
           advisor_level: theAdvisor.advisor_level,
-          majors_advised: majors,
         },
         appointments: confirmedAppointments.map((appt) => ({
           id: appt.uuid,
