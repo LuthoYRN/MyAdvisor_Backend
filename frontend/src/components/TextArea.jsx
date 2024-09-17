@@ -1,11 +1,12 @@
 import React from 'react';
 import Text from './Text';
 
-const TextArea = ({label, placeholder, icon, disabled, classNames}) => {
-    const [value, setValue] = React.useState('');
+const TextArea = ({label, placeholder, icon, disabled, classNames, onValueChange, text}) => {
+    const [value, setValue] = React.useState(text);
 
     const handleChange = (event) => {
         setValue(event.target.value);
+        onValueChange(event.target.value);
     };
 
     return (

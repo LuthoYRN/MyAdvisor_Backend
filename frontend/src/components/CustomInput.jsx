@@ -1,29 +1,62 @@
-import React from 'react';
-import Text from './Text';
+import React, { useState } from "react";
+import Text from "./Text";
+import eyeoff from "./../assets/eye-off-svgrepo-com.svg";
+import eyeon from "./../assets/eye-svgrepo-com.svg";
 
-const CustomInput = ({label, placeholder, icon, classNames, onValueChange}) => {
-    const [value, setValue] = React.useState('');
+const CustomInput = ({
+  label,
+  placeholder,
+  icon,
+  classNames,
+  onValueChange,
+  type = "text",
+  onMouseEnter,
+  onMouseLeave,
+}) => {
+  const [value, setValue] = useState("");
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
 
-    const handleChange = (event) => {
-        setValue(event.target.value);
-        onValueChange(event.target.value);
-    };
+  const handleChange = (event) => {
+    setValue(event.target.value);
+    onValueChange(event.target.value);
+  };
 
-    return (
-        <div class={"flex flex-col " + classNames}>
-        <Text classNames="mb-1" type="paragraph">  {label}</Text>
-        <div class="flex flex-row items-center">
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!isPasswordVisible);
+  };
+
+  return (
+    <div className={`flex flex-col ${classNames}`}>
+      <Text classNames="mb-1" type="paragraph">
+        {label}
+      </Text>
+      <div className="relative flex items-center">
         <input
-            class="shadow appearance-none w-full bg-gray-200 rounded-2xl py-2 px-3 text-gray-950 mb-4 leading-tight focus:outline-none focus:shadow-outline"
-            type="text"
-            value={value}
-            onChange={handleChange}
-            placeholder={placeholder}
+          className="shadow appearance-none w-full bg-gray-200 rounded-2xl py-2 pl-3 pr-10 text-gray-950 leading-tight focus:outline-none focus:shadow-outline"
+          type={type === "password" && !isPasswordVisible ? "password" : "text"}
+          value={value}
+          onChange={handleChange}
+          placeholder={placeholder}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          
         />
-        {icon && <img src={icon} alt="icon" class="-mx-8 mb-4" />}
-        </div>
-        </div>
-    );
+        {type === "password" && (
+          <button
+            onClick={togglePasswordVisibility}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            type="button"
+          >
+            <img
+              src={isPasswordVisible ? eyeoff : eyeon}
+              alt="Toggle Visibility"
+              className="h-5 w-5 text-gray-600"
+            />
+          </button>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default CustomInput;

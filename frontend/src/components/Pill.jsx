@@ -2,20 +2,19 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Text from "./Text";
 
-const Pill = ({ text, active }) => {
-  const [isActive, setActive] = useState(active);
+const Pill = ({ text, active, onClick }) => {
 
   const handleClick = () => {
     // Toggle the active state when clicked
-    setActive(!isActive);
+    onClick(active);
   };
 
   return (
     <div
-      className={`px-4 py-2 ease-in-out duration-200 rounded-2xl cursor-pointer  ${isActive ? "bg-secondary" : "bg-gray-200"}`}
+      className={`px-4 py-2 ease-in-out duration-200 rounded-2xl cursor-pointer text-center  ${active ? "bg-secondary" : "bg-gray-200"}`}
       onClick={handleClick}
     >
-      <Text classNames="select-none" color={isActive ? "white": "black"}> {text}</Text> 
+      <Text classNames="select-none" color={active ? "white": "black"}> {text}</Text> 
     </div>
   );
 };

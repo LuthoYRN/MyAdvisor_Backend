@@ -5,6 +5,7 @@ import Button from "./components/Button.jsx";
 import CustomInput from "./components/CustomInput.jsx";
 import search from "./assets/search.svg";
 import Tag from "./components/Tag.jsx";
+import Select from "./components/Select.jsx";
 
 /*
     Data Needed:
@@ -24,6 +25,8 @@ const AddCourse = () => {
   const [courseCredits, setCourseCredits] = React.useState("");
   const [nqfLevel, setNqfLevel] = React.useState("");
   const [equivalents, setEquivalents] = React.useState("");
+  const [faculty, setFaculty] = React.useState("");
+  const [specialRequirements, setSpecialRequirements] = React.useState("");
 
   // Mock data Need to give list of prerequisites and equivalents
   const prerequisites = [
@@ -46,6 +49,15 @@ const AddCourse = () => {
     "English",
     "History",
     "Geography",
+  ];
+
+  const faculties = [
+    "Engineering",
+    "Science",
+    "Humanities",
+    "Commerce",
+    "Law",
+    "Medicine",
   ];
 
   const handleSearchPrerequisites = (searchText) => {
@@ -108,105 +120,129 @@ const AddCourse = () => {
   };
 
   return (
-    <Main>
-      <div class="flex flex-col flex-auto gap-2 justify-between col-span-2 p-8 rounded-2xl bg-white shadow-xl">
-        <div class="flex flex-col gap-1">
-          <Text type="heading" classNames="mb-4">
-            Add Course
-          </Text>
-          <CustomInput
-            label="Course Name"
-            placeholder="Enter course name"
-            value={courseName}
-            onValueChange={setCourseName}
-          />
-          <CustomInput
-            label="Course Code"
-            placeholder="Enter course code"
-            value={courseCode}
-            onValueChange={setCourseCode}
-          />
-          <CustomInput
-            label="Course Credits"
-            placeholder="Enter course credits"
-            value={courseCredits}
-            onValueChange={setCourseCredits}
-            numeric={true}
-          />
-          <CustomInput
-            label="NQF Level"
-            placeholder="Enter NQF Level"
-            onValueChange={setNqfLevel}
-            numeric={true}
-          />
-          <CustomInput
-            label="Prerequisites"
-            placeholder="Enter course Prerequisites"
-            icon={search}
-            onValueChange={handleSearchPrerequisites}
-            value={prerequisite}
-          />
-          <div>
-          {prerequisite && filteredPrerequisites.length >= 1 && (
-            <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
-              {filteredPrerequisites.map((prerequisite) => (
-                <p
-                  onClick={() => {
-                    handleAddPrerequisite(prerequisite);
-                    setFilteredPrerequisites(
-                      filteredPrerequisites.filter(
-                        (item) => item !== prerequisite
-                      )
-                    );
-                  }}
-                >
-                  {prerequisite}
-                </p>
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+    >
+      <div class="flex flex-col flex-auto gap-2 p-8 rounded-2xl bg-white shadow-xl">
+        <Text type="heading" classNames={"mb-8"}>
+          Add Course
+        </Text>
+        <div class="flex flex-row gap-8">
+          <div class="flex flex-col gap-1 w-1/2">
+            <CustomInput
+              label="Course Name"
+              placeholder="Enter course name"
+              value={courseName}
+              onValueChange={setCourseName}
+            />
+            <CustomInput
+              label="Course Code"
+              placeholder="Enter course code"
+              value={courseCode}
+              onValueChange={setCourseCode}
+            />
+            <Select
+              label="Faculty"
+              placeholder="Select faculty"
+              options={faculties.map((faculty) => ({
+                value: faculty,
+                label: faculty,
+              }))}
+              onChange={(value) => setFaculty(value)}
+            />
+            <CustomInput
+              label="Course Credits"
+              placeholder="Enter course credits"
+              value={courseCredits}
+              onValueChange={setCourseCredits}
+              numeric={true}
+            />
+            <CustomInput
+              label="NQF Level"
+              placeholder="Enter NQF Level"
+              onValueChange={setNqfLevel}
+              numeric={true}
+            />
+          </div>
+          <div class="flex flex-col gap-1 w-1/2">
+            <CustomInput
+              label="Prerequisites"
+              placeholder="Enter course Prerequisites"
+              icon={search}
+              onValueChange={handleSearchPrerequisites}
+              value={prerequisite}
+            />
+            <div>
+              {prerequisite && filteredPrerequisites.length >= 1 && (
+                <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
+                  {filteredPrerequisites.map((prerequisite) => (
+                    <p
+                      onClick={() => {
+                        handleAddPrerequisite(prerequisite);
+                        setFilteredPrerequisites(
+                          filteredPrerequisites.filter(
+                            (item) => item !== prerequisite
+                          )
+                        );
+                      }}
+                    >
+                      {prerequisite}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div class="flex flex-row gap-4 ">
+              {selectedPrerequisites.map((prerequisite) => (
+                <Tag
+                  text={prerequisite}
+                  onClick={() => handleRemovePrerequisite(prerequisite)}
+                />
               ))}
             </div>
-          )}
-          </div>
-          <div class="flex flex-row gap-4">
-            {selectedPrerequisites.map((prerequisite) => (
-              <Tag
-                text={prerequisite}
-                onClick={() => handleRemovePrerequisite(prerequisite)}
-              />
-            ))}
-          </div>
-          <CustomInput
-            label="Equivalents"
-            placeholder="Enter Equivalents"
-            icon={search}
-            value={equivalents}
-            onValueChange={handleSearchEquivalents}
-            
-          />
-          <div>
-          {equivalents && filteredEquivalents.length >= 1 && (
-            <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
-              {filteredEquivalents.map((equivalent) => (
-                <p
-                  onClick={() => {
-                    handleAddEquivalent(equivalent);
-                    setFilteredEquivalents(
-                      filteredEquivalents.filter((item) => item !== equivalent)
-                    );
-                  }}
-                >
-                  {equivalent}
-                </p>
+            <CustomInput
+              label={"Special Requirements"}
+              placeholder={"Enter Special Requirements"}
+              value={specialRequirements}
+              onValueChange={(value) => setSpecialRequirements(value)}
+            />
+            <CustomInput
+              label="Equivalents"
+              placeholder="Enter Equivalents"
+              icon={search}
+              value={equivalents}
+              onValueChange={handleSearchEquivalents}
+            />
+            <div>
+              {equivalents && filteredEquivalents.length >= 1 && (
+                <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
+                  {filteredEquivalents.map((equivalent) => (
+                    <p
+                      onClick={() => {
+                        handleAddEquivalent(equivalent);
+                        setFilteredEquivalents(
+                          filteredEquivalents.filter(
+                            (item) => item !== equivalent
+                          )
+                        );
+                      }}
+                    >
+                      {equivalent}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div class="flex flex-row gap-4">
+              {selectedEquivalents.map((equivalent) => (
+                <Tag
+                  text={equivalent}
+                  onClick={() => handleRemoveEquivalent(equivalent)}
+                />
               ))}
             </div>
-          )}
-          </div>
-          <div class="flex flex-row gap-4">
-            {selectedEquivalents.map((equivalent) => (
-              <Tag
-                text={equivalent}
-                onClick={() => handleRemoveEquivalent(equivalent)}
-              />
-            ))}
           </div>
         </div>
         <div class="flex flex-row gap-8 max-w-md">

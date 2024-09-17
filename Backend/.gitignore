@@ -1,0 +1,4 @@
+schema/
+node_modules/
+.env
+/db/backup/scripts.txt

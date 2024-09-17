@@ -3,6 +3,10 @@ import Main from "./layout/Main";
 import Text from "./components/Text";
 import Button from "./components/Button";
 import video from "./assets/Video.svg";
+import moment from "moment";
+import { useLocation } from "react-router-dom";
+import config from "./config";
+import { useNavigate } from "react-router-dom";
 
 /* 
 Data Needed:
@@ -16,6 +20,10 @@ Data Needed:
 
 const AppointmentDetails = () => {
   const [showRecordingModal, setShowRecordingModal] = React.useState(false);
+  const [appointment, setAppointment] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  let location = useLocation();
+  let navigate = useNavigate();
 
   const handleRecordMeeting = () => {
     setShowRecordingModal(true);
@@ -25,9 +33,58 @@ const AppointmentDetails = () => {
     setShowRecordingModal(false);
   };
 
+  React.useEffect(() => {
+    if (location.state && location.state.id) {
+      try {
+        fetch(
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state.id}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              setAppointment(data.data);
+            } else {
+              console.error(
+                "Failed to load appointment details:",
+                data.message
+              );
+            }
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error fetching appointment details:", error);
+            setLoading(false);
+          });
+      } catch (error) {
+        console.error("Error fetching appointment details:", error);
+        setLoading(false);
+      }
+    } else {
+      console.error("Appointment details are not available in location.state");
+      setLoading(false);
+    }
+  }, [location.state]);
+
+  if (loading) {
+    return (
+      <Main
+        userType={
+          JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        }
+      >
+        <div className="flex items-center justify-center p-24">
+          <div className="loader"></div>
+        </div>
+      </Main>
+    );
+  }
   return (
-    <Main>
-      <div className="flex flex-col flex-auto">
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+      }
+    >
+      <div className="flex flex-col flex-auto p-24 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-16">
           Appointment Details
         </Text>
@@ -39,7 +96,9 @@ const AppointmentDetails = () => {
               </Text>
               <Text type="paragraph" classNames="mb-8">
                 {/* Replace the placeholder tex with the actual name*/}
-                John Doe
+                {location.state.studentName
+                  ? location.state.studentName
+                  : "N/A"}
               </Text>
               <div className="flex flex-row gap-4 justify-between">
                 <div>
@@ -47,8 +106,7 @@ const AppointmentDetails = () => {
                     Date
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {/* Replace the placeholder tex with the actual date*/}
-                    12th August 2021
+                    {appointment ? appointment.date : "N/A"}
                   </Text>
                 </div>
                 <div>
@@ -56,8 +114,9 @@ const AppointmentDetails = () => {
                     Time
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {/* Replace the placeholder tex with the actual time*/}
-                    12:00 PM
+                    {appointment
+                      ? moment(appointment.time, "HH:mm:ss").format("HH:mm A")
+                      : "N/A"}
                   </Text>
                 </div>
               </div>
@@ -65,21 +124,20 @@ const AppointmentDetails = () => {
                 Reason for Appointment
               </Text>
               <Text type="paragraph" classNames="mb-8">
-                {/* Replace the placeholder tex with the actual text*/}
-                I’m in my third year, and I’m starting to feel a bit overwhelmed
-                with course selection for next semester. I want to make sure I’m
-                choosing the right courses that will keep me on track for
-                graduation, especially since I need to meet all the
-                prerequisites for my major. I’m also interested in exploring
-                some elective courses that could help me with my future career
-                plans, but I’m not sure which ones would be the best fit. I
-                really need some advice on how to balance my workload and manage
-                my time better
+                {appointment ? appointment.comment : "N/A"}
               </Text>
             </div>
             <div>
-              <Button text="Record Meeting" onClick={handleRecordMeeting} />
-              <Button text="Back" type="secondary" />
+              <Button
+                disabled={appointment.isFutureAppointment || appointment.hasAdviceLog }
+                text="Record Meeting"
+                onClick={handleRecordMeeting}
+              />
+              <Button
+                text="Back"
+                type="secondary"
+                onClick={() => navigate("/advisorDashboard")}
+              />
             </div>
           </div>
 
@@ -120,13 +178,27 @@ const AppointmentDetails = () => {
                 <Text type="paragraph" classNames="mb-2">
                   Video
                 </Text>
-                <img class="cursor-pointer" src={video} alt="video" />
+                <img
+                  onClick={() =>
+                    navigate("/meetingRecording", { state: location.state.id })
+                  }
+                  class="cursor-pointer"
+                  src={video}
+                  alt="video"
+                />
               </div>
               <div>
                 <Text type="paragraph" classNames="mb-2">
                   Text
                 </Text>
-                <img class="cursor-pointer" src={video} alt="video" />
+                <img
+                  onClick={() =>
+                    navigate("/meetingNotes", { state: location.state.id })
+                  }
+                  class="cursor-pointer"
+                  src={video}
+                  alt="video"
+                />
               </div>
             </div>
             <Button text="Close" onClick={handleCloseModal} />
