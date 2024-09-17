@@ -19,7 +19,7 @@ const getAllUsersForAdmin = async (req, res) => {
   try {
     // Find all students
     const students = await student.findAll({
-      attributes: ["id", "name", "surname", "password", "email"],
+      attributes: ["id", "name", "surname", "email"],
       raw: true,
     });
 
@@ -28,20 +28,12 @@ const getAllUsersForAdmin = async (req, res) => {
       id: student.id,
       name: `${student.name} ${student.surname}`,
       email: student.email,
-      password: student.password,
       permission: "student", // Permission for students
     }));
 
     // Find all advisors and include their advisor_level
     const advisors = await advisor.findAll({
-      attributes: [
-        "id",
-        "name",
-        "surname",
-        "email",
-        "password",
-        "advisor_level",
-      ],
+      attributes: ["id", "name", "surname", "email", "advisor_level"],
       raw: true,
     });
 
@@ -50,14 +42,13 @@ const getAllUsersForAdmin = async (req, res) => {
       id: advisor.id,
       name: `${advisor.name} ${advisor.surname}`,
       email: advisor.email,
-      password: advisor.password,
       permission:
         advisor.advisor_level === "senior" ? "Senior Advisor" : "Advisor", // Set based on advisor_level
     }));
 
     // Find all faculty admins
     const facultyAdmins = await facultyAdmin.findAll({
-      attributes: ["id", "name", "surname", "password", "email"],
+      attributes: ["id", "name", "surname", "email"],
       raw: true,
     });
 
@@ -66,7 +57,6 @@ const getAllUsersForAdmin = async (req, res) => {
       id: admin.id,
       name: `${admin.name} ${admin.surname}`,
       email: admin.email,
-      password: admin.password,
       permission: "facultyAdmin", // Permission for faculty admins
     }));
 
