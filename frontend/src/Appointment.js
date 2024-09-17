@@ -20,6 +20,7 @@ Data Needed:
 
 const Appointment = () => {
   const [comment, setComment] = React.useState("");
+  const [file, setFile] = React.useState(null);
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -31,7 +32,7 @@ const Appointment = () => {
     // Save the comment to the database
     console.log(comment);
     navigate("/appointmentDate", {
-      state: { advisor: location.state, adviceRequired: comment },
+      state: { advisor: location.state, adviceRequired: comment, file: file },
     });
   };
 
@@ -68,7 +69,7 @@ const Appointment = () => {
             </div>
 
             <div class="w-1/2 flex flex-auto">
-              <FileUploader />
+              <FileUploader handleFile={(uploadedFile)=> setFile(uploadedFile)} />
             </div>
           </div>
         </div>
