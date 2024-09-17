@@ -12,6 +12,8 @@ const {
   availability,
   appointment,
   studentsMajor,
+  programme,
+  advisorProgramme,
   department,
   faculty,
   uploadedFile,

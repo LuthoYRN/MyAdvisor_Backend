@@ -9,9 +9,9 @@ router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
 router
   .route("/:advisorID/curriculums")
   .get(curriculumController.getCurriculumsForAdvisor);
+//delete
 router
   .route("/:advisorID/curriculums/:currID")
-
   .delete(curriculumController.deleteAdvisorCurriculum);
 //profile-picture
 router.post(

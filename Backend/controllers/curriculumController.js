@@ -8,6 +8,7 @@ const {
   advisorMajor,
   advisorProgramme,
   major,
+  sharedCourse,
   department,
 } = require("../db/models");
 
@@ -199,7 +200,100 @@ const deleteAdvisorCurriculum = async (req, res) => {
   }
 };
 
+// API call to get all courses ordered by NQF level and semester for a curriculum
+const getCoursesByCurriculum = async (req, res) => {
+  try {
+    const { currID } = req.params;
+
+    let courses = [];
+
+    // 1. Check if the currID belongs to a major
+    const majorExists = await major.findOne({ where: { id: currID } });
+    if (majorExists) {
+      // 2. If it's a major, fetch the associated courses
+      courses = await sharedCourse.findAll({
+        where: { majorID: currID },
+        include: [
+          {
+            model: course,
+            attributes: ["courseName", "id", "credits", "nqf_level"],
+          },
+        ],
+        order: [
+          [sequelize.literal('"course"."nqf_level"'), "ASC"], // Order by NQF level first
+          [
+            sequelize.literal(
+              `CASE 
+              WHEN RIGHT("course"."id", 1) = 'F' THEN 1 
+              WHEN RIGHT("course"."id", 1) = 'S' THEN 2 
+              ELSE 3 
+              END`
+            ),
+            "ASC",
+          ], // F before S
+        ],
+      });
+    } else {
+      // 3. If it's not a major, check if currID belongs to a programme
+      const programmeExists = await programme.findOne({
+        where: { id: currID },
+      });
+      if (programmeExists) {
+        // 4. Fetch the associated courses for the programme
+        courses = await sharedCourse.findAll({
+          where: { programmeID: currID },
+          include: [
+            {
+              model: course,
+              attributes: ["courseName", "id", "credits", "nqf_level"],
+            },
+          ],
+          order: [
+            [sequelize.literal('"course"."nqf_level"'), "ASC"], // Order by NQF level first
+            [
+              sequelize.literal(
+                `CASE 
+                WHEN RIGHT("course"."id", 1) = 'F' THEN 1 
+                WHEN RIGHT("course"."id", 1) = 'S' THEN 2 
+                ELSE 3 
+                END`
+              ),
+              "ASC",
+            ], // F before S
+          ],
+        });
+      } else {
+        // 5. If neither major nor programme is found, return an error
+        return res.status(404).json({
+          status: "fail",
+          message: "Curriculum ID does not exist as a major or programme.",
+        });
+      }
+    }
+
+    // 6. Format the courses to return in the desired structure
+    const formattedCourses = courses.map((sc) => ({
+      id: sc.course.id,
+      courseName: sc.course.courseName,
+      credits: sc.course.credits,
+      nqfLevel: sc.course.nqf_level,
+    }));
+
+    return res.status(200).json({
+      status: "success",
+      data: formattedCourses,
+    });
+  } catch (error) {
+    console.error("Error fetching courses for curriculum:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   getCurriculumsForAdvisor,
   deleteAdvisorCurriculum,
+  getCoursesByCurriculum,
 };
