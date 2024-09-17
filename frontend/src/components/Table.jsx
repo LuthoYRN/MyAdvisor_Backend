@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ Tabledata, column }) => {
+const Table = ({ Tabledata, column, idRow, handleRowDelete, handleRowEdit }) => {
   const [data] = React.useState(() => [...Tabledata]);
   const [columns] = React.useState(() => [...column]);
   const [columnFilters, setColumnFilters] = React.useState([
@@ -41,9 +41,12 @@ const Table = ({ Tabledata, column }) => {
     debugTable: state.pagination.pageIndex > 2,
   }));
 
+  const handleDelete = async (id) => {
+    handleRowDelete(id);
+  };
+
   return (
     <div class="flex-auto flex flex-col">
-     
       <div className="p-8 flex flex-col bg-gray-200 rounded-2xl flex-auto">
         <table className="w-full">
           <thead class="border-b border-gray-600">
@@ -78,8 +81,12 @@ const Table = ({ Tabledata, column }) => {
                   </td>
                 ))}
                 <td class="flex gap-4">
-                  <Button text="Edit" />
-                  <Button type={"danger"} text="Delete" />
+                  <Button text="Edit" onClick={()=>handleRowEdit(row.getValue(idRow))}/>
+                  <Button
+                    type={"danger"}
+                    text="Delete"
+                    onClick={() => handleDelete(row.getValue(idRow))}
+                  />
                 </td>
               </tr>
             ))}
@@ -137,7 +144,7 @@ const Table = ({ Tabledata, column }) => {
             />
           </span>
           <Select
-          classNames={"w-32"}
+            classNames={"!w-32"}
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
