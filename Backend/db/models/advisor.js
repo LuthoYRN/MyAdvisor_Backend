@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         through: models.advisorProgramme,
         foreignKey: "advisorID",
       });
+      Advisor.belongsTo(models.advisorCluster, { foreignKey: "clusterID" });
     }
   }
 
@@ -87,6 +88,14 @@ module.exports = (sequelize, DataTypes) => {
       profile_url: {
         allowNull: true,
         type: DataTypes.STRING,
+      },
+      clusterID: {
+        type: DataTypes.INTEGER,
+        allowNull: true, // Allowing null in case an advisor is not assigned to a cluster
+        references: {
+          model: "advisorCluster",
+          key: "id",
+        },
       },
       uuid: {
         allowNull: false,
