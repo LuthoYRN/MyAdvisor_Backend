@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 import config from "./config";
 import TextArea from "./components/TextArea";
 import { useNavigate } from "react-router-dom";
+import download from "./assets/download.svg";
 
 
 const AppointmentDetails = () => {
@@ -14,6 +15,8 @@ const AppointmentDetails = () => {
   const [rejectedReason, setRejectedReason] = React.useState(null);
   let location = useLocation();
   let navigate = useNavigate();
+
+  console.log(location.state);
 
   const handleAppointment = (status) => () => {
     fetch(`${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`, {
@@ -94,13 +97,7 @@ const AppointmentDetails = () => {
               <Button text="Approve" onClick={handleAppointment("approve")} />
               <Button
                 text="Reject"
-                type="secondary"
-                style={{
-                  backgroundColor: "red", // Lighter red
-                  opacity: 0.9,
-                  color: "white", // Ensures the text is white for better readability
-                  border: "2px solid white", // Adds a 2px solid white border
-                }}
+                type="danger"
                 onClick={()=>setShowRejectionModal(true)}
               />
               <Button text="Back" type="secondary" />
@@ -111,20 +108,26 @@ const AppointmentDetails = () => {
             <Text type="sm-heading" classNames="mb-4">
               Uploaded Documents
             </Text>
-            <div class="flex gap-4 mb-8">
-              {/* Replace the placeholder image with the actual document image*/}
-              <div>
-                <img src="https://via.placeholder.com/150" alt="Student" />
-                <Text type="paragraph" classNames="text-center mt-2">
-                  Document 1
-                </Text>
-              </div>
-              <div>
-                <img src="https://via.placeholder.com/150" alt="Student" />
-                <Text type="paragraph" classNames="text-center mt-2">
-                  Document 2
-                </Text>
-              </div>
+            <div class="flex flex-wrap gap-4 mb-8">
+                {location.state.notificationDetails.documents && location.state.notificationDetails.documents.length > 0 ? (
+                  location.state.notificationDetails.documents.map((document, index) => (
+                    <a
+                      key={index}
+                      href={document.fileURL}
+                      download
+                      target="_blank" rel="noreferrer"
+                    >
+                      <div className="flex items-center justify-center p-8 flex-col rounded-2xl shadow-lg bg-gray-200 gap-4">
+                        <img width={40} height={40} src={download} alt="file" />
+                      <Text  >{document.fileName}</Text> 
+                      </div>
+                     
+                    </a>
+                  ))
+                ) : (
+                  <Text  type="paragraph">No files uploaded.</Text>
+                  
+                )}
             </div>
           </div>
         </div>

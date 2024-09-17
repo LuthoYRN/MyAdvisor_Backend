@@ -35,46 +35,53 @@ const AppointmentDate = () => {
   };
 
   const handleCloseModal = () => {
-    setShowConfirmationModal(false);
-    setShowSuccessModal(false);
-    const handleConfirmationModal = async () => {
-      try {
-        const formData = new FormData();
-        formData.append("date", date);
-        formData.append("time", selectedTime);
-        formData.append("comment", location.state.adviceRequired);
-        // Add file upload if needed
-        // formData.append("document", file);
+  setShowConfirmationModal(false);
+  setShowSuccessModal(false);
+  
+  const handleConfirmationModal = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("date", date); // Add date
+      formData.append("time", selectedTime); // Add selected time
+      formData.append("comment", location.state.adviceRequired); // Add comment
 
-        const response = await fetch(
-          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
-          {
-            method: "POST",
-            headers: {
-              "ngrok-skip-browser-warning": "69420",
-            },
-            body: formData,
-          }
-        );
-        if (response.ok) {
-          console.log("Appointment booked successfully!");
-          // Show confirmation modal
-          setShowSuccessModal(true);
-        } else {
-          // Handle error in appointment booking
-          console.error("Error booking appointment:", response.status);
-        }
-      } catch (error) {
-        console.error("Error booking appointment:", error);
+      // If a file was uploaded, append the file to the formData
+      if (location.state.file && location.state.file.length > 0) {
+        formData.append("document", location.state.file[0]); // Only append the first file
       }
-    };
-    handleConfirmationModal();
+console.log(formData)
+      // Make the POST request
+      const response = await fetch(
+        `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
+        {
+          method: "POST",
+          headers: {
+            "ngrok-skip-browser-warning": "69420", // Custom header if needed for ngrok
+          },
+          body: formData, // Pass the formData
+        }
+      );
+
+      if (response.ok) {
+        setShowSuccessModal(true); // Show success modal
+        console.log("Appointment booked successfully!");
+      } else {
+        console.error("Error booking appointment:", response.status);
+      }
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+    }
   };
+
+  handleConfirmationModal();
+};
+
   const handleDateSelect = (date) => {
     // Save the date to the database
     setDate(date);
     setSelectedIndex(null);
     setSelectedTime(null);
+    console.log("Selected Date:", location.state);
   };
 
   const handleTimeSelect = (index) => {
@@ -172,6 +179,7 @@ const AppointmentDate = () => {
               text-gray-600 hover:text-gray-900"
             >
               &times;
+              {console.log(location.state)}
             </Text>
             <Text type="sm-heading" classNames="mb-4">
               Confirmation

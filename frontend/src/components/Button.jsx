@@ -21,6 +21,11 @@ const Button = ({ text, onClick, type, disabled, style }) => {
       buttonClassName =
         "border border-black rounded-2xl w-full h-10 text-center p-2 my-2";
       break;
+    case "danger":
+      buttonClassName =
+        "bg-red-600 rounded-2xl w-full h-10 text-center p-2 my-2";
+        
+      break;
     default:
       buttonClassName =
         "bg-blue-950 rounded-2xl w-full h-10 text-center p-2 my-2";
