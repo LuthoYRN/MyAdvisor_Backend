@@ -14,7 +14,6 @@ const {
   department,
 } = require("../db/models");
 
-// API to get all users and their types (permissions) for the system admin
 // API to get all users and their types (permissions) for the system admin, including counts
 const getAllUsersForAdmin = async (req, res) => {
   try {

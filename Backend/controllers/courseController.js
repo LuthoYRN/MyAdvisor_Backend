@@ -62,38 +62,4 @@ const getCourseForEditing = async (req, res) => {
   }
 };
 
-// API call to get all courses in the system
-const getAllCourses = async (req, res) => {
-  try {
-    // Find all courses in the system
-    const allCourses = await course.findAll({
-      attributes: ["id", "courseName", "credits", "nqf_level"],
-      order: [
-        [sequelize.literal('SUBSTRING("id", 1, 1)'), "ASC"], // Order by first digit in ID (course code)
-        [sequelize.literal(`SUBSTRING("id", LENGTH("id"), 1)`), "ASC"], // Order F before S before Z
-      ],
-    });
-
-    // If no courses are found
-    if (!allCourses || allCourses.length === 0) {
-      return res.status(404).json({
-        status: "fail",
-        message: "No courses found in the system",
-      });
-    }
-
-    // Return the list of all courses
-    return res.status(200).json({
-      status: "success",
-      data: allCourses,
-    });
-  } catch (error) {
-    console.error("Error fetching all courses:", error.message);
-    return res.status(500).json({
-      status: "fail",
-      message: "Internal Server Error",
-    });
-  }
-};
-
-module.exports = { getAllCourses, getCourseForEditing };
+module.exports = { getCourseForEditing };
