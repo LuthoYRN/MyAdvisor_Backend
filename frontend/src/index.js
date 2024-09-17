@@ -23,6 +23,8 @@ import AppointmentRequests from "./AppointmentRequests";
 import App from "./App";
 import AppointmentDetails from "./AppointmentDetails";
 import CurriculumManagement from "./CurriculumManagement";
+import AddAdvisor from "./AddAdvisor";
+import AddFacultyAdmin from "./AddFacultyAdmin";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -51,7 +53,8 @@ root.render(
       <Route path="/userManagement" element={<UserManagement />} />
       <Route path="/curriculumManagement" element={<CurriculumManagement />} />
       <Route path="/addCourse" element={<AddCourse/>} />
-            
+      <Route path="/addAdvisor" element={<AddAdvisor/>} />   
+      <Route path="/addFacultyAdmin" element={<AddFacultyAdmin/>} />  
     </Routes>
   </Router>
 );

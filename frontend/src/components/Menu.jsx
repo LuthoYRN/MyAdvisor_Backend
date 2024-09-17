@@ -168,6 +168,28 @@ const Menu = ({ userType, activeMenuItem }) => {
             />
           </>
         )}
+        {userType === "SystemAdmin" && (
+          <>
+            <MenuItem
+              imageSrc={home}
+              text="Home"
+              isActive={activeMenuItem === "home"}
+              onClick={() => {navigate("/userManagement")}}
+            />
+            <MenuItem
+              imageSrc={group}
+              text="Add Advisor"
+              isActive={activeMenuItem === "addAdvisor"}
+              onClick={() => navigate("/addAdvisor")}
+            />
+            <MenuItem
+              imageSrc={badge}
+              text="Add Admin"
+              isActive={activeMenuItem === "addAdmin"}
+              onClick={() => navigate("/addFacultyAdmin")}
+            />
+          </>
+        )}
       </div>
       <div class="mb-6">
         <MenuItem
