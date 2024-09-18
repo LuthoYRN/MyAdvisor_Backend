@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
-import TextArea from "./components/TextArea.jsx";
+import React, { useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button.jsx";
-import { useState } from "react";
+import Text from "./components/Text.jsx";
+import TextArea from "./components/TextArea.jsx";
 import config from "./config.js";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import ConfirmationModal from "./components/ConfirmationModal.jsx";
+import Main from "./layout/Main.jsx";
 
 /*
     Data Needed:
@@ -61,11 +59,20 @@ const MeetingNotes = () => {
         </div>
       </div>
       {showConfirmationModal && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Successfully saved notes"}
-          onConfirm={"/advisorDashboard"}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaCheckCircle className="text-green-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
+              Successfully saved notes
+            </Text>
+            <Button text="Close" onClick={() => navigate("/advisorDashboard")} />
+          </div>
+        </div>
       )}
     </Main>
   );

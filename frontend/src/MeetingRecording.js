@@ -1,13 +1,11 @@
-import React from "react";
-import { useEffect } from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
-import Button from "./components/Button.jsx";
+import React, { useEffect, useRef } from "react";
+import { FaCheckCircle } from "react-icons/fa";
 import { ReactMediaRecorder } from "react-media-recorder";
-import { useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Button from "./components/Button.jsx";
+import Text from "./components/Text.jsx";
 import config from "./config.js";
-import ConfirmationModal from "./components/ConfirmationModal.jsx";
+import Main from "./layout/Main.jsx";
 
 /*
     Data Needed:
@@ -18,6 +16,7 @@ const MeetingRecording = () => {
   let location = useLocation();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
+  let navigate = useNavigate();
 
   const handleSave = async (mediaBlobUrl) => {
     if (!mediaBlobUrl) return;
@@ -120,11 +119,20 @@ const MeetingRecording = () => {
         />
       </div>
       {showConfirmationModal && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Successfully saved recording"}
-          onConfirm={"/advisorDashboard"}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaCheckCircle className="text-green-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
+              Successfully saved notes
+            </Text>
+            <Button text="Close" onClick={() => navigate("/advisorDashboard")} />
+          </div>
+        </div>
       )}
     </Main>
   );
