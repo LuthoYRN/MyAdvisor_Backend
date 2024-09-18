@@ -41,6 +41,7 @@ const AllAdviceLog = () => {
             side: `${log.appointmentDate}, ${log.appointmentTime}`,
             text: log.logNotes,
             src: log.video?.filePathURL,
+            advisorName: log.advisorName,
           }));
           setLogs(formattedLogs);
           setFilteredLogs(formattedLogs);
@@ -74,12 +75,11 @@ const AllAdviceLog = () => {
               <CustomInput
                 placeholder="Filter by advisor name"
                 classNames={"w-full"}
-                icon={search}
-                onChange={(e) => {
-                  const filterText = e.target.value.toLowerCase();
-                  const filtered = logs.filter((log) =>
-                    log.name.toLowerCase().includes(filterText)
-                  );
+                onValueChange={(value) => {
+                  const filterText = value.toLowerCase();
+                  const filtered = logs.filter((log) => {
+                    return log.advisorName.toLowerCase().includes(filterText);
+                  });
                   setFilteredLogs(filtered);
                 }}
               />
@@ -99,6 +99,7 @@ const AllAdviceLog = () => {
                     classNames="mb-6"
                     active={index === activeIndex}
                     status={"Approval"}
+                    bottomText={log.advisorName}
                     onClick={() => handleCardClick(log, index)}
                   />
                 ))

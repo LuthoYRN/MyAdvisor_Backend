@@ -11,6 +11,7 @@ const Card = ({
   appointmentCard = false,
   read = true,
   status,
+  bottomText,
 }) => {
   // Function to determine the background color
   const getBackgroundColor = () => {
@@ -45,6 +46,13 @@ const Card = ({
         {!read && (
           <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
         )}
+        {
+          <Text
+            type="paragraph"
+           >
+            {bottomText}
+          </Text>
+        }
       </div>
     </div>
   );
