@@ -35,12 +35,12 @@ const AppointmentDetails = () => {
           // Show confirmation modal
           setShowConfirmationModal(true);
         } else {
-          alert("Failed to update appointment status");
+          console.error("Failed to update appointment status");
         }
       })
       .catch((error) => {
         // handle the error
-        alert("Error:", error);
+        console.error("Error:", error);
       });
   };
 

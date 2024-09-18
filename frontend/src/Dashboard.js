@@ -31,7 +31,7 @@ const Dashboard = () => {
         setUserData(data.data);
         localStorage.setItem("userData", JSON.stringify(data.data));
       } catch (error) {
-        alert("Error fetching data:", error);
+        console.error("Error fetching data:", error);
       }
     };
 

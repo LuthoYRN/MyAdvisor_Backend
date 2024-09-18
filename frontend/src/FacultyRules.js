@@ -41,7 +41,7 @@ const FacultyAdminDashboard = () => {
         localStorage.setItem("userData", JSON.stringify(data.data));
         setLoading(false);
       } catch (error) {
-        alert("Error fetching data:", error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };

@@ -23,6 +23,8 @@ const UserManagement = () => {
   let navigate = useNavigate();
 
   React.useEffect(() => {
+    localStorage.setItem("isFacultyAdmin", true);
+
     const fetchUsers = async () => {
       try {
         const response = await fetch(`${config.backendUrl}/api/sysAdmin/users`);
@@ -38,7 +40,7 @@ const UserManagement = () => {
           setFilteredUsers(formattedData);
         }
       } catch (error) {
-        alert('Error fetching users:', error);
+        console.error('Error fetching users:', error);
       }
     };
 

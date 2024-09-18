@@ -37,7 +37,7 @@ const MeetingNotes = () => {
         setShowConfirmationModal(true);
       }
     } catch (error) {
-      alert("There was an error saving the notes!", error);
+      console.error("There was an error saving the notes!", error);
     }
   };
 

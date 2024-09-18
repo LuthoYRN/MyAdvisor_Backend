@@ -78,7 +78,7 @@ const Appointment = () => {
         const data = await response.json();
         setAdvisors(data.data);
       } catch (error) {
-        alert("Error fetching notifications:", error);
+        console.error("Error fetching notifications:", error);
       } finally {
         setLoading(false); // Disable loading state after fetching or if an error occurs
       }

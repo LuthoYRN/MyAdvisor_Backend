@@ -16,28 +16,7 @@ const FacultyAdminDashboard = () => {
  
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "69420",
-            },
-          }
-        );
-        const data = await response.json();
-        setUserData(data.data);
-        localStorage.setItem("userData", JSON.stringify(data.data));
-        setLoading(false);
-      } catch (error) {
-        alert("Error fetching data:", error);
-        setLoading(false);
-      }
-    };
-    fetchData();
+    
   }, []);
 
   if (loading) {

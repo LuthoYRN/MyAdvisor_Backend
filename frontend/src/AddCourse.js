@@ -39,15 +39,13 @@ const AddCourse = () => {
         const data = await response.json();
         setCourses(data.data);
       } catch (error) {
-        alert("Error fetching prerequisites and equivalents:", error);
+        console.error("Error fetching prerequisites and equivalents:", error);
       }
     };
 
     fetchPrerequisitesAndEquivalents();
   }, []);
 
-  // Mock data Need to give list of prerequisites and equivalents
-  const faculties = ["Engineering", "Science", "Arts", "Business"];
 
   const handleSearchPrerequisites = (searchText) => {
     setPrerequisite(searchText);
@@ -108,7 +106,7 @@ const AddCourse = () => {
       courseName,
       credits: courseCredits,
       nqf_level: nqfLevel,
-      faculty,
+      faculty: location.state.facultyName,
       specialRequirements,
       availableBoth,
       prerequisites: selectedPrerequisites,
@@ -131,11 +129,11 @@ const AddCourse = () => {
             onConfirm={"/courseManagement"}
           />;
         } else {
-          alert("Failed to add course.");
+          console.error("Failed to add course.");
         }
       })
       .catch((error) => {
-        alert("An error occurred while adding the course.");
+        console.error("An error occurred while adding the course.");
       });
   };
 
@@ -164,15 +162,7 @@ const AddCourse = () => {
               value={courseCode}
               onValueChange={setCourseCode}
             />
-            <Select
-              label="Faculty"
-              placeholder="Select faculty"
-              options={faculties.map((faculty) => ({
-                value: faculty,
-                label: faculty,
-              }))}
-              onChange={(value) => setFaculty(value)}
-            />
+           
             <CustomInput
               label="Course Credits"
               placeholder="Enter course credits"

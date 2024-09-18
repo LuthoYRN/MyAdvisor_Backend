@@ -29,10 +29,10 @@ function CourseSelection() {
         if (data.status === "success") {
           setCourses(data.courses);
         } else {
-          alert(data.message);
+          console.error(data.message);
         }
       } catch (error) {
-        alert("Error fetching courses:", error);
+        console.error("Error fetching courses:", error);
       }
     };
 
@@ -59,11 +59,11 @@ function CourseSelection() {
         if (data.status === "success") {
           setShowConfirmationModal(true);
         } else {
-          alert(data.message);
+          console.error(data.message);
         }
       })
       .catch((error) => {
-        alert("Error registering courses:", error);
+        console.error("Error registering courses:", error);
       });
   };
 

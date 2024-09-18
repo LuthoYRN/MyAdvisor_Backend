@@ -66,10 +66,9 @@ const AppointmentDate = () => {
         setShowSuccessModal(true); // Show success modal
       } else {
         <ConfirmationModal status={"Error"} message={response.status} onConfirm={"/appointmentDate"}/>
-        alert("Error booking appointment:", response.status);
       }
     } catch (error) {
-      alert("Error booking appointment:", error);
+      console.error("Error booking appointment:", error);
     }
   };
 
@@ -109,7 +108,7 @@ const AppointmentDate = () => {
         );
         setAvailableSlots(sortedAvailableTimes);
       } catch (error) {
-        alert("Error fetching times:", error);
+        console.error("Error fetching times:", error);
       } finally {
         setLoadingTimes(false); // Stop loading after fetching or if an error occurs
       }

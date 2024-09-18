@@ -37,7 +37,7 @@ const AdvisorDashboard = () => {
         const data = await response.json();
         setAppointments(data.data.appointments);
       } catch (error) {
-        alert("Error fetching appointments:", error);
+        console.error("Error fetching appointments:", error);
       } finally {
         setloadingAppointments(false);
       }
@@ -64,7 +64,7 @@ const AdvisorDashboard = () => {
         setAppointments(data.data.appointments);
         setLoading(false);
       } catch (error) {
-        alert("Error fetching data:", error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
