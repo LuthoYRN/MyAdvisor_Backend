@@ -24,6 +24,7 @@ const AdviceLog = () => {
     setLogType(log.type);
     setContent(log.text || log.src);
   };
+  
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -81,6 +82,7 @@ const AdviceLog = () => {
                     return logDate.getMonth() + 1 === parseInt(selectedMonth);
                   });
                   setFilteredLogs(filteredLogs);
+                  setContent(null);
                 }}
                 options={[
                   { value: "", label: "Select Month" },
@@ -100,6 +102,7 @@ const AdviceLog = () => {
                     return logDate.getFullYear() === parseInt(selectedYear);
                   });
                   setFilteredLogs(filteredLogs);
+                  setContent(null);
                 }}
                 options={[
                   { value: "", label: "Select Year" },
