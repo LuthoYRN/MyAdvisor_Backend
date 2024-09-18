@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       // Define associations here
       Faculty.hasOne(models.facultyAdmin, { foreignKey: "facultyID" });
       Faculty.hasMany(models.department, { foreignKey: "facultyID" });
-      Faculty.hasMany(models.programme, { foreignKey: "facultyID" });
       Faculty.hasMany(models.course, { foreignKey: "facultyID" });
     }
   }

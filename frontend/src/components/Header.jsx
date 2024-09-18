@@ -17,29 +17,34 @@ const Header = ({
   let navigate = useNavigate();
 
   const changeProfile = () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*"; // Optional: Limit file types to images
+
     fileInput.onchange = async (event) => {
       const file = event.target.files[0];
       if (file) {
         const formData = new FormData();
-        formData.append('file', file);
-        console.log(formData);
+        formData.append("profilePicture", file); // Use 'profilePicture' as the key
+
 
         try {
-          const response = await fetch(`${config.backendUrl}/api/${localStorage.getItem("userData").advisor ? "advisor": "student"}/${localStorage.getItem("user_id")}/uploadProfilePicture`, {
-            method: 'POST',
-            body: formData,
-          });
+          const response = await fetch(
+            `${config.backendUrl}/api/${localStorage.getItem("userData").advisor ? "advisor" : "student"}/${localStorage.getItem("user_id")}/uploadProfilePicture`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
           if (response.ok) {
             const data = await response.json();
-            console.log('File uploaded successfully:', data);
+            // Optionally, update the UI or display a success message here
           } else {
-            console.error('File upload failed:', response.statusText);
+            alert("File upload failed:", response.statusText);
           }
         } catch (error) {
-          console.error('Error uploading file:', error);
+          alert("Error uploading file:", error);
         }
       }
     };
@@ -50,9 +55,9 @@ const Header = ({
   return (
     <div class="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
       <img
-        src={profile_url ? profile_url : account}
+        src={profile_url}
         alt="account"
-        class="ml-4 rounded-full"
+        class="ml-4 rounded-full cursor-pointer"
         width={80}
         height={80}
         onClick={changeProfile}

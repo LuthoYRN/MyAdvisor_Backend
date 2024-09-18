@@ -8,6 +8,9 @@ import Tag from "./components/Tag.jsx";
 import Select from "./components/Select.jsx";
 import Checkbox from "./components/Checkbox.jsx";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import config from "./config.js";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 const EditCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
@@ -24,8 +27,31 @@ const EditCourse = () => {
   const [specialRequirements, setSpecialRequirements] = React.useState("");
   const [availableBoth, setAvailableBoth] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  React.useEffect(() => {
+    const fetchCourseData = async () => {
+      try {
+        const response = await fetch(
+          `/api/courses/${location.state.courseID}/edit`
+        );
+        const data = await response.json();
+        setCourseName(data.courseName);
+        setCourseCode(data.courseCode);
+        setCourseCredits(data.courseCredits);
+        setNqfLevel(data.nqfLevel);
+        setSelectedPrerequisites(data.prerequisites);
+        setSelectedEquivalents(data.equivalents);
+        setFaculty(data.faculty);
+        setSpecialRequirements(data.specialRequirements);
+        setAvailableBoth(data.availableBoth);
+      } catch (error) {
+        alert("Error fetching course data:", error);
+      }
+    };
 
+    fetchCourseData();
+  }, []);
   // Mock data Need to give list of prerequisites and equivalents
   const prerequisites = [
     "Mathematics",
@@ -105,19 +131,48 @@ const EditCourse = () => {
   };
 
   const handleSaveCourse = () => {
+    if (!courseName || !courseCode || !courseCredits || !nqfLevel || !faculty) {
+      alert(
+        "All fields except special requirements and prerequisites must be filled."
+      );
+      return;
+    }
+
     const courseData = {
       courseName,
       courseCode,
-      courseCredits,
+      credits: courseCredits,
       nqfLevel,
-      prerequisites: selectedPrerequisites,
-      equivalents,
+      faculty,
+      prerequisites: selectedPrerequisites.length
+        ? selectedPrerequisites
+        : null,
+      equivalents: selectedEquivalents.length ? selectedEquivalents : null,
+      bothSemesters: availableBoth,
+      specialRequirement: specialRequirements
+        ? { condition: "OR", requirement: specialRequirements }
+        : null,
     };
-    // TODO: Save courseData to the database
-    console.log(courseData);
-  };
 
-  
+    fetch(`${config.backendUrl}/api/courses/${location.state.courseID}/edit`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(courseData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        <ConfirmationModal
+          status={"Success"}
+          message="Course updated successfully"
+          onConfirm={-1}
+        />;
+      })
+      .catch((error) => {
+        alert("Error updating course:", error);
+      });
+  };
 
   return (
     <Main

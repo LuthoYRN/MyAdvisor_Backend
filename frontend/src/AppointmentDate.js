@@ -7,6 +7,7 @@ import Text from "./components/Text";
 import CustomCalendar from "./components/customCalendar";
 import config from "./config";
 import Main from "./layout/Main";
+import ConfirmationModal from "./components/ConfirmationModal";
 /*
 Data Needed:
 - Student Name
@@ -49,7 +50,6 @@ const AppointmentDate = () => {
       if (location.state.file && location.state.file.length > 0) {
         formData.append("document", location.state.file[0]); // Only append the first file
       }
-console.log(formData)
       // Make the POST request
       const response = await fetch(
         `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
@@ -64,12 +64,12 @@ console.log(formData)
 
       if (response.ok) {
         setShowSuccessModal(true); // Show success modal
-        console.log("Appointment booked successfully!");
       } else {
-        console.error("Error booking appointment:", response.status);
+        <ConfirmationModal status={"Error"} message={response.status} onConfirm={"/appointmentDate"}/>
+        alert("Error booking appointment:", response.status);
       }
     } catch (error) {
-      console.error("Error booking appointment:", error);
+      alert("Error booking appointment:", error);
     }
   };
 
@@ -81,7 +81,6 @@ console.log(formData)
     setDate(date);
     setSelectedIndex(null);
     setSelectedTime(null);
-    console.log("Selected Date:", location.state);
   };
 
   const handleTimeSelect = (index) => {
@@ -94,7 +93,6 @@ console.log(formData)
     const fetchTimes = async () => {
       setLoadingTimes(true); // Trigger loading state when fetching starts
       try {
-        console.log("Fetching advisors...");
         const response = await fetch(
           `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability?date=${date}`,
           {
@@ -105,15 +103,13 @@ console.log(formData)
             },
           }
         );
-        console.log("response", response);
         const data = await response.json();
         const sortedAvailableTimes = data.data.availableTimes.sort(
           (a, b) => new Date(`1970/01/01 ${a}`) - new Date(`1970/01/01 ${b}`)
         );
         setAvailableSlots(sortedAvailableTimes);
-        console.log("Available Times:", availableTime);
       } catch (error) {
-        console.error("Error fetching times:", error);
+        alert("Error fetching times:", error);
       } finally {
         setLoadingTimes(false); // Stop loading after fetching or if an error occurs
       }
@@ -197,7 +193,6 @@ console.log(formData)
               text-gray-600 hover:text-gray-900"
             >
               &times;
-              {console.log(location.state)}
             </Text>
             <Text type="sm-heading" classNames="mb-4">
               Confirmation

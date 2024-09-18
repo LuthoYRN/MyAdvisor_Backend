@@ -8,7 +8,11 @@ router.route("/:advisorID").get(advisorController.getAdvisorDashboard);
 //course management
 router
   .route("/:advisorID/curriculums")
-  .get(curriculumController.getCurriculumsAdvised);
+  .get(curriculumController.getCurriculumsForAdvisor);
+//delete
+router
+  .route("/:advisorID/curriculums/:currID")
+  .delete(curriculumController.deleteAdvisorCurriculum);
 //profile-picture
 router.post(
   "/:advisorID/uploadProfilePicture",
@@ -29,6 +33,8 @@ router
   .post(uploadVideo.single("video"), advisorController.recordVideo);
 //log
 router.route("/:advisorID/log").get(advisorController.getLog);
+//view all logs
+router.route("/:advisorID/logs").get(advisorController.getLogs);
 //appointmentrequests
 router
   .route("/:advisorID/requests")

@@ -8,7 +8,7 @@ router
   .post(authController.signup)
   .get(authController.getFaculties);
 //signup/:facultyID
-router.route("/signup/:facultyID").get(authController.getMajorsbyFaculty);
+router.route("/signup/:facultyID").get(authController.getCurriculumsByFaculty);
 //signup/:studentID/courses
 router
   .route("/signup/:studentID/courses")

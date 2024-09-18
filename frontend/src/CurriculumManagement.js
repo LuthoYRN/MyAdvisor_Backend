@@ -26,7 +26,7 @@ const CurriculumManagement = () => {
         setCurriculums(data.data);
         console.log("Curriculums:", curriculums);
       } catch (error) {
-        console.error("Error fetching curriculums:", error);
+        alert("Error fetching curriculums:", error);
       }
     };
 
@@ -51,7 +51,7 @@ const CurriculumManagement = () => {
       );
       console.log(`Deleted curriculum with ID: ${curriculumID}`);
     } catch (error) {
-      console.error("Error deleting curriculum:", error);
+      alert("Error deleting curriculum:", error);
     }
   };
 

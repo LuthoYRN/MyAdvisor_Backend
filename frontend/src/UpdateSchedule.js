@@ -53,12 +53,11 @@ const MeetingNotes = () => {
 
         const result = await response.json();
         if (response.ok) {
-          console.log("Schedule saved successfully:", result.data);
         } else {
-          console.error("Failed to save schedule:", result);
+          alert("Failed to save schedule:", result);
         }
       } catch (error) {
-        console.error("Error saving schedule:", error);
+        alert("Error saving schedule:", error);
       }
     };
 
@@ -111,11 +110,10 @@ const MeetingNotes = () => {
           const fetchedTimes = result.data.map((day) => ({
             [day.dayOfWeek]: day.times,
           }));
-          console.log("Fetched times:", result.data);
           setTimes(fetchedTimes);
         }
       } catch (error) {
-        console.error("Error fetching schedule:", error);
+        alert("Error fetching schedule:", error);
       }
     };
 
