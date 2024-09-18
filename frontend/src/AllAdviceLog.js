@@ -81,6 +81,7 @@ const AllAdviceLog = () => {
                     return log.advisorName.toLowerCase().includes(filterText);
                   });
                   setFilteredLogs(filtered);
+                  setContent(null);
                 }}
               />
             </div>

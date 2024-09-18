@@ -57,10 +57,9 @@ const Header = ({
   return (
     <div class="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
       <img
-        className="cursor-pointer"
         src={profile_url}
         alt="account"
-        class="ml-4 rounded-full"
+        class="ml-4 rounded-full cursor-pointer"
         width={80}
         height={80}
         onClick={changeProfile}

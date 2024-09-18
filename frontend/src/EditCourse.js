@@ -32,6 +32,7 @@ const EditCourse = () => {
       try {
         const response = await fetch(`/api/courses/${location.state.courseID}/edit`);
         const data = await response.json();
+        console.log(data);
         setCourseName(data.courseName);
         setCourseCode(data.courseCode);
         setCourseCredits(data.courseCredits);

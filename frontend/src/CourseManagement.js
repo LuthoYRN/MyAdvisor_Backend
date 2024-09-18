@@ -26,6 +26,9 @@ const CurriculumManagement = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [showCourseDependencyModal, setShowCourseDependencyModal] =
     useState(false);
+  const [prerequisiteSearch, setPrerequisiteSearch] = useState("");
+  const [filteredPrerequisites, setFilteredPrerequisites] = useState([]);
+  const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -38,7 +41,7 @@ const CurriculumManagement = () => {
         }
         const data = await response.json();
         setCourses(data.data);
-        console.log("Curriculums:", courses);
+        console.log("Curriculums:", data);
       } catch (error) {
         console.error("Error fetching curriculums:", error);
       }
@@ -132,6 +135,17 @@ const CurriculumManagement = () => {
     );
   };
 
+  const handleAddPrerequisites = (course) => {
+    setSelectedPrerequisites([...selectedPrerequisites, course]);
+  };
+
+  const handleRemovePrerequisite = (course) => {
+    setSelectedPrerequisites(
+      selectedPrerequisites.filter(
+        (selectedCourse) => selectedCourse !== course
+      )
+    );
+  };
   return (
     <Main
       userType={
@@ -224,9 +238,51 @@ const CurriculumManagement = () => {
                 <Tag text={course} onClick={() => handleRemoveCourse(course)} />
               ))}
             </div>
+            <CustomInput
+              label="Course Pre-requisites"
+              placeholder="Enter Course Pre-requisites"
+              icon={search}
+              value={prerequisiteSearch}
+              onValueChange={(value) => setCourseSearch(value)}
+            />
+            <div>
+              {prerequisiteSearch && filteredPrerequisites.length >= 1 && (
+                <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
+                  {filteredPrerequisites.map((course) => (
+                    <p
+                      onClick={() => {
+                        handleAddPrerequisites(course);
+                        setFilteredPrerequisites(
+                          filteredPrerequisites.filter(
+                            (item) => item !== course
+                          )
+                        );
+                      }}
+                    >
+                      {course}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div class="flex flex-row gap-4">
+              {selectedPrerequisites.map((course) => (
+                <Tag
+                  text={course}
+                  onClick={() => handleRemovePrerequisite(course)}
+                />
+              ))}
+            </div>
+           
             <div class="flex flex-row gap-4 mt-8">
-                <Button text="Add" onClick={() => navigate("/addExistingCourse")}/>
-                <Button text="Cancel" onClick={() => setShowAddExistingCourseModal(false)}/>
+              <Button
+                text="Add"
+                onClick={() => navigate("/addExistingCourse")}
+              />
+              <Button
+                text="Cancel"
+                onClick={() => setShowAddExistingCourseModal(false)}
+              />
             </div>
           </div>
         </div>
