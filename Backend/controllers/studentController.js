@@ -423,7 +423,6 @@ const markNotificationAsRead = async (req, res) => {
   }
 };
 
-//API call to get all advisors for the student's majors
 // API call to get all advisors for the student's majors or programme
 const getAdvisorsForStudent = async (req, res) => {
   try {

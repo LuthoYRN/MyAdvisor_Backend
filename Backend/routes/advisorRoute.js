@@ -37,6 +37,17 @@ router.route("/:advisorID/log").get(advisorController.getLog);
 router.route("/:advisorID/logs").get(advisorController.getLogs);
 //cluster
 router.route("/:advisorID/cluster").get(advisorController.getCluster);
+//add advisor to cluster
+router
+  .route("/:advisorID/cluster/add")
+  .get(advisorController.getAdvisorsForClusterAdd)
+  .post(advisorController.addToCluster);
+//advisor_in_cluster
+router
+  .route("/:advisorID/cluster/:removeID")
+  .get(advisorController.getAdvisor)
+  .delete(advisorController.removeFromCluster)
+  .post(advisorController.reassign);
 //appointmentrequests
 router
   .route("/:advisorID/requests")
