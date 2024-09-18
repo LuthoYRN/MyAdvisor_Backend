@@ -4,17 +4,24 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Programme extends Model {
     static associate(models) {
-      // Programme belongs to Faculty
-      Programme.belongsTo(models.faculty, { foreignKey: "facultyID" });
+      // Programme belongs to a Department
+      Programme.belongsTo(models.department, { foreignKey: "departmentID" });
 
-      // Programme has many Students
-      Programme.hasMany(models.student, { foreignKey: "programmeID" });
-
-      // Programme has many Courses through SharedCourse
+      // Programme has many Courses (through sharedCourse table)
       Programme.belongsToMany(models.course, {
         through: models.sharedCourse,
         foreignKey: "programmeID",
-        otherKey: "courseID",
+      });
+
+      // Programme has many Advisors (through advisorProgramme table)
+      Programme.belongsToMany(models.advisor, {
+        through: models.advisorProgramme,
+        foreignKey: "programmeID",
+      });
+
+      // Programme is assigned to many Students
+      Programme.hasMany(models.student, {
+        foreignKey: "programmeID",
       });
     }
   }
@@ -26,29 +33,39 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.STRING,
       },
-      programmeName: {
-        allowNull: false,
+      prefix: {
         type: DataTypes.STRING,
-      },
-      facultyID: {
+        validate: {
+          isIn: [["BBuSci", "BCom", "BscEng", "BSc", "BAS"]],
+        },
         allowNull: false,
-        type: DataTypes.INTEGER,
       },
-      coreElectiveCount: {
-        allowNull: true,
-        type: DataTypes.INTEGER,
-      },
-      uuid: {
+      programmeName: {
+        validate: {
+          notEmpty: true,
+        },
+        type: DataTypes.STRING,
         allowNull: false,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+      },
+      electiveCreditCount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      departmentID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "department",
+          key: "id",
+        },
       },
     },
     {
       sequelize,
-      timestamps: false,
       modelName: "programme",
       freezeTableName: true,
+      timestamps: false,
     }
   );
 
