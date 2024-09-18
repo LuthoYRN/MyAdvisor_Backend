@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      curriculumType: {
+        type: DataTypes.ENUM("Major", "Programme"),
+        allowNull: false,
+      },
     },
     {
       sequelize,

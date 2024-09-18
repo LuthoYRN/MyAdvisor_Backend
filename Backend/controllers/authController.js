@@ -38,53 +38,69 @@ const getFaculties = async (req, res) => {
     });
   }
 };
-//returns majors under faculty from dropdown
+
+// Returns majors or programmes under faculty from dropdown
 const getCurriculumsByFaculty = async (req, res) => {
   try {
     const { facultyID } = req.params;
 
-    // Search for majors in the given faculty
-    const majors = await major.findAll({
-      include: {
-        model: department,
-        where: { facultyID }, // Filtering by faculty ID
-        attributes: [],
-      },
-      attributes: ["id", "majorName"],
+    // Find the faculty to check the curriculum type
+    const findfaculty = await faculty.findOne({
+      where: { id: facultyID },
+      attributes: ["curriculumType"], // Only fetch the curriculumType
     });
 
-    if (majors && majors.length > 0) {
-      // Return majors if found
-      return res.status(200).json({
-        status: "success",
-        curriculumsOffered: "Majors",
-        data: majors,
+    if (!findfaculty) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Faculty not found",
       });
     }
 
-    // If no majors found, search for programmes in the given faculty
-    const programmes = await programme.findAll({
-      include: {
-        model: department,
-        where: { facultyID }, // Filtering by faculty ID
-        attributes: [],
-      },
-      attributes: ["id", "programmeName"],
-    });
+    const { curriculumType } = findfaculty;
 
-    if (programmes && programmes.length > 0) {
-      // Return programmes if found
-      return res.status(200).json({
-        status: "success",
-        curriculumsOffered: "Programmes",
-        data: programmes,
+    // If the faculty offers Majors
+    if (curriculumType === "Major") {
+      const majors = await major.findAll({
+        include: {
+          model: department,
+          where: { facultyID }, // Filtering by faculty ID
+          attributes: [],
+        },
+        attributes: ["id", "majorName"],
       });
-    }
 
+      if (majors && majors.length > 0) {
+        return res.status(200).json({
+          status: "success",
+          curriculumsOffered: "Majors",
+          data: majors,
+        });
+      }
+
+      // If the faculty offers Programme
+    } else if (curriculumType === "Programme") {
+      const programmes = await programme.findAll({
+        include: {
+          model: department,
+          where: { facultyID }, // Filtering by faculty ID
+          attributes: [],
+        },
+        attributes: ["id", "programmeName"],
+      });
+
+      if (programmes && programmes.length > 0) {
+        return res.status(200).json({
+          status: "success",
+          curriculumsOffered: "Programmes",
+          data: programmes,
+        });
+      }
+    }
     // If no majors or programmes found
     return res.status(404).json({
       status: "fail",
-      message: "No majors or programmes found",
+      message: `No ${curriculumType.toLowerCase()} found for this faculty`,
     });
   } catch (error) {
     console.error("Error during fetching curriculums:", error.message);

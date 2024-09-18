@@ -35,6 +35,8 @@ router
 router.route("/:advisorID/log").get(advisorController.getLog);
 //view all logs
 router.route("/:advisorID/logs").get(advisorController.getLogs);
+//cluster
+router.route("/:advisorID/cluster").get(advisorController.getCluster);
 //appointmentrequests
 router
   .route("/:advisorID/requests")

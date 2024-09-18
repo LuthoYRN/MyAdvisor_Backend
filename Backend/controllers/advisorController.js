@@ -848,6 +848,47 @@ const getLogs = async (req, res) => {
   }
 };
 
+// Controller function to get advisors in a senior advisor's cluster
+const getCluster = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Check if the senior advisor exists
+    const seniorAdvisor = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!seniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Senior advisor not found.",
+      });
+    }
+
+    // Fetch all advisors in the same cluster, excluding the senior advisor
+    const clusterAdvisors = await advisor.findAll({
+      where: {
+        clusterID: seniorAdvisor.clusterID,
+        id: { [Op.ne]: seniorAdvisor.id }, // Exclude the senior advisor themselves
+      },
+      attributes: ["id", "uuid", "name", "surname", "email"], // Adjust as necessary
+    });
+
+    // Return the list of advisors in the cluster
+    return res.status(200).json({
+      status: "success",
+      data: clusterAdvisors,
+    });
+  } catch (error) {
+    console.error("Error fetching cluster advisors:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
   try {
@@ -984,6 +1025,7 @@ module.exports = {
   recordVideo,
   getLog,
   getLogs,
+  getCluster,
   updateAdvisorSchedule,
   getAdvisorSchedule,
 };
