@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ Tabledata, column, idRow, handleRowDelete, handleRowEdit }) => {
+const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit }) => {
   const [data, setData] = React.useState([...Tabledata]);
   const [columns, setColumns] = React.useState([...column]);
 

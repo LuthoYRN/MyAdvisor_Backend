@@ -119,6 +119,7 @@ const UserManagement = () => {
             { value: "", label: "All" },
             { value: "student", label: "Student" },
             { value: "advisor", label: "Advisor" },
+            { value: "facultyadmin", label: "Faculty Admin" },
           ]}
           value={selectedPermission}
           onChange={handlePermissionChange}

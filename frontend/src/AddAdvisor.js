@@ -25,30 +25,6 @@ const AddAdvisor = () => {
     "Health Sciences",
   ];
 
-  const departments = [
-    ["Computer Science", "Science"],
-    ["Mathematics", "Science"],
-    ["Physics", "Science"],
-    ["Chemistry", "Science"],
-    ["Biology", "Science"],
-    ["English", "Humanities"],
-    ["History", "Humanities"],
-    ["Geography", "Humanities"],
-    ["Mechanical Engineering", "Engineering"],
-    ["Civil Engineering", "Engineering"],
-    ["Electrical Engineering", "Engineering"],
-    ["Chemical Engineering", "Engineering"],
-    ["Industrial Engineering", "Engineering"],
-    ["Mining Engineering", "Engineering"],
-    ["Geology", "Science"],
-    ["Economics", "Commerce"],
-    ["Business Management", "Commerce"],
-    ["Marketing", "Commerce"],
-    ["Finance", "Commerce"],
-    ["Accounting", "Commerce"],
-    ["Human Resources", "Commerce"],
-  ];
-
   const seniorAdvisor = [
     ["John Doe", "Computer Science"],
     ["Jane Doe", "Mathematics"],
@@ -76,12 +52,7 @@ const AddAdvisor = () => {
   const [Name, setName] = React.useState("");
   const [Surname, setSurname] = React.useState("");
   const [Email, setEmail] = React.useState("");
-  const [Department, setDepartment] = React.useState(
-    departments
-      .filter((item) => item[1] === faculties[0])
-      .map((item) => item[0])
-  );
-  const [SelectedDepartment, setSelectedDepartment] = React.useState("");
+
   const [Faculty, setSelectedFaculty] = React.useState("");
   const [advisorType, setAdvisorType] = React.useState("");
   const [equivalents, setEquivalents] = React.useState("");
@@ -92,12 +63,11 @@ const AddAdvisor = () => {
   const [selectedJuniorAdvisors, setSelectedJuniorAdvisors] = React.useState(
     []
   );
+  const [filteredSeniorAdvisors, setFilteredSeniorAdvisors] = React.useState(
+    []
+  );
 
   const handleAddAdmin = () => {};
-
-  const filteredSeniorAdvisors = seniorAdvisor.filter(
-    (item) => item[1] === SelectedDepartment
-  );
 
   const handleAddAdvisor = (juniorAdvisor) => {
     setSelectedJuniorAdvisors([...selectedJuniorAdvisors, juniorAdvisor]);
@@ -143,25 +113,7 @@ const AddAdvisor = () => {
                   value: item,
                   label: item,
                 }))}
-                onChange={(value) => {
-                  setDepartment(
-                    departments
-                      .filter((item) => item[1] === value)
-                      .map((item) => item[0])
-                  );
-                  setSelectedFaculty(value);
-                }}
-              />
-
-              <Select
-                label="Department"
-                options={Department.map((item) => ({
-                  value: item,
-                  label: item,
-                }))}
-                onChange={(value) => {
-                  setSelectedDepartment(value);
-                }}
+                value={Faculty}
               />
 
               <div className="flex flex-col gap-4">
