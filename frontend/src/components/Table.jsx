@@ -14,14 +14,17 @@ import {
 } from "@tanstack/react-table";
 
 const Table = ({ Tabledata, column, idRow, handleRowDelete, handleRowEdit }) => {
-  const [data] = React.useState(() => [...Tabledata]);
-  const [columns] = React.useState(() => [...column]);
-  const [columnFilters, setColumnFilters] = React.useState([
-    {
-      id: "user_permission",
-      value: "student",
-    },
-  ]);
+  const [data, setData] = React.useState([...Tabledata]);
+  const [columns, setColumns] = React.useState([...column]);
+
+  React.useEffect(() => {
+    setData([...Tabledata]);
+  }, [Tabledata]);
+
+  React.useEffect(() => {
+    setColumns([...column]);
+  }, [column]);
+
   const table = useReactTable({
     data,
     columns,
@@ -47,7 +50,7 @@ const Table = ({ Tabledata, column, idRow, handleRowDelete, handleRowEdit }) => 
 
   return (
     <div class="flex-auto flex flex-col">
-      <div className="p-8 flex flex-col bg-gray-200 rounded-2xl flex-auto">
+      <div className="px-8 py-2 flex flex-col bg-gray-200 rounded-2xl flex-auto">
         <table className="w-full">
           <thead class="border-b border-gray-600">
             {table.getHeaderGroups().map((headerGroup) => (

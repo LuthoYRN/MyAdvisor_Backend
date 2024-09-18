@@ -11,7 +11,7 @@ import search from "./assets/search.svg";
 import { useNavigate } from "react-router-dom";
 import config from "./config";
 
-const UserManagement = () => {
+const AdvisorManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
   const handleAddUser = () => {
     setShowAddUserModal(true);
@@ -25,21 +25,15 @@ const UserManagement = () => {
   React.useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${config.backendUrl}/api/sysAdmin/users`);
+        const response = await fetch(`${config.backendUrl}/api/facultyAdmin/facultyID/courses`);
         const result = await response.json();
-        if (result.status === 'success') {
-          const formattedData = result.data.map(user => ({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            permission: user.permission.toLowerCase(),
-          }));
-          setUsers(formattedData);
-          setFilteredUsers(formattedData);
-          console.log('Users:', users);
+        if (result.status === "success") {
+          setUsers(result.data);
+        } else {
+          console.error("Failed to fetch users");
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -101,9 +95,9 @@ const UserManagement = () => {
   }, [users, searchTerm, selectedPermission]);
 
   return (
-    <Main userType="SystemAdmin" activeMenuItem="home">
+    <Main userType="FacultyAdmin" activeMenuItem="studentAdvisors">
       <Text type="heading" classNames="mb-8">
-        User Management
+        Advisor Management
       </Text>
       <div className="flex gap-8 mb-8 h-10 flex-row">
         <CustomInput
@@ -156,4 +150,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default AdvisorManagement;

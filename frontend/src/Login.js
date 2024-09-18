@@ -59,6 +59,9 @@ function Login() {
           } else if (result.user_type === "systemAdmin") {
             navigate("/userManagement");
           }
+          else if (result.user_type === "facultyAdmin") {
+            navigate("/facultyAdminDashboard");
+          }
           //add facultyAdmin later
         }
       })

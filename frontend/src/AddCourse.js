@@ -10,6 +10,7 @@ import config from "./config.js";
 import { useLocation } from "react-router-dom";
 import Checkbox from "./components/Checkbox.jsx";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 const AddCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
@@ -25,19 +26,19 @@ const AddCourse = () => {
   const [faculty, setFaculty] = React.useState("");
   const [specialRequirements, setSpecialRequirements] = React.useState("");
   const [availableBoth, setAvailableBoth] = React.useState(false);
+  const [specialRequirementsChoice, setSpecialRequirementsChoice] =
+    React.useState(null);
+  const [courses, setCourses] = React.useState([]);
   let location = useLocation();
   let navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchPrerequisitesAndEquivalents = async () => {
       try {
-        const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/curriculums/${location.state.curriculumID}/courses/add`
-        );
+        const response = await fetch(`${config.backendUrl}/api/courses/add`);
         const data = await response.json();
-        setFilteredPrerequisites(data.prerequisites);
-        setFilteredEquivalents(data.equivalents);
-        console.log("Prerequisites and Equivalents:", data);
+        setCourses(data.data);
+        console.log("Prerequisites and Equivalents:", data.data);
       } catch (error) {
         console.error("Error fetching prerequisites and equivalents:", error);
       }
@@ -47,46 +48,18 @@ const AddCourse = () => {
   }, []);
 
   // Mock data Need to give list of prerequisites and equivalents
-  const prerequisites = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Computer Science",
-    "English",
-    "History",
-    "Geography",
-  ];
-
-  const equivalentCourses = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Computer Science",
-    "English",
-    "History",
-    "Geography",
-  ];
-
-  const faculties = [
-    "Engineering",
-    "Science",
-    "Humanities",
-    "Commerce",
-    "Law",
-    "Medicine",
-  ];
+  const faculties = ["Engineering", "Science", "Arts", "Business"];
 
   const handleSearchPrerequisites = (searchText) => {
     setPrerequisite(searchText);
     // Filter the prerequisites list based on the search text
     setFilteredPrerequisites(
-      prerequisites
-        .filter((prerequisite) =>
-          prerequisite.toLowerCase().includes(searchText.toLowerCase())
+      courses
+        .filter((course) =>
+          course.id.toLowerCase().includes(searchText.toLowerCase())
         )
-        .filter((prerequisite) => !selectedPrerequisites.includes(prerequisite))
+        .filter((course) => !selectedPrerequisites.includes(course.id))
+        .map((course) => course.id)
     );
   };
 
@@ -105,11 +78,12 @@ const AddCourse = () => {
     // Filter the equivalents list based on the search text
     setEquivalents(searchText);
     setFilteredEquivalents(
-      equivalentCourses
-        .filter((equivalent) =>
-          equivalent.toLowerCase().includes(searchText.toLowerCase())
+      courses
+        .filter((course) =>
+          course.id.toLowerCase().includes(searchText.toLowerCase())
         )
-        .filter((equivalent) => !selectedEquivalents.includes(equivalent))
+        .filter((course) => !selectedEquivalents.includes(course.id))
+        .map((course) => course.id)
     );
   };
 
@@ -125,16 +99,41 @@ const AddCourse = () => {
   };
 
   const handleSaveCourse = () => {
-    const courseData = {
+    const newCourse = {
       courseName,
       courseCode,
       courseCredits,
       nqfLevel,
+      faculty,
+      specialRequirements,
+      availableBoth,
       prerequisites: selectedPrerequisites,
-      equivalents,
+      equivalents: selectedEquivalents,
     };
-    // TODO: Save courseData to the database
-    console.log(courseData);
+
+    fetch(`${config.backendUrl}/api/courses/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newCourse),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          <ConfirmationModal
+            status="Success"
+            message="Course added successfully"
+            onConfirm={"/courseManagement"}
+          />;
+        } else {
+          alert("Failed to add course.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding course:", error);
+        alert("An error occurred while adding the course.");
+      });
   };
 
   return (
@@ -195,50 +194,87 @@ const AddCourse = () => {
             </div>
           </div>
           <div class="flex flex-col gap-4 w-1/2">
-            <CustomInput
-              label="Prerequisites"
-              placeholder="Enter course Prerequisites"
-              icon={search}
-              onValueChange={handleSearchPrerequisites}
-              value={prerequisite}
-            />
-            {prerequisite && filteredPrerequisites.length >= 1 && (
-              <>
-                {" "}
-                <div>
-                  <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
-                    {filteredPrerequisites.map((prerequisite) => (
-                      <p
-                        onClick={() => {
-                          handleAddPrerequisite(prerequisite);
-                          setFilteredPrerequisites(
-                            filteredPrerequisites.filter(
-                              (item) => item !== prerequisite
-                            )
-                          );
-                        }}
-                      >
-                        {prerequisite}
-                      </p>
+            <div class="border flex flex-col border-gray-200 rounded-2xl p-4 gap-4">
+              <CustomInput
+                label="Prerequisites"
+                placeholder="Enter course Prerequisites"
+                icon={search}
+                onValueChange={handleSearchPrerequisites}
+                value={prerequisite}
+                classNames={specialRequirementsChoice === "complex" && "hidden"}
+              />
+              {prerequisite && filteredPrerequisites.length >= 1 && (
+                <>
+                  <div>
+                    <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-400 rounded-2xl p-4 max-w-80">
+                      {filteredPrerequisites.map((prerequisite) => (
+                        <p
+                          onClick={() => {
+                            handleAddPrerequisite(prerequisite);
+                            setFilteredPrerequisites(
+                              filteredPrerequisites.filter(
+                                (item) => item !== prerequisite
+                              )
+                            );
+                          }}
+                        >
+                          {prerequisite}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              {selectedPrerequisites.length > 0 &&
+                specialRequirementsChoice !== "complex" && (
+                  <div class="flex flex-row gap-4 ">
+                    {selectedPrerequisites.map((prerequisite) => (
+                      <Tag
+                        text={prerequisite}
+                        onClick={() => handleRemovePrerequisite(prerequisite)}
+                      />
                     ))}
                   </div>
+                )}
+
+              <div class="flex gap-4 flex-row">
+                <div class="flex flex-row">
+                  <Checkbox
+                    checked={specialRequirementsChoice === "and"}
+                    onValueChange={() => setSpecialRequirementsChoice("and")}
+                  />
+                  <Text type="paragraph" classNames="mb-2">
+                    And
+                  </Text>
                 </div>
-                <div class="flex flex-row gap-4 ">
-                  {selectedPrerequisites.map((prerequisite) => (
-                    <Tag
-                      text={prerequisite}
-                      onClick={() => handleRemovePrerequisite(prerequisite)}
-                    />
-                  ))}
+                <div class="flex flex-row">
+                  <Checkbox
+                    checked={specialRequirementsChoice === "or"}
+                    onValueChange={() => setSpecialRequirementsChoice("or")}
+                  />
+                  <Text type="paragraph" classNames="mb-2">
+                    Or
+                  </Text>
                 </div>
-              </>
-            )}
-            <CustomInput
-              label={"Special Requirements"}
-              placeholder={"Enter Special Requirements"}
-              value={specialRequirements}
-              onValueChange={(value) => setSpecialRequirements(value)}
-            />
+                <div class="flex flex-row">
+                  <Checkbox
+                    checked={specialRequirementsChoice === "complex"}
+                    onValueChange={() =>
+                      setSpecialRequirementsChoice("complex")
+                    }
+                  />
+                  <Text type="paragraph" classNames="mb-2">
+                    Complex
+                  </Text>
+                </div>
+              </div>
+              <CustomInput
+                label={"Special Requirements"}
+                placeholder={"Enter Special Requirements"}
+                value={specialRequirements}
+                onValueChange={(value) => setSpecialRequirements(value)}
+              />
+            </div>
             <CustomInput
               label="Equivalents"
               placeholder="Enter Equivalents"
@@ -248,7 +284,7 @@ const AddCourse = () => {
             />
             <div>
               {equivalents && filteredEquivalents.length >= 1 && (
-                <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
+                <div class="absolute bg-gray-200 max-h-60 overflow-y-auto rounded-2xl p-4 max-w-80">
                   {filteredEquivalents.map((equivalent) => (
                     <p
                       onClick={() => {

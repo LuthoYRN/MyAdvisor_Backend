@@ -8,6 +8,7 @@ import Tag from "./components/Tag.jsx";
 import Select from "./components/Select.jsx";
 import Checkbox from "./components/Checkbox.jsx";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const EditCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
@@ -24,8 +25,29 @@ const EditCourse = () => {
   const [specialRequirements, setSpecialRequirements] = React.useState("");
   const [availableBoth, setAvailableBoth] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  React.useEffect(() => {
+    const fetchCourseData = async () => {
+      try {
+        const response = await fetch(`/api/courses/${location.state.courseID}/edit`);
+        const data = await response.json();
+        setCourseName(data.courseName);
+        setCourseCode(data.courseCode);
+        setCourseCredits(data.courseCredits);
+        setNqfLevel(data.nqfLevel);
+        setSelectedPrerequisites(data.prerequisites);
+        setSelectedEquivalents(data.equivalents);
+        setFaculty(data.faculty);
+        setSpecialRequirements(data.specialRequirements);
+        setAvailableBoth(data.availableBoth);
+      } catch (error) {
+        console.error("Error fetching course data:", error);
+      }
+    };
 
+    fetchCourseData();
+  }, []);
   // Mock data Need to give list of prerequisites and equivalents
   const prerequisites = [
     "Mathematics",

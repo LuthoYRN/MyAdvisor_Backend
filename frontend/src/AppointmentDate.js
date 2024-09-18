@@ -7,6 +7,7 @@ import Text from "./components/Text";
 import CustomCalendar from "./components/customCalendar";
 import config from "./config";
 import Main from "./layout/Main";
+import ConfirmationModal from "./components/ConfirmationModal";
 /*
 Data Needed:
 - Student Name
@@ -66,6 +67,7 @@ console.log(formData)
         setShowSuccessModal(true); // Show success modal
         console.log("Appointment booked successfully!");
       } else {
+        <ConfirmationModal status={"Error"} message={response.status} onConfirm={"/appointmentDate"}/>
         console.error("Error booking appointment:", response.status);
       }
     } catch (error) {

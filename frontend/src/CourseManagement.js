@@ -8,6 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import DeleteModal from "./components/DeleteModal";
 import Button from "./components/Button";
+import CustomInput from "./components/CustomInput";
+import Tag from "./components/Tag";
+import search from "./assets/search.svg";
+import { set } from "date-fns";
 
 const CurriculumManagement = () => {
   const [courses, setCourses] = useState(null);
@@ -15,6 +19,13 @@ const CurriculumManagement = () => {
   const [workingID, setWorkingID] = useState(null);
   let navigate = useNavigate();
   let location = useLocation();
+  const [showAddExistingCourseModal, setShowAddExistingCourseModal] =
+    useState(false);
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [courseSearch, setCourseSearch] = useState("");
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [showCourseDependencyModal, setShowCourseDependencyModal] =
+    useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -53,6 +64,45 @@ const CurriculumManagement = () => {
     }
   };
 
+  const checkDependencies = async (id) => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses/${id}`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      if (data.proceed) {
+        setShowDeleteModal(true);
+      } else {
+        setShowCourseDependencyModal(true);
+      }
+    } catch (error) {
+      console.error("Error checking course dependencies:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchFilteredCourses = async () => {
+      try {
+        const response = await fetch(
+          `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses/addExisting`
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setFilteredCourses(data.data);
+        console.log("Filtered Courses:", filteredCourses);
+      } catch (error) {
+        console.error("Error fetching filtered courses:", error);
+      }
+    };
+
+    fetchFilteredCourses();
+  }, [showAddExistingCourseModal]);
+
   const defaultColumns = [
     {
       header: "Course ID",
@@ -72,6 +122,16 @@ const CurriculumManagement = () => {
     },
   ];
 
+  const handleAddCourse = (course) => {
+    setSelectedCourses([...selectedCourses, course]);
+  };
+
+  const handleRemoveCourse = (course) => {
+    setSelectedCourses(
+      selectedCourses.filter((selectedCourse) => selectedCourse !== course)
+    );
+  };
+
   return (
     <Main
       userType={
@@ -80,11 +140,20 @@ const CurriculumManagement = () => {
       activeMenuItem={"manageMajors"}
     >
       <div className="flex justify-between items-center mb-16">
-        <Text type="heading">
-          Course Management
-        </Text>
-        <div className="flex justify-end w-48">
-          <Button text="+ Add Course" onClick={() => navigate("/addCourse", {state: { curriculumID: location.state.curriculumID }})} />
+        <Text type="heading">Course Management</Text>
+        <div className="flex justify-end w-96 gap-4 ">
+          <Button
+            text="+ Add New Course"
+            onClick={() =>
+              navigate("/addCourse", {
+                state: { curriculumID: location.state.curriculumID },
+              })
+            }
+          />
+          <Button
+            text="+ Add Existing Course"
+            onClick={() => setShowAddExistingCourseModal(true)}
+          />
         </div>
       </div>
       {courses ? (
@@ -95,18 +164,83 @@ const CurriculumManagement = () => {
           idRow={"id"}
           handleRowDelete={(id) => {
             setWorkingID(id);
-            setShowDeleteModal(true);
+            checkDependencies(id);
           }}
+          handleRowEdit={(id) =>
+            navigate("/editCourse", {
+              state: { courseID: id },
+            })
+          }
         />
       ) : null}
       {showDeleteModal && (
         <DeleteModal
+          message={"Are you sure you want to delete this course?"}
           returnMessage={(status) => {
             if (status === "yes") {
               handleDelete(workingID);
             } else {
               setShowDeleteModal(false);
             }
+          }}
+        />
+      )}
+      {showAddExistingCourseModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl p-8">
+            <Text type="sm-heading" classNames="mb-4">
+              Add Existing Course
+            </Text>
+            <Text type="sm-subheading" classNames="mb-8">
+              Select which course you want to add
+            </Text>
+            <CustomInput
+              label="Course Name"
+              placeholder="Enter Course Name"
+              icon={search}
+              value={courseSearch}
+              onValueChange={(value) => setCourseSearch(value)}
+            />
+            <div>
+              {courseSearch && filteredCourses.length >= 1 && (
+                <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
+                  {filteredCourses.map((course) => (
+                    <p
+                      onClick={() => {
+                        handleAddCourse(course);
+                        setFilteredCourses(
+                          filteredCourses.filter((item) => item !== course)
+                        );
+                      }}
+                    >
+                      {course}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div class="flex flex-row gap-4">
+              {selectedCourses.map((course) => (
+                <Tag text={course} onClick={() => handleRemoveCourse(course)} />
+              ))}
+            </div>
+            <div class="flex flex-row gap-4 mt-8">
+                <Button text="Add" onClick={() => navigate("/addExistingCourse")}/>
+                <Button text="Cancel" onClick={() => setShowAddExistingCourseModal(false)}/>
+            </div>
+          </div>
+        </div>
+      )}
+      {showCourseDependencyModal && (
+        <DeleteModal
+          status={"Warning"}
+          message={
+            "The course is a prerequisite or special requirement for other courses. Are you sure you want to delete it?"
+          }
+          returnMessage={(status) => {
+            status === "yes"
+              ? handleDelete(workingID)
+              : setShowCourseDependencyModal(false);
           }}
         />
       )}
