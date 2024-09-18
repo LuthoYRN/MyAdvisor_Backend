@@ -70,6 +70,7 @@ const Notifications = () => {
     <Main userType={"student"} activeMenuItem={"notifications"}>
       <div className="mb-10 max-h-36">
         <Header
+          profile_url={`${JSON.parse(localStorage.getItem("userData")).student.profile_url}`}
           user={`${JSON.parse(localStorage.getItem("userData"))?.student?.name || ""} ${JSON.parse(localStorage.getItem("userData"))?.student?.surname || ""}`}
           info={
             JSON.parse(localStorage.getItem("userData"))?.student
