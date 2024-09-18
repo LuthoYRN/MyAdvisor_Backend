@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const FileUploader = () => {
+const FileUploader = ({handleFile}) => {
   const [files, setFiles] = useState(null);
   const [status, setStatus] = useState("initial");
 
@@ -8,32 +8,7 @@ const FileUploader = () => {
     if (e.target.files) {
       setStatus("initial");
       setFiles(e.target.files);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (files) {
-      setStatus("uploading");
-
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
-
-      try {
-        const result = await fetch("https://httpbin.org/post", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await result.json();
-
-        console.log(data);
-        setStatus("success");
-      } catch (error) {
-        console.error(error);
-        setStatus("fail");
-      }
+      handleFile(e.target.files);
     }
   };
 
@@ -91,16 +66,6 @@ const FileUploader = () => {
             </ul>
           </section>
         ))}
-
-      {files && (
-        <button
-          onClick={handleUpload}
-          className="submit bg-blue-500 text-white p-2 rounded hover:bg-blue-700 transition duration-300"
-        >
-          Upload {files.length > 1 ? "files" : "a file"}
-        </button>
-      )}
-
       <Result status={status} />
     </div>
   );

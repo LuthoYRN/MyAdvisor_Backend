@@ -3,6 +3,7 @@ import account from "../assets/account_circle.svg";
 import notification from "../assets/notification.svg";
 import Text from "./Text";
 import { useNavigate } from "react-router-dom";
+import config from "../config";
 
 const Header = ({
   user,
@@ -14,6 +15,38 @@ const Header = ({
   unreadCount,
 }) => {
   let navigate = useNavigate();
+
+  const changeProfile = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        console.log(formData);
+
+        try {
+          const response = await fetch(`${config.backendUrl}/api/${localStorage.getItem("userData").advisor ? "advisor": "student"}/${localStorage.getItem("user_id")}/uploadProfilePicture`, {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('File uploaded successfully:', data);
+          } else {
+            console.error('File upload failed:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error uploading file:', error);
+        }
+      }
+    };
+
+    fileInput.click();
+  };
+
   return (
     <div class="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
       <img
@@ -22,6 +55,7 @@ const Header = ({
         class="ml-4 rounded-full"
         width={80}
         height={80}
+        onClick={changeProfile}
       />
       <div class="flex flex-col justify-center  p-4 ml-4 my-4 w-full h-5/6">
         <Text type="heading">{user}</Text>

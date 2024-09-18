@@ -5,38 +5,41 @@ import Table from "./components/Table";
 import { useEffect, useState } from "react";
 import config from "./config";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import DeleteModal from "./components/DeleteModal";
+import Button from "./components/Button";
 
 const CurriculumManagement = () => {
-  const [curriculums, setCurriculums] = useState(null);
+  const [courses, setCourses] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [workingID, setWorkingID] = useState(null);
   let navigate = useNavigate();
+  let location = useLocation();
 
   useEffect(() => {
-    const fetchCurriculums = async () => {
+    const fetchCourses = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/curriculums`
+          `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setCurriculums(data.data);
-        console.log("Curriculums:", curriculums);
+        setCourses(data.data);
+        console.log("Curriculums:", courses);
       } catch (error) {
         console.error("Error fetching curriculums:", error);
       }
     };
 
-    fetchCurriculums();
+    fetchCourses();
   }, []);
 
-  const handleDelete = async (curriculumID) => {
+  const handleDelete = async (id) => {
     try {
       const response = await fetch(
-        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/curriculums/${curriculumID}`,
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/curriculums/${id}`,
         {
           method: "DELETE",
         }
@@ -44,37 +47,28 @@ const CurriculumManagement = () => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      setCurriculums(
-        curriculums.filter(
-          (curriculum) => curriculum.curriculumID !== curriculumID
-        )
-      );
-      console.log(`Deleted curriculum with ID: ${curriculumID}`);
+      setCourses(courses.filter((course) => courses.id !== course));
     } catch (error) {
       console.error("Error deleting curriculum:", error);
     }
   };
 
-  const handleEdit = (curriculumID) => {
-    curriculumID && navigate(`/courseManagement`, { state: { curriculumID: curriculumID } });
-  };
-
   const defaultColumns = [
     {
-      header: "Curriculum ID",
-      accessorKey: "curriculumID",
+      header: "Course ID",
+      accessorKey: "id",
     },
     {
-      header: "Curriculum Name",
-      accessorKey: "curriculumName",
+      header: "Course Name",
+      accessorKey: "courseName",
     },
     {
-      header: "Faculty Name",
-      accessorKey: "facultyName",
+      header: "Credits",
+      accessorKey: "credits",
     },
     {
-      header: "Type",
-      accessorKey: "type",
+      header: "NQF Level",
+      accessorKey: "nqfLevel",
     },
   ];
 
@@ -85,20 +79,24 @@ const CurriculumManagement = () => {
       }
       activeMenuItem={"manageMajors"}
     >
-      <Text type="heading" classNames="mb-16">
-        Curriculum Management
-      </Text>
-      {curriculums ? (
+      <div className="flex justify-between items-center mb-16">
+        <Text type="heading">
+          Course Management
+        </Text>
+        <div className="flex justify-end w-48">
+          <Button text="+ Add Course" onClick={() => navigate("/addCourse", {state: { curriculumID: location.state.curriculumID }})} />
+        </div>
+      </div>
+      {courses ? (
         <Table
           classNames=""
-          Tabledata={curriculums}
+          Tabledata={courses}
           column={defaultColumns}
-          idRow={"curriculumID"}
+          idRow={"id"}
           handleRowDelete={(id) => {
             setWorkingID(id);
             setShowDeleteModal(true);
           }}
-          handleRowEdit={(id) => handleEdit(id)}
         />
       ) : null}
       {showDeleteModal && (

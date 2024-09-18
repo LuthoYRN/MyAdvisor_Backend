@@ -6,12 +6,10 @@ import CustomInput from "./components/CustomInput.jsx";
 import search from "./assets/search.svg";
 import Tag from "./components/Tag.jsx";
 import Select from "./components/Select.jsx";
-import config from "./config.js";
-import { useLocation } from "react-router-dom";
 import Checkbox from "./components/Checkbox.jsx";
 import { useNavigate } from "react-router-dom";
 
-const AddCourse = () => {
+const EditCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
   const [filteredPrerequisites, setFilteredPrerequisites] = React.useState([]);
   const [selectedPrerequisites, setSelectedPrerequisites] = React.useState([]);
@@ -25,26 +23,8 @@ const AddCourse = () => {
   const [faculty, setFaculty] = React.useState("");
   const [specialRequirements, setSpecialRequirements] = React.useState("");
   const [availableBoth, setAvailableBoth] = React.useState(false);
-  let location = useLocation();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    const fetchPrerequisitesAndEquivalents = async () => {
-      try {
-        const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/curriculums/${location.state.curriculumID}/courses/add`
-        );
-        const data = await response.json();
-        setFilteredPrerequisites(data.prerequisites);
-        setFilteredEquivalents(data.equivalents);
-        console.log("Prerequisites and Equivalents:", data);
-      } catch (error) {
-        console.error("Error fetching prerequisites and equivalents:", error);
-      }
-    };
-
-    fetchPrerequisitesAndEquivalents();
-  }, []);
 
   // Mock data Need to give list of prerequisites and equivalents
   const prerequisites = [
@@ -137,12 +117,13 @@ const AddCourse = () => {
     console.log(courseData);
   };
 
+  
+
   return (
     <Main
       userType={
         JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
       }
-      activeMenuItem={"manageMajors"}
     >
       <div class="flex flex-col flex-auto gap-4 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames={"mb-8"}>
@@ -285,4 +266,4 @@ const AddCourse = () => {
   );
 };
 
-export default AddCourse;
+export default EditCourse;
