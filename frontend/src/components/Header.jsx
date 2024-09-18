@@ -41,10 +41,10 @@ const Header = ({
             const data = await response.json();
             // Optionally, update the UI or display a success message here
           } else {
-            alert("File upload failed:", response.statusText);
+            console.error("File upload failed:", response.statusText);
           }
         } catch (error) {
-          alert("Error uploading file:", error);
+          console.error("Error uploading file:", error);
         }
       }
     };

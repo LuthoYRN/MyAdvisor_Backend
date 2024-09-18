@@ -35,7 +35,7 @@ const AppointmentDetails = () => {
             if (data.status === "success") {
               setAppointment(data.data);
             } else {
-              alert(
+              console.error(
                 "Failed to load appointment details:",
                 data.message
               );
@@ -43,15 +43,15 @@ const AppointmentDetails = () => {
             setLoading(false);
           })
           .catch((error) => {
-            alert("Error fetching appointment details:", error);
+            console.error("Error fetching appointment details:", error);
             setLoading(false);
           });
       } catch (error) {
-        alert("Error fetching appointment details:", error);
+        console.error("Error fetching appointment details:", error);
         setLoading(false);
       }
     } else {
-      alert("Appointment details are not available in location.state");
+      console.error("Appointment details are not available in location.state");
       setLoading(false);
     }
   }, [location.state]);

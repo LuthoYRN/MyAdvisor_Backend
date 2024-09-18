@@ -39,7 +39,7 @@ function App() {
           setCurriculums(null);
         }
       } catch (error) {
-        alert("Error fetching majors:", error);
+        console.error("Error fetching majors:", error);
       }
     };
 
@@ -69,14 +69,14 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === "fail") {
-          alert(data.message);
+          console.error(data.message);
         } else {
           localStorage.setItem("user_id", data.user_id);
           navigate("/courseSelection");
         }
       })
       .catch((error) => {
-        alert("Error:", error);
+        console.error("Error:", error);
       });
   };
 
@@ -88,7 +88,7 @@ function App() {
 
         setFaculties(data.data);
       } catch (error) {
-        alert("Error fetching faculties:", error);
+        console.error("Error fetching faculties:", error);
       }
     };
 

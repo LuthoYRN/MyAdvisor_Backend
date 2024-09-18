@@ -26,7 +26,7 @@ const CurriculumManagement = () => {
         setCurriculums(data.data);
         console.log("Curriculums:", curriculums);
       } catch (error) {
-        alert("Error fetching curriculums:", error);
+        console.error("Error fetching curriculums:", error);
       }
     };
 
@@ -51,12 +51,15 @@ const CurriculumManagement = () => {
       );
       console.log(`Deleted curriculum with ID: ${curriculumID}`);
     } catch (error) {
-      alert("Error deleting curriculum:", error);
+      console.error("Error deleting curriculum:", error);
     }
   };
 
   const handleEdit = (curriculumID) => {
-    curriculumID && navigate(`/courseManagement`, { state: { curriculumID: curriculumID } });
+    const curriculum = curriculums.find(c => c.curriculumID === curriculumID);
+    if (curriculum) {
+      navigate(`/courseManagement`, { state: { curriculumID: curriculumID, facultyName: curriculum.facultyName } });
+    }
   };
 
   const defaultColumns = [

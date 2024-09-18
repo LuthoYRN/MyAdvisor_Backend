@@ -54,10 +54,10 @@ const MeetingNotes = () => {
         const result = await response.json();
         if (response.ok) {
         } else {
-          alert("Failed to save schedule:", result);
+          console.error("Failed to save schedule:", result);
         }
       } catch (error) {
-        alert("Error saving schedule:", error);
+        console.error("Error saving schedule:", error);
       }
     };
 
@@ -113,7 +113,7 @@ const MeetingNotes = () => {
           setTimes(fetchedTimes);
         }
       } catch (error) {
-        alert("Error fetching schedule:", error);
+        console.error("Error fetching schedule:", error);
       }
     };
 

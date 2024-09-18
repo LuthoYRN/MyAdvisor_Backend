@@ -48,7 +48,7 @@ const AllAdviceLog = () => {
           setFilteredLogs([]);
         }
       } catch (error) {
-        alert("Error fetching logs:", error);
+        console.error("Error fetching logs:", error);
         setFilteredLogs([]);
       } finally {
         setLoading(false); // Ensure loading is set to false after fetching

@@ -9,15 +9,14 @@ const CustomInput = ({
   icon,
   classNames,
   onValueChange,
+  value, // Accept the value prop
   type = "text",
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const [value, setValue] = useState("");
   const [isPasswordVisible, setPasswordVisible] = useState(false);
 
   const handleChange = (event) => {
-    setValue(event.target.value);
     onValueChange(event.target.value);
   };
 
@@ -34,12 +33,11 @@ const CustomInput = ({
         <input
           className="shadow appearance-none w-full bg-gray-200 rounded-2xl py-2 pl-3 pr-10 text-gray-950 leading-tight focus:outline-none focus:shadow-outline"
           type={type === "password" && !isPasswordVisible ? "password" : "text"}
-          value={value}
+          value={value} // Use the value prop directly
           onChange={handleChange}
           placeholder={placeholder}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          
         />
         {type === "password" && (
           <button

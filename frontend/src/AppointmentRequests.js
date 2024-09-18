@@ -30,7 +30,7 @@ const AppointmentRequests = () => {
       const data = await response.json();
       setNotificationDetails(data.data);
     } catch (error) {
-      alert("Error fetching request details:", error);
+      console.error("Error fetching request details:", error);
     }
   };
 
@@ -51,7 +51,7 @@ const AppointmentRequests = () => {
         throw new Error("Failed to mark request as read");
       }
     } catch (error) {
-      alert("Error marking request as read:", error);
+      console.error("Error marking request as read:", error);
     }
     setRequests((prevRequests) =>
       prevRequests.map((req) =>
@@ -78,7 +78,7 @@ const AppointmentRequests = () => {
         prevRequests.map((req) => ({ ...req, isRead: true }))
       );
     } catch (error) {
-      alert("Error marking all requests as read:", error);
+      console.error("Error marking all requests as read:", error);
     }
   };
 
@@ -97,7 +97,7 @@ const AppointmentRequests = () => {
         const data = await response.json();
         setRequests(data.data.requests);
       } catch (error) {
-        alert("Error fetching notifications:", error);
+        console.error("Error fetching notifications:", error);
       } finally {
         setLoading(false); // Ensure loading is set to false after fetching
       }

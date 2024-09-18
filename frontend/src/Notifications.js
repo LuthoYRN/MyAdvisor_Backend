@@ -29,7 +29,7 @@ const Notifications = () => {
         throw new Error("Failed to mark notification as read");
       }
     } catch (error) {
-      alert("Error marking notification as read:", error);
+      console.error("Error marking notification as read:", error);
     }
     setNotifications((prevNotifications) =>
       prevNotifications.map((noti) =>
@@ -54,7 +54,7 @@ const Notifications = () => {
         const data = await response.json();
         setNotifications(data.data);
       } catch (error) {
-        alert("Error fetching notifications:", error);
+        console.error("Error fetching notifications:", error);
       } finally {
         setLoading(false); // Ensure loading is set to false after fetching
       }

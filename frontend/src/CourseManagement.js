@@ -30,17 +30,11 @@ const CurriculumManagement = () => {
   const [filteredPrerequisites, setFilteredPrerequisites] = useState([]);
   const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
 
-  const url =
-  JSON.parse(localStorage.getItem("userData")).userType === "FacultyAdmin"
-    ? `${config.backendUrl}/api/facultyAdmin/${localStorage.getItem("facultyID")}/courses`
-    : `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses`;
-
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await fetch(
-          url
-       
+          `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -48,14 +42,12 @@ const CurriculumManagement = () => {
         const data = await response.json();
         setCourses(data.data);
       } catch (error) {
-        alert("Error fetching curriculums:", error);
+        console.error("Error fetching curriculums:", error);
       }
     };
 
     fetchCourses();
   }, []);
-
-
 
   const handleDelete = async (id) => {
     try {
@@ -70,7 +62,7 @@ const CurriculumManagement = () => {
       }
       setCourses(courses.filter((course) => courses.id !== course));
     } catch (error) {
-      alert("Error deleting curriculum:", error);
+      console.error("Error deleting curriculum:", error);
     }
   };
 
@@ -89,7 +81,7 @@ const CurriculumManagement = () => {
         setShowCourseDependencyModal(true);
       }
     } catch (error) {
-      alert("Error checking course dependencies:", error);
+      console.error("Error checking course dependencies:", error);
     }
   };
 
@@ -105,15 +97,41 @@ const CurriculumManagement = () => {
         const data = await response.json();
         setFilteredCourses(data.data);
       } catch (error) {
-        alert("Error fetching filtered courses:", error);
+        console.error("Error fetching filtered courses:", error);
       }
     };
 
     fetchFilteredCourses();
   }, [showAddExistingCourseModal]);
 
-
-
+  
+  const handleAddExistingCourse = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses/addExisting`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            courseID: selectedCourses[0].id,
+            prerequisiteFor: selectedPrerequisites.map((course) => course.id),
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setCourses([...courses, data.data]);
+      setShowAddExistingCourseModal(false);
+      setSelectedCourses([]);
+      setSelectedPrerequisites([]);
+    } catch (error) {
+      console.error("Error adding existing course:", error);
+    }
+  };
   const defaultColumns = [
     {
       header: "Course ID",
@@ -168,7 +186,7 @@ const CurriculumManagement = () => {
             text="+ Add New Course"
             onClick={() =>
               navigate("/addCourse", {
-                state: { curriculumID: location.state.curriculumID },
+                state: { curriculumID: location.state.curriculumID, facultyName: location.state.facultyName },
               })
             }
           />
@@ -204,12 +222,12 @@ const CurriculumManagement = () => {
             } else {
               setShowDeleteModal(false);
             }
-          }}
-        />
-      )}
-      {showAddExistingCourseModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-2xl p-8">
+            }}
+          />
+          )}
+          {showAddExistingCourseModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
               Add Existing Course
             </Text>
@@ -221,41 +239,57 @@ const CurriculumManagement = () => {
               placeholder="Enter Course Name"
               icon={search}
               value={courseSearch}
-              onValueChange={(value) => setCourseSearch(value)}
+              onValueChange={(value) => {
+              setCourseSearch(value);
+              setFilteredCourses(
+                courses.filter((course) =>
+                course.id.toLowerCase().includes(value.toLowerCase())
+                )
+              );
+              }}
             />
             <div>
               {courseSearch && filteredCourses.length >= 1 && (
-                <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
-                  {filteredCourses.map((course) => (
-                    <p
-                      onClick={() => {
-                        handleAddCourse(course);
-                        setFilteredCourses(
-                          filteredCourses.filter((item) => item !== course)
-                        );
-                      }}
-                    >
-                      {course}
-                    </p>
-                  ))}
-                </div>
+              <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48">
+                {filteredCourses.map((course) => (
+                <p
+                  onClick={() => {
+                  setSelectedCourses([course]);
+                  setFilteredCourses([]);
+                  setCourseSearch("");
+                  }}
+                >
+                  {course.id}
+                </p>
+                ))}
+              </div>
               )}
             </div>
-            <div class="flex flex-row gap-4">
-              {selectedCourses.map((course) => (
-                <Tag text={course} onClick={() => handleRemoveCourse(course)} />
-              ))}
-            </div>
+            {selectedCourses.length > 0 && (
+              <div class="flex flex-row gap-4 my-4">
+              <Tag
+                text={selectedCourses[0].id}
+                onClick={() => setSelectedCourses([])}
+              />
+              </div>
+            )}
             <CustomInput
               label="Course Pre-requisites"
               placeholder="Enter Course Pre-requisites"
               icon={search}
               value={prerequisiteSearch}
-              onValueChange={(value) => setCourseSearch(value)}
+              onValueChange={(value) => {
+                setPrerequisiteSearch(value);
+                setFilteredPrerequisites(
+                  courses.filter((course) =>
+                    course.id.toLowerCase().includes(value.toLowerCase())
+                  )
+                );
+              }}
             />
             <div>
               {prerequisiteSearch && filteredPrerequisites.length >= 1 && (
-                <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
+                <div class="absolute z-20 bg-gray-200 rounded-2xl p-4 overflow-y-auto max-w-48">
                   {filteredPrerequisites.map((course) => (
                     <p
                       onClick={() => {
@@ -265,31 +299,38 @@ const CurriculumManagement = () => {
                             (item) => item !== course
                           )
                         );
+                        setPrerequisiteSearch("");
                       }}
                     >
-                      {course}
+                      {course.id}
                     </p>
                   ))}
                 </div>
               )}
             </div>
-            <div class="flex flex-row gap-4">
-              {selectedPrerequisites.map((course) => (
-                <Tag
-                  text={course}
-                  onClick={() => handleRemovePrerequisite(course)}
-                />
-              ))}
-            </div>
-           
+            {selectedPrerequisites && (
+              <div class="flex flex-row gap-4 my-4">
+                {selectedPrerequisites.map((course) => (
+                  <Tag
+                    text={course.id}
+                    onClick={() => handleRemovePrerequisite(course)}
+                  />
+                ))}
+              </div>
+            )}
+
             <div class="flex flex-row gap-4 mt-8">
               <Button
                 text="Add"
-                onClick={() => navigate("/addExistingCourse")}
+                onClick={() => handleAddExistingCourse()}
               />
               <Button
                 text="Cancel"
-                onClick={() => setShowAddExistingCourseModal(false)}
+                onClick={() => {
+                  setShowAddExistingCourseModal(false);
+                  setCourseSearch("");
+                  setPrerequisiteSearch("");
+                }}
               />
             </div>
           </div>
