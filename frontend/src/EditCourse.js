@@ -24,11 +24,11 @@ const EditCourse = () => {
   const [courseCredits, setCourseCredits] = React.useState("");
   const [nqfLevel, setNqfLevel] = React.useState("");
   const [equivalents, setEquivalents] = React.useState("");
-  const [faculty, setFaculty] = React.useState("");
   const [specialRequirements, setSpecialRequirements] = React.useState("");
   const [availableBoth, setAvailableBoth] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [specialRequirementsChoice, setSpecialRequirementsChoice] = React.useState("");
+  const [courses, setCourses] = React.useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -41,7 +41,9 @@ const EditCourse = () => {
         const data = await response.json();
         setLoading(false);
         console.log("API Response:", data);
-  
+        setCourses(data.data.allCourses);
+        setFilteredEquivalents(data.data.allCourses);
+        setFilteredPrerequisites(data.data.allCourses);
         setCourseName(data.data.courseName);
         setCourseCode(data.data.courseCode);
         setCourseCredits(data.data.credits);
@@ -80,52 +82,20 @@ const EditCourse = () => {
   }, []);
   
 
-  // Mock data Need to give list of prerequisites and equivalents
-  const prerequisites = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Computer Science",
-    "English",
-    "History",
-    "Geography",
-  ];
-
-  const equivalentCourses = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Computer Science",
-    "English",
-    "History",
-    "Geography",
-  ];
-
-  const faculties = [
-    "Engineering",
-    "Science",
-    "Humanities",
-    "Commerce",
-    "Law",
-    "Medicine",
-  ];
-
   const handleSearchPrerequisites = (searchText) => {
     setPrerequisite(searchText);
     // Filter the prerequisites list based on the search text
     setFilteredPrerequisites(
-      prerequisites
+      courses
         .filter((prerequisite) =>
-          prerequisite.toLowerCase().includes(searchText.toLowerCase())
+          prerequisite.id.toLowerCase().includes(searchText.toLowerCase())
         )
         .filter((prerequisite) => !selectedPrerequisites.includes(prerequisite))
     );
   };
 
   const handleAddPrerequisite = (prerequisite) => {
-    setSelectedPrerequisites([...selectedPrerequisites, prerequisite]);
+    setSelectedPrerequisites([...selectedPrerequisites, prerequisite.id]);
     setPrerequisite("");
   };
 
@@ -139,16 +109,16 @@ const EditCourse = () => {
     // Filter the equivalents list based on the search text
     setEquivalents(searchText);
     setFilteredEquivalents(
-      equivalentCourses
+      courses
         .filter((equivalent) =>
-          equivalent.toLowerCase().includes(searchText.toLowerCase())
+          equivalent.id.toLowerCase().includes(searchText.toLowerCase())
         )
         .filter((equivalent) => !selectedEquivalents.includes(equivalent))
     );
   };
 
   const handleAddEquivalent = (equivalent) => {
-    setSelectedEquivalents([...selectedEquivalents, equivalent]);
+    setSelectedEquivalents([...selectedEquivalents, equivalent.id]);
     setEquivalents("");
   };
 
@@ -171,7 +141,6 @@ const EditCourse = () => {
       courseCode,
       credits: courseCredits,
       nqfLevel,
-      faculty,
       prerequisites: selectedPrerequisites.length
         ? selectedPrerequisites
         : null,
@@ -210,7 +179,7 @@ const EditCourse = () => {
     >
       <div class="flex flex-col flex-auto gap-4 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames={"mb-8"}>
-          Add Course
+          Edit Course
         </Text>
         {loading ? (
           <div className="flex justify-center">
@@ -270,19 +239,19 @@ const EditCourse = () => {
               {prerequisite && filteredPrerequisites.length >= 1 && (
                 <>
                   <div>
-                    <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-400 rounded-2xl p-4 max-w-80">
+                    <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-200 rounded-2xl p-4 max-w-80">
                       {filteredPrerequisites.map((prerequisite) => (
                         <p
                           onClick={() => {
                             handleAddPrerequisite(prerequisite);
                             setFilteredPrerequisites(
-                              filteredPrerequisites.filter(
+                              courses.filter(
                                 (item) => item !== prerequisite
                               )
                             );
                           }}
                         >
-                          {prerequisite}
+                          {prerequisite.id}
                         </p>
                       ))}
                     </div>
@@ -348,26 +317,26 @@ const EditCourse = () => {
                 />
                 <div>
                   {equivalents && filteredEquivalents.length >= 1 && (
-                    <div class="absolute bg-gray-200 rounded-2xl p-4 max-w-80">
+                    <div class="absolute bg-gray-200 rounded-2xl p-4 max-h-60 overflow-y-auto">
                       {filteredEquivalents.map((equivalent) => (
                         <p
                           onClick={() => {
                             handleAddEquivalent(equivalent);
                             setFilteredEquivalents(
-                              filteredEquivalents.filter(
+                              courses.filter(
                                 (item) => item !== equivalent
                               )
                             );
                           }}
                         >
-                          {equivalent}
+                          {equivalent.id}
                         </p>
                       ))}
                     </div>
                   )}
                 </div>
                 <div class="flex flex-row gap-4">
-                  {selectedEquivalents.map((equivalent) => (
+                  {selectedEquivalents.length >= 1 && selectedEquivalents.map((equivalent) => (
                     <Tag
                       text={equivalent}
                       onClick={() => handleRemoveEquivalent(equivalent)}

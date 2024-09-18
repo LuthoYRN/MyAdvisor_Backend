@@ -151,16 +151,7 @@ const CurriculumManagement = () => {
     },
   ];
 
-  const handleAddCourse = (course) => {
-    setSelectedCourses([...selectedCourses, course]);
-  };
-
-  const handleRemoveCourse = (course) => {
-    setSelectedCourses(
-      selectedCourses.filter((selectedCourse) => selectedCourse !== course)
-    );
-  };
-
+ 
   const handleAddPrerequisites = (course) => {
     setSelectedPrerequisites([...selectedPrerequisites, course]);
   };

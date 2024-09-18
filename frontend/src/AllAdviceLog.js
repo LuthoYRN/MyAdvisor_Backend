@@ -25,6 +25,7 @@ const AllAdviceLog = () => {
     setLogType(log.type);
     setContent(log.text || log.src);
   };
+  
 
   useEffect(() => {
     const fetchLogs = async () => {
