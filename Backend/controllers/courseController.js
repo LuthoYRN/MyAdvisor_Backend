@@ -152,4 +152,34 @@ const updateCourse = async (req, res) => {
   }
 };
 
-module.exports = { getCourseForEditing, updateCourse };
+// API call to get all courses for prerequisite and equivalent searches
+const getAllCourses = async (req, res) => {
+  try {
+    // Fetch all courses from the database
+    const courses = await course.findAll({
+      attributes: ["id", "courseName", "credits", "nqf_level"], // Specify the fields you want to return
+    });
+
+    // If no courses are found
+    if (!courses || courses.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No courses found in the system",
+      });
+    }
+
+    // Return the list of courses
+    return res.status(200).json({
+      status: "success",
+      data: courses,
+    });
+  } catch (error) {
+    console.error("Error fetching all courses:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { getAllCourses, getCourseForEditing, updateCourse };
