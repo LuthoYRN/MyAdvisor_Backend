@@ -21,7 +21,6 @@ const MeetingNotes = () => {
   let location = useLocation();
 
   const handleSaveNotes = async () => {
-    console.log(location);
     try {
       const response = await fetch(
         `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/note`,
@@ -38,7 +37,7 @@ const MeetingNotes = () => {
         setShowConfirmationModal(true);
       }
     } catch (error) {
-      console.error("There was an error saving the notes!", error);
+      alert("There was an error saving the notes!", error);
     }
   };
 

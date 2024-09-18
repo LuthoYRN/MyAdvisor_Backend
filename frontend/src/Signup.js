@@ -16,10 +16,11 @@ function App() {
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [faculty, setFaculty] = React.useState("");
-  const [majors, setMajors] = React.useState([]);
+  const [majors, setMajors] = React.useState(null);
   const [firstMajor, setFirstMajor] = React.useState("");
   const [secondMajor, setSecondMajor] = React.useState("");
   const [thirdMajor, setThirdMajor] = React.useState("");
+  const [curriculums, setCurriculums] = React.useState([]);
   const navigate = useNavigate();
 
   const handleFacultyChange = (value) => {
@@ -30,10 +31,15 @@ function App() {
           `${config.backendUrl}/api/auth/signup/${facultyID}`
         );
         const data = await response.json();
-        setMajors(data.data);
-        console.log("Majors:", data);
+        if (data.curriculumsOffered === "Programmes") {
+          setCurriculums(data.data);
+          setMajors(null);
+        } else {
+          setMajors(data.data);
+          setCurriculums(null);
+        }
       } catch (error) {
-        console.error("Error fetching majors:", error);
+        alert("Error fetching majors:", error);
       }
     };
 
@@ -41,7 +47,9 @@ function App() {
   };
 
   const handleRegister = () => {
-    const selectedMajors = [firstMajor, secondMajor, thirdMajor].filter(Boolean);
+    const selectedMajors = [firstMajor, secondMajor, thirdMajor].filter(
+      Boolean
+    );
 
     fetch(`${config.backendUrl}/api/auth/signup`, {
       method: "POST",
@@ -68,7 +76,7 @@ function App() {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        alert("Error:", error);
       });
   };
 
@@ -79,9 +87,8 @@ function App() {
         const data = await response.json();
 
         setFaculties(data.data);
-        console.log("Faculties:", data);
       } catch (error) {
-        console.error("Error fetching faculties:", error);
+        alert("Error fetching faculties:", error);
       }
     };
 
@@ -151,83 +158,103 @@ function App() {
             ]}
             onChange={handleFacultyChange}
           />
-          <div className="flex flex-col gap-1 justify-between mb-1">
+          {majors ? (
+            <div className="flex flex-col gap-1 justify-between mb-1">
+              <Select
+                label={"First Major"}
+                options={[
+                  { value: "", label: "Select First Major" },
+                  ...majors
+                    .filter(
+                      (major) =>
+                        major.id !== secondMajor && major.id !== thirdMajor
+                    )
+                    .map((major) => ({
+                      value: major.id,
+                      label: major.majorName,
+                    })),
+                ]}
+                onChange={(value) => setFirstMajor(value)}
+              />
+              <Select
+                label={"Second Major"}
+                options={[
+                  { value: "", label: "Select Second Major" },
+                  ...majors
+                    .filter(
+                      (major) =>
+                        major.id !== firstMajor && major.id !== thirdMajor
+                    )
+                    .map((major) => ({
+                      value: major.id,
+                      label: major.majorName,
+                    })),
+                ]}
+                onChange={(value) => setSecondMajor(value)}
+              />
+              <Select
+                label={"Third Major"}
+                options={[
+                  { value: "", label: "Select Third Major" },
+                  ...majors
+                    .filter(
+                      (major) =>
+                        major.id !== firstMajor && major.id !== secondMajor
+                    )
+                    .map((major) => ({
+                      value: major.id,
+                      label: major.majorName,
+                    })),
+                ]}
+                onChange={(value) => setThirdMajor(value)}
+              />
+            </div>
+          ) : curriculums ? (
             <Select
-              label={"First Major"}
-              options={[
-                { value: "", label: "Select First Major" },
-                ...majors
-                  .filter(
-                    (major) =>
-                      major.id !== secondMajor && major.id !== thirdMajor
-                  )
-                  .map((major) => ({
-                    value: major.id,
-                    label: major.majorName,
-                  })),
-              ]}
-              onChange={(value) => setFirstMajor(value)}
-            />
-            <Select
-              label={"Second Major"}
-              options={[
-                { value: "", label: "Select Second Major" },
-                ...majors
-                  .filter(
-                    (major) =>
-                      major.id !== firstMajor && major.id !== thirdMajor
-                  )
-                  .map((major) => ({
-                    value: major.id,
-                    label: major.majorName,
-                  })),
-              ]}
-              onChange={(value) => setSecondMajor(value)}
-            />
-            <Select
-              label={"Third Major"}
-              options={[
-                { value: "", label: "Select Third Major" },
-                ...majors
-                  .filter(
-                    (major) =>
-                      major.id !== firstMajor && major.id !== secondMajor
-                  )
-                  .map((major) => ({
-                    value: major.id,
-                    label: major.majorName,
-                  })),
+              label={"Curriculum"}
+              options={[ { value: "", label: "Select Curriculum" },...curriculums.map((curriculum) => ({
+                  value: curriculum.id,
+                  label: curriculum.programmeName,
+                }))
               ]}
               onChange={(value) => setThirdMajor(value)}
+              classNames={"mb-2"}
             />
-          </div>
-        
+          ) : null}
+          <div class="flex gap-8">
             <Button
-            text={"Register"}
-            onClick={(e) => {
-              e.preventDefault();
-              // Array of selected majors
-              const selectedMajors = [firstMajor, secondMajor, thirdMajor].filter(Boolean);
-              if (
-                !firstName ||
-                !surname ||
-                !email ||
-                !password ||
-                !confirmPassword ||
-                !faculty ||
-                selectedMajors.length < 2 // Ensure at least two majors are selected
-              ) {
-                alert("Please fill in all required fields and select at least two majors.");
-                return;
-              }
-              if (password !== confirmPassword) {
-                alert("Passwords do not match.");
-                return;
-              }
-              handleRegister();
-            }}
-          />          
-        
+              text={"Register"}
+              onClick={(e) => {
+                e.preventDefault();
+                // Array of selected majors
+                const selectedMajors = [
+                  firstMajor,
+                  secondMajor,
+                  thirdMajor,
+                ].filter(Boolean);
+                if (
+                  !firstName ||
+                  !surname ||
+                  !email ||
+                  !password ||
+                  !confirmPassword ||
+                  !faculty ||
+                  selectedMajors.length < 2 // Ensure at least two majors are selected
+                ) {
+                  alert(
+                    "Please fill in all required fields and select at least two majors."
+                  );
+                  return;
+                }
+                if (password !== confirmPassword) {
+                  alert("Passwords do not match.");
+                  return;
+                }
+                handleRegister();
+              }}
+            />
+            <Button text="Back" type={"secondary"} onClick={() => navigate(-1)} />
+          </div>
         </form>
         <img
           className="col-span-8 col-start-7 my-auto"

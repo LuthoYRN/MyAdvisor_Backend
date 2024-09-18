@@ -27,7 +27,6 @@ const Header = ({
         const formData = new FormData();
         formData.append("profilePicture", file); // Use 'profilePicture' as the key
 
-        console.log(formData);
 
         try {
           const response = await fetch(
@@ -40,13 +39,12 @@ const Header = ({
 
           if (response.ok) {
             const data = await response.json();
-            console.log("File uploaded successfully:", data);
             // Optionally, update the UI or display a success message here
           } else {
-            console.error("File upload failed:", response.statusText);
+            alert("File upload failed:", response.statusText);
           }
         } catch (error) {
-          console.error("Error uploading file:", error);
+          alert("Error uploading file:", error);
         }
       }
     };
@@ -57,10 +55,9 @@ const Header = ({
   return (
     <div class="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
       <img
-        className="cursor-pointer"
         src={profile_url}
         alt="account"
-        class="ml-4 rounded-full"
+        class="ml-4 rounded-full cursor-pointer"
         width={80}
         height={80}
         onClick={changeProfile}

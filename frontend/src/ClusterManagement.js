@@ -100,9 +100,9 @@ const UserManagement = () => {
   }, [users, searchTerm, selectedPermission]);
 
   return (
-    <Main userType="SystemAdmin" activeMenuItem="home">
+    <Main userType="senior" activeMenuItem="manageCluster">
       <Text type="heading" classNames="mb-8">
-        User Management
+        Cluster Management
       </Text>
       <div className="flex gap-8 mb-8 h-10 flex-row">
         <CustomInput

@@ -1,13 +1,12 @@
-import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
-import Button from "./components/Button";
-import video from "./assets/Video.svg";
 import moment from "moment";
-import { useLocation } from "react-router-dom";
-import config from "./config";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import download from "./assets/download.svg";
+import video from "./assets/Video.svg";
+import Button from "./components/Button";
+import Text from "./components/Text";
+import config from "./config";
+import Main from "./layout/Main";
 
 
 const AppointmentDetails = () => {
@@ -35,9 +34,8 @@ const AppointmentDetails = () => {
           .then((data) => {
             if (data.status === "success") {
               setAppointment(data.data);
-              console.log("Appointment details:", data.data);
             } else {
-              console.error(
+              alert(
                 "Failed to load appointment details:",
                 data.message
               );
@@ -45,15 +43,15 @@ const AppointmentDetails = () => {
             setLoading(false);
           })
           .catch((error) => {
-            console.error("Error fetching appointment details:", error);
+            alert("Error fetching appointment details:", error);
             setLoading(false);
           });
       } catch (error) {
-        console.error("Error fetching appointment details:", error);
+        alert("Error fetching appointment details:", error);
         setLoading(false);
       }
     } else {
-      console.error("Appointment details are not available in location.state");
+      alert("Appointment details are not available in location.state");
       setLoading(false);
     }
   }, [location.state]);
@@ -122,7 +120,7 @@ const AppointmentDetails = () => {
             </div>
             <div>
               <Button
-                disabled={appointment.isFutureAppointment || appointment.hasAdviceLog }
+                disabled={appointment.isFutureAppointment || appointment.hasAdviceLog}
                 text="Record Meeting"
                 onClick={handleRecordMeeting}
               />
@@ -139,25 +137,25 @@ const AppointmentDetails = () => {
               Uploaded Documents
             </Text>
             <div class="flex gap-4 mb-8">
-            {appointment.uploadedFiles && appointment.uploadedFiles.length > 0 ? (
-                  appointment.uploadedFiles.map((document, index) => (
-                    <a
-                      key={index}
-                      href={document.fileURL}
-                      download
-                      target="_blank" rel="noreferrer"
-                    >
-                      <div className="flex items-center justify-center p-8 flex-col rounded-2xl shadow-lg bg-gray-200 gap-4">
-                        <img width={40} height={40} src={download} alt="file" />
-                      <Text  >{document.fileName}</Text> 
-                      </div>
-                     
-                    </a>
-                  ))
-                ) : (
-                  <Text  type="paragraph">No files uploaded.</Text>
-                  
-                )}
+              {appointment.uploadedFiles && appointment.uploadedFiles.length > 0 ? (
+                appointment.uploadedFiles.map((document, index) => (
+                  <a
+                    key={index}
+                    href={document.fileURL}
+                    download
+                    target="_blank" rel="noreferrer"
+                  >
+                    <div className="flex items-center justify-center p-8 flex-col rounded-2xl shadow-lg bg-gray-200 gap-4">
+                      <img width={40} height={40} src={download} alt="file" />
+                      <Text  >{document.fileName}</Text>
+                    </div>
+
+                  </a>
+                ))
+              ) : (
+                <Text type="paragraph">No files uploaded.</Text>
+
+              )}
             </div>
           </div>
         </div>
@@ -169,7 +167,7 @@ const AppointmentDetails = () => {
             <Text type="sm-heading" classNames="mb-4">
               Recording Options
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <Text type="paragraph" classNames="mb-8">
               Select which format you would like to record in.
             </Text>
             <div className="flex gap-8 mb-4">

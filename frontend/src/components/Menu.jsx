@@ -43,6 +43,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={list}
               text="View All Advice Logs"
               isActive={activeMenuItem === "viewAllAdviceLogs"}
+              onClick={() => {navigate("/allAdviceLogs")}}
             />
             <MenuItem
               imageSrc={clock}
@@ -64,6 +65,9 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={cluster}
               text="Manage Cluster"
               isActive={activeMenuItem === "manageCluster"}
+              onClick={() => {
+                navigate("/clusterManagement");
+              }}
             />
             <MenuItem
               imageSrc={request}
@@ -159,6 +163,7 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={group}
               text="Student Advisors"
               isActive={activeMenuItem === "studentAdvisors"}
+              onClick={() => {navigate("/advisorManagement")}}
             />
             <MenuItem
               imageSrc={badge}

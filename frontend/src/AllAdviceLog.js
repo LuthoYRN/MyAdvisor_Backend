@@ -5,9 +5,10 @@ import Card from "./components/Card.jsx";
 import Main from "./layout/Main.jsx";
 import TextArea from "./components/TextArea.jsx";
 import config from "./config.js";
-import Select from "./components/Select.jsx";
+import CustomInput from "./components/CustomInput.jsx";
+import search from "./assets/search.svg";
 
-const AdviceLog = () => {
+const AllAdviceLog = () => {
   const [logType, setLogType] = React.useState("recording");
   const [filteredLogs, setFilteredLogs] = React.useState([]);
   const [activeIndex, setActiveIndex] = React.useState(null);
@@ -29,7 +30,7 @@ const AdviceLog = () => {
     const fetchLogs = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/log`
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/logs`
         );
         const result = await response.json();
         if (result.status === "success") {
@@ -39,6 +40,7 @@ const AdviceLog = () => {
             side: `${log.appointmentDate}, ${log.appointmentTime}`,
             text: log.logNotes,
             src: log.video?.filePathURL,
+            advisorName: log.advisorName,
           }));
           setLogs(formattedLogs);
           setFilteredLogs(formattedLogs);
@@ -64,7 +66,7 @@ const AdviceLog = () => {
       userType={
         JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
       }
-      activeMenuItem={"adviceLog"}
+      activeMenuItem={"viewAllAdviceLogs"}
     >
       <div className="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <div className="flex w-1/3 flex-col gap-4">
@@ -73,47 +75,16 @@ const AdviceLog = () => {
           </Text>
           <div className="items-center">
             <div className="flex gap-4 mb-4">
-              <Select
-                onChange={(value) => {
-                  const selectedMonth = value;
-                  const filteredLogs = logs.filter((log) => {
-                    const logDate = new Date(log.side.split(",")[0]);
-                    return logDate.getMonth() + 1 === parseInt(selectedMonth);
+              <CustomInput
+                placeholder="Filter by advisor name"
+                classNames={"w-full"}
+                onValueChange={(value) => {
+                  const filterText = value.toLowerCase();
+                  const filtered = logs.filter((log) => {
+                    return log.advisorName.toLowerCase().includes(filterText);
                   });
-                  setFilteredLogs(filteredLogs);
+                  setFilteredLogs(filtered);
                 }}
-                options={[
-                  { value: "", label: "Select Month" },
-                  ...[...Array(12).keys()].map((month) => ({
-                    value: month + 1,
-                    label: new Date(0, month).toLocaleString("default", {
-                      month: "long",
-                    }),
-                  })),
-                ]}
-              />
-              <Select
-                onChange={(value) => {
-                  const selectedYear = value;
-                  const filteredLogs = logs.filter((log) => {
-                    const logDate = new Date(log.side.split(",")[0]);
-                    return logDate.getFullYear() === parseInt(selectedYear);
-                  });
-                  setFilteredLogs(filteredLogs);
-                }}
-                options={[
-                  { value: "", label: "Select Year" },
-                  ...[
-                    ...new Set(
-                      logs.map((log) =>
-                        new Date(log.side.split(",")[0]).getFullYear()
-                      )
-                    ),
-                  ].map((year) => ({
-                    value: year,
-                    label: year,
-                  })),
-                ]}
               />
             </div>
             <div className="items-center max-h-[644px] px-2 overflow-y-auto">
@@ -131,6 +102,7 @@ const AdviceLog = () => {
                     classNames="mb-6"
                     active={index === activeIndex}
                     status={"Approval"}
+                    bottomText={log.advisorName}
                     onClick={() => handleCardClick(log, index)}
                   />
                 ))
@@ -156,4 +128,4 @@ const AdviceLog = () => {
   );
 };
 
-export default AdviceLog;
+export default AllAdviceLog;
