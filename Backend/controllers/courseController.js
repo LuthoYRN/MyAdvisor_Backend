@@ -182,4 +182,86 @@ const getAllCourses = async (req, res) => {
   }
 };
 
-module.exports = { getAllCourses, getCourseForEditing, updateCourse };
+//adding an existing course to the system
+const addExisting = async (req, res) => {
+  try {
+    const { currID } = req.params;
+    const { courseID, prerequisiteFor } = req.body; // Expecting course ID and an array of prerequisite IDs
+
+    // 1. Check if the curriculum exists (major or programme)
+    const curriculum = await sharedCourse.findOne({
+      where: { [Op.or]: [{ majorID: currID }, { programmeID: currID }] },
+    });
+
+    if (!curriculum) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Curriculum not found.",
+      });
+    }
+
+    // 2. Check if the course is already in the curriculum
+    const existingCourse = await sharedCourse.findOne({
+      where: {
+        [Op.or]: [
+          { majorID: curriculum.majorID, courseID },
+          { programmeID: curriculum.programmeID, courseID },
+        ],
+      },
+    });
+
+    if (existingCourse) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Course is already part of the curriculum.",
+      });
+    }
+
+    // 3. Add the course to sharedCourse
+    await sharedCourse.create({
+      majorID: curriculum.majorID || null, // Based on whether it's a major or programme
+      programmeID: curriculum.programmeID || null,
+      courseID: courseID,
+    });
+
+    // 4. Update prerequisites for each course in prerequisiteCourseIDs
+    if (prerequisiteFor) {
+      for (const updateID of prerequisiteFor) {
+        const courseToUpdate = await course.findOne({
+          where: { id: updateID },
+        });
+        if (courseToUpdate) {
+          // Merge existing prerequisites with the new courseID and remove duplicates
+          const existingPrerequisites = courseToUpdate.prerequisites || [];
+          const updatedPrerequisites = [
+            ...new Set([...existingPrerequisites, courseID]),
+          ]; // Add new course as prerequisite
+
+          await course.update(
+            { prerequisites: updatedPrerequisites },
+            { where: { id: updateID } }
+          );
+        }
+      }
+    }
+
+    // 5. Send success response
+    return res.status(201).json({
+      status: "success",
+      message: "Course added to the curriculum successfully.",
+    });
+  } catch (error) {
+    console.error("Error adding course to curriculum:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = {
+  getAllCourses,
+  getCourseForEditing,
+  updateCourse,
+  addExisting,
+};

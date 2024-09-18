@@ -9,8 +9,8 @@ router
 //add existing course to curriculum
 router
   .route("/:currID/courses/addExisting")
-  .get(courseController.getAllCourses);
-//.post(courseController.addExisting);
+  .get(courseController.getAllCourses)
+  .post(courseController.addExisting);
 router
   .route("/:currID/courses/:courseID") //individual course list
   .get(curriculumController.checkIfSafeToDelete) //on delete click
