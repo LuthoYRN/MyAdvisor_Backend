@@ -30,10 +30,10 @@ const AdvisorManagement = () => {
         if (result.status === "success") {
           setUsers(result.data);
         } else {
-          console.error("Failed to fetch users");
+          alert("Failed to fetch users");
         }
       } catch (error) {
-        console.error("Error fetching users:", error);
+        alert("Error fetching users:", error);
       }
     };
 

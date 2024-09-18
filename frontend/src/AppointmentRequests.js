@@ -18,7 +18,6 @@ const AppointmentRequests = () => {
 
   const getRequestDetails = async (request) => {
     try {
-      console.log("Fetching request details...");
       const response = await fetch(
         `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${request.id}`,
         {
@@ -28,12 +27,10 @@ const AppointmentRequests = () => {
           },
         }
       );
-      console.log("response", response);
       const data = await response.json();
       setNotificationDetails(data.data);
-      console.log("notificationDetails:", notificationDetails);
     } catch (error) {
-      console.error("Error fetching request details:", error);
+      alert("Error fetching request details:", error);
     }
   };
 
@@ -53,9 +50,8 @@ const AppointmentRequests = () => {
       if (!response.ok) {
         throw new Error("Failed to mark request as read");
       }
-      console.log("Request marked as read");
     } catch (error) {
-      console.error("Error marking request as read:", error);
+      alert("Error marking request as read:", error);
     }
     setRequests((prevRequests) =>
       prevRequests.map((req) =>
@@ -78,19 +74,17 @@ const AppointmentRequests = () => {
       if (!response.ok) {
         throw new Error("Failed to mark all requests as read");
       }
-      console.log("All requests marked as read");
       setRequests((prevRequests) =>
         prevRequests.map((req) => ({ ...req, isRead: true }))
       );
     } catch (error) {
-      console.error("Error marking all requests as read:", error);
+      alert("Error marking all requests as read:", error);
     }
   };
 
   React.useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        console.log("Fetching notifications...");
         const response = await fetch(
           `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests`,
           {
@@ -100,12 +94,10 @@ const AppointmentRequests = () => {
             },
           }
         );
-        console.log("response", response);
         const data = await response.json();
         setRequests(data.data.requests);
-        console.log("requests:", requests);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        alert("Error fetching notifications:", error);
       } finally {
         setLoading(false); // Ensure loading is set to false after fetching
       }

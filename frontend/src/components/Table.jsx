@@ -34,7 +34,6 @@ const Table = ({ Tabledata, column, idRow, handleRowDelete, handleRowEdit }) => 
     manualFiltering: true,
   });
 
-  console.log(table.getState().columnFilters);
   const [state, setState] = React.useState(table.initialState);
 
   table.setOptions((prev) => ({

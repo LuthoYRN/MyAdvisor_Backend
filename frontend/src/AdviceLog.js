@@ -23,7 +23,6 @@ const AdviceLog = () => {
     setActiveIndex(index);
     setLogType(log.type);
     setContent(log.text || log.src);
-    console.log(logType);
   };
 
   useEffect(() => {
@@ -47,7 +46,7 @@ const AdviceLog = () => {
           setFilteredLogs([]);
         }
       } catch (error) {
-        console.error("Error fetching logs:", error);
+        alert("Error fetching logs:", error);
         setFilteredLogs([]);
       } finally {
         setLoading(false); // Ensure loading is set to false after fetching

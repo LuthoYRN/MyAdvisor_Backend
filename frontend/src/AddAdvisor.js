@@ -191,7 +191,7 @@ const AddAdvisor = () => {
               <Button text="Back" type="secondary" />
             </div>
           </div>
-          <div className="flex flex-col gap-1 w-5/12">
+          <div className="flex flex-col gap-4 w-5/12">
             <Select
               label={"Major Advised"}
               placeholder={"Select the major advised"}

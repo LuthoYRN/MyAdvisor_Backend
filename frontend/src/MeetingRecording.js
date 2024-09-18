@@ -39,10 +39,10 @@ const MeetingRecording = () => {
       if (result.status === "success") {
         setShowConfirmationModal(true);
       } else {
-        console.error("Failed to save the recording:", result.message);
+        alert("Failed to save the recording:", result.message);
       }
     } catch (error) {
-      console.error("Error saving the recording:", error);
+      alert("Error saving the recording:", error);
     }
   };
 

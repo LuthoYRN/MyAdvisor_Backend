@@ -34,7 +34,7 @@ const Appointment = () => {
       navigate("/appointment", { state: selectedAdvisor });
       // Add your logic here to save the selected advisor
     } else {
-      console.log("No advisor selected");
+      alert("No advisor selected");
       // Handle the case when no advisor is selected
     }
   };
@@ -65,7 +65,6 @@ const Appointment = () => {
   React.useEffect(() => {
     const fetchAdvisors = async () => {
       try {
-        console.log("Fetching advisors...");
         const response = await fetch(
           `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/advisors`,
           {
@@ -76,12 +75,10 @@ const Appointment = () => {
             },
           }
         );
-        console.log("response", response);
         const data = await response.json();
         setAdvisors(data.data);
-        console.log("Advisors:", advisors);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        alert("Error fetching notifications:", error);
       } finally {
         setLoading(false); // Disable loading state after fetching or if an error occurs
       }

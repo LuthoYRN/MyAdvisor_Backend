@@ -9,6 +9,8 @@ import Select from "./components/Select.jsx";
 import Checkbox from "./components/Checkbox.jsx";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import config from "./config.js";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 const EditCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
@@ -30,9 +32,10 @@ const EditCourse = () => {
   React.useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        const response = await fetch(`/api/courses/${location.state.courseID}/edit`);
+        const response = await fetch(
+          `/api/courses/${location.state.courseID}/edit`
+        );
         const data = await response.json();
-        console.log(data);
         setCourseName(data.courseName);
         setCourseCode(data.courseCode);
         setCourseCredits(data.courseCredits);
@@ -43,7 +46,7 @@ const EditCourse = () => {
         setSpecialRequirements(data.specialRequirements);
         setAvailableBoth(data.availableBoth);
       } catch (error) {
-        console.error("Error fetching course data:", error);
+        alert("Error fetching course data:", error);
       }
     };
 
@@ -128,19 +131,48 @@ const EditCourse = () => {
   };
 
   const handleSaveCourse = () => {
+    if (!courseName || !courseCode || !courseCredits || !nqfLevel || !faculty) {
+      alert(
+        "All fields except special requirements and prerequisites must be filled."
+      );
+      return;
+    }
+
     const courseData = {
       courseName,
       courseCode,
-      courseCredits,
+      credits: courseCredits,
       nqfLevel,
-      prerequisites: selectedPrerequisites,
-      equivalents,
+      faculty,
+      prerequisites: selectedPrerequisites.length
+        ? selectedPrerequisites
+        : null,
+      equivalents: selectedEquivalents.length ? selectedEquivalents : null,
+      bothSemesters: availableBoth,
+      specialRequirement: specialRequirements
+        ? { condition: "OR", requirement: specialRequirements }
+        : null,
     };
-    // TODO: Save courseData to the database
-    console.log(courseData);
-  };
 
-  
+    fetch(`${config.backendUrl}/api/courses/${location.state.courseID}/edit`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(courseData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        <ConfirmationModal
+          status={"Success"}
+          message="Course updated successfully"
+          onConfirm={-1}
+        />;
+      })
+      .catch((error) => {
+        alert("Error updating course:", error);
+      });
+  };
 
   return (
     <Main

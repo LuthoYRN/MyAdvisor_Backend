@@ -28,9 +28,8 @@ const Notifications = () => {
       if (!response.ok) {
         throw new Error("Failed to mark notification as read");
       }
-      console.log("Notification marked as read");
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      alert("Error marking notification as read:", error);
     }
     setNotifications((prevNotifications) =>
       prevNotifications.map((noti) =>
@@ -42,7 +41,6 @@ const Notifications = () => {
   React.useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        console.log("Fetching notifications...");
         const response = await fetch(
           `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/notifications`,
           {
@@ -53,12 +51,10 @@ const Notifications = () => {
             },
           }
         );
-        console.log("response", response);
         const data = await response.json();
         setNotifications(data.data);
-        console.log("Notifications:", notifications);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        alert("Error fetching notifications:", error);
       } finally {
         setLoading(false); // Ensure loading is set to false after fetching
       }

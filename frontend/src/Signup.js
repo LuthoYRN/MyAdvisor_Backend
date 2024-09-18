@@ -31,18 +31,15 @@ function App() {
           `${config.backendUrl}/api/auth/signup/${facultyID}`
         );
         const data = await response.json();
-        console.log(data.curriculumsOffered)
         if (data.curriculumsOffered === "Programmes") {
-          console.log("Curriculums Offered:", data.data);
           setCurriculums(data.data);
           setMajors(null);
         } else {
-          console.log("Majors:", data.data);
           setMajors(data.data);
           setCurriculums(null);
         }
       } catch (error) {
-        console.error("Error fetching majors:", error);
+        alert("Error fetching majors:", error);
       }
     };
 
@@ -79,7 +76,7 @@ function App() {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        alert("Error:", error);
       });
   };
 
@@ -90,9 +87,8 @@ function App() {
         const data = await response.json();
 
         setFaculties(data.data);
-        console.log("Faculties:", data);
       } catch (error) {
-        console.error("Error fetching faculties:", error);
+        alert("Error fetching faculties:", error);
       }
     };
 

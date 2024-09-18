@@ -36,10 +36,9 @@ const UserManagement = () => {
           }));
           setUsers(formattedData);
           setFilteredUsers(formattedData);
-          console.log('Users:', users);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        alert('Error fetching users:', error);
       }
     };
 

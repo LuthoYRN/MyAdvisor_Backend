@@ -16,7 +16,6 @@ const AppointmentDetails = () => {
   let location = useLocation();
   let navigate = useNavigate();
 
-  console.log(location.state);
 
   const handleAppointment = (status) => () => {
     fetch(
@@ -32,18 +31,16 @@ const AppointmentDetails = () => {
       }
     )
       .then((response) => {
-        console.log("response", response);
         if (response.ok) {
           // Show confirmation modal
-          console.log("Appointment status updated successfully");
           setShowConfirmationModal(true);
         } else {
-          console.log("Failed to update appointment status");
+          alert("Failed to update appointment status");
         }
       })
       .catch((error) => {
         // handle the error
-        console.log("Error:", error);
+        alert("Error:", error);
       });
   };
 

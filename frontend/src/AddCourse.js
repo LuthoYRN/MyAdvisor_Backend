@@ -38,9 +38,8 @@ const AddCourse = () => {
         const response = await fetch(`${config.backendUrl}/api/courses/add`);
         const data = await response.json();
         setCourses(data.data);
-        console.log("Prerequisites and Equivalents:", data.data);
       } catch (error) {
-        console.error("Error fetching prerequisites and equivalents:", error);
+        alert("Error fetching prerequisites and equivalents:", error);
       }
     };
 
@@ -99,11 +98,16 @@ const AddCourse = () => {
   };
 
   const handleSaveCourse = () => {
+    if (!courseCode || !courseName || !courseCredits || !nqfLevel || !faculty) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
     const newCourse = {
+      courseID: courseCode,
       courseName,
-      courseCode,
-      courseCredits,
-      nqfLevel,
+      credits: courseCredits,
+      nqf_level: nqfLevel,
       faculty,
       specialRequirements,
       availableBoth,
@@ -131,7 +135,6 @@ const AddCourse = () => {
         }
       })
       .catch((error) => {
-        console.error("Error adding course:", error);
         alert("An error occurred while adding the course.");
       });
   };

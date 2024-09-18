@@ -26,14 +26,13 @@ function CourseSelection() {
           `${config.backendUrl}/api/auth/signup/${localStorage.getItem("user_id")}/courses`
         );
         const data = await response.json();
-        console.log("Courses:", courses);
         if (data.status === "success") {
           setCourses(data.courses);
         } else {
-          console.error(data.message);
+          alert(data.message);
         }
       } catch (error) {
-        console.error("Error fetching courses:", error);
+        alert("Error fetching courses:", error);
       }
     };
 
@@ -60,11 +59,11 @@ function CourseSelection() {
         if (data.status === "success") {
           setShowConfirmationModal(true);
         } else {
-          console.error(data.message);
+          alert(data.message);
         }
       })
       .catch((error) => {
-        console.error("Error registering courses:", error);
+        alert("Error registering courses:", error);
       });
   };
 

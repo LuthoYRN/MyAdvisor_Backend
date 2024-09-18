@@ -30,25 +30,32 @@ const CurriculumManagement = () => {
   const [filteredPrerequisites, setFilteredPrerequisites] = useState([]);
   const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
 
+  const url =
+  JSON.parse(localStorage.getItem("userData")).userType === "FacultyAdmin"
+    ? `${config.backendUrl}/api/facultyAdmin/${localStorage.getItem("facultyID")}/courses`
+    : `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses`;
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/curriculum/${location.state.curriculumID}/courses`
+          url
+       
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setCourses(data.data);
-        console.log("Curriculums:", data);
       } catch (error) {
-        console.error("Error fetching curriculums:", error);
+        alert("Error fetching curriculums:", error);
       }
     };
 
     fetchCourses();
   }, []);
+
+
 
   const handleDelete = async (id) => {
     try {
@@ -63,7 +70,7 @@ const CurriculumManagement = () => {
       }
       setCourses(courses.filter((course) => courses.id !== course));
     } catch (error) {
-      console.error("Error deleting curriculum:", error);
+      alert("Error deleting curriculum:", error);
     }
   };
 
@@ -82,7 +89,7 @@ const CurriculumManagement = () => {
         setShowCourseDependencyModal(true);
       }
     } catch (error) {
-      console.error("Error checking course dependencies:", error);
+      alert("Error checking course dependencies:", error);
     }
   };
 
@@ -97,14 +104,15 @@ const CurriculumManagement = () => {
         }
         const data = await response.json();
         setFilteredCourses(data.data);
-        console.log("Filtered Courses:", filteredCourses);
       } catch (error) {
-        console.error("Error fetching filtered courses:", error);
+        alert("Error fetching filtered courses:", error);
       }
     };
 
     fetchFilteredCourses();
   }, [showAddExistingCourseModal]);
+
+
 
   const defaultColumns = [
     {

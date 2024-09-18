@@ -41,15 +41,12 @@ function Login() {
       .then((response) => response.json())
       .then((result) => {
         // Handle the response from the API
-        console.log(result);
         if (result.status === "fail") {
           // Redirect the user to the appropriate page
-          console.log("Login Failed");
+          alert("Login Failed");
         }
         if (result.status === "success") {
           // Redirect the user to the appropriate page
-          console.log("Login Success");
-          console.log(result);
 
           localStorage.setItem("user_id", result.user_id);
           if (result.user_type === "student") {
@@ -67,7 +64,7 @@ function Login() {
       })
       .catch((error) => {
         // Handle any errors that occur during the request
-        console.error(error);
+        alert(error);
       });
   };
 
