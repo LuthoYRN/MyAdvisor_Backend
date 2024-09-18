@@ -7,6 +7,12 @@ const moment = require("moment"); //for date manipulation
 const {
   advisor,
   availability,
+  faculty,
+  advisorMajor,
+  department,
+  advisorProgramme,
+  major,
+  programme,
   student,
   advisorCluster,
   notification,
@@ -848,6 +854,386 @@ const getLogs = async (req, res) => {
   }
 };
 
+// Controller function to get advisors in a senior advisor's cluster
+const getCluster = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Check if the senior advisor exists
+    const seniorAdvisor = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!seniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Senior advisor not found.",
+      });
+    }
+
+    // Fetch all advisors in the same cluster, excluding the senior advisor
+    const clusterAdvisors = await advisor.findAll({
+      where: {
+        clusterID: seniorAdvisor.clusterID,
+        id: { [Op.ne]: seniorAdvisor.id }, // Exclude the senior advisor themselves
+      },
+      attributes: ["uuid", "name", "surname", "email"], // Adjust as necessary
+    });
+
+    // Return the list of advisors in the cluster
+    return res.status(200).json({
+      status: "success",
+      data: clusterAdvisors,
+    });
+  } catch (error) {
+    console.error("Error fetching cluster advisors:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// Controller function to remove an advisor from a senior advisor's cluster
+const removeFromCluster = async (req, res) => {
+  try {
+    const { advisorID, removeID } = req.params;
+
+    // Check if the senior advisor exists
+    const seniorAdvisor = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!seniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Senior advisor not found.",
+      });
+    }
+
+    // Check if the advisor to be removed exists
+    const advisorToRemove = await advisor.findOne({
+      where: { uuid: removeID },
+    });
+
+    if (!advisorToRemove) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Advisor to remove not found.",
+      });
+    }
+
+    // Check if both advisors are in the same cluster
+    if (seniorAdvisor.clusterID !== advisorToRemove.clusterID) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Advisor to remove is not in the same cluster.",
+      });
+    }
+
+    // Set the clusterID of the advisor to be removed to null
+    await advisor.update(
+      { clusterID: null },
+      { where: { id: advisorToRemove.id } }
+    );
+
+    // Find the advisorCluster record
+    const advisorClusterRecord = await advisorCluster.findOne({
+      where: { seniorAdvisorID: seniorAdvisor.id },
+    });
+
+    if (advisorClusterRecord) {
+      // Remove the advisor ID from the cluster's array of advisors
+      const updatedAdvisors = advisorClusterRecord.advisorIDs.filter(
+        (id) => id !== advisorToRemove.id
+      );
+
+      await advisorCluster.update(
+        { advisorIDs: updatedAdvisors },
+        { where: { seniorAdvisorID: seniorAdvisor.id } }
+      );
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Advisor removed from the cluster successfully.",
+    });
+  } catch (error) {
+    console.error("Error removing advisor from cluster:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getAdvisor = async (req, res) => {
+  try {
+    const { advisorID, removeID } = req.params;
+
+    // Find the junior advisor and include their faculty and curriculumType
+    const juniorAdvisor = await advisor.findOne({
+      where: { uuid: removeID },
+      include: {
+        model: faculty,
+        attributes: ["id", "facultyName", "curriculumType"], // Include curriculumType
+      },
+    });
+
+    if (!juniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "advisor not found.",
+      });
+    }
+
+    const curriculumType = juniorAdvisor.faculty.curriculumType;
+
+    // Find curriculums associated with the junior advisor
+    let curriculums;
+    if (curriculumType === "Major") {
+      // Fetch majors associated with the junior advisor
+      curriculums = await advisorMajor.findAll({
+        where: { advisorID: juniorAdvisor.id },
+        include: {
+          model: major,
+          attributes: ["id", "majorName"],
+        },
+      });
+    } else if (curriculumType === "Programme") {
+      // Fetch programmes associated with the junior advisor
+      curriculums = await advisorProgramme.findAll({
+        where: { advisorID: juniorAdvisor.id },
+        include: {
+          model: programme,
+          attributes: ["id", "programmeName"],
+        },
+      });
+    } else {
+      return res.status(404).json({
+        status: "fail",
+        message: "No curriculum type found for the faculty.",
+      });
+    }
+
+    // Fetch all curriculums in the faculty
+    let allCurriculums;
+    if (curriculumType === "Major") {
+      allCurriculums = await major.findAll({
+        include: [
+          {
+            model: department,
+            where: { facultyID: juniorAdvisor.facultyID },
+            attributes: [],
+          },
+        ], // Assuming departmentID relates faculty to majors
+        attributes: ["id", "majorName"],
+      });
+    } else if (curriculumType === "Programme") {
+      allCurriculums = await programme.findAll({
+        include: [
+          {
+            model: department,
+            where: { facultyID: juniorAdvisor.facultyID },
+            attributes: [],
+          },
+        ],
+        attributes: ["id", "programmeName"],
+      });
+    }
+
+    // Return the relevant data
+    return res.status(200).json({
+      status: "success",
+      data: {
+        curriculumsAdvising: curriculums.map((curriculum) =>
+          curriculumType === "Major" ? curriculum.major : curriculum.programme
+        ),
+        curriculumsInFaculty: allCurriculums,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Error fetching junior advisor majors/programmes:",
+      error.message
+    );
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// API call to update the junior advisor's major or programme allocation
+const reassign = async (req, res) => {
+  try {
+    const { advisorID, removeID } = req.params;
+    const { curriculumsAdvised } = req.body; // Expecting an array of curriculum IDs
+
+    // Check if the junior advisor exists
+    const juniorAdvisor = await advisor.findOne({
+      where: { uuid: removeID },
+    });
+
+    if (!juniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Junior advisor not found.",
+      });
+    }
+
+    // Clear existing allocations for the junior advisor
+    await advisorMajor.destroy({
+      where: { advisorID: juniorAdvisor.id },
+    });
+    await advisorProgramme.destroy({
+      where: { advisorID: juniorAdvisor.id },
+    });
+
+    // Allocate new majors or programmes based on the curriculumType
+    if (curriculumsAdvised) {
+      // Check if the curriculum is a major or programme
+      for (const curriculumID of curriculumsAdvised) {
+        const majorExists = await major.findOne({
+          where: { id: curriculumID },
+        });
+        const programmeExists = await programme.findOne({
+          where: { id: curriculumID },
+        });
+
+        if (majorExists) {
+          // Create a new allocation in advisorMajor
+          await advisorMajor.create({
+            advisorID: juniorAdvisor.id,
+            majorID: curriculumID,
+          });
+        } else if (programmeExists) {
+          // Create a new allocation in advisorProgramme
+          await advisorProgramme.create({
+            advisorID: juniorAdvisor.id,
+            programmeID: curriculumID,
+          });
+        }
+      }
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Advisor's curriculum allocation updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating advisor's curriculums:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getAdvisorsForClusterAdd = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Find the senior advisor to get their faculty
+    const seniorAdvisor = await advisor.findOne({
+      where: { uuid: advisorID },
+      attributes: ["facultyID"], // Get the facultyID
+    });
+
+    if (!seniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Senior advisor not found.",
+      });
+    }
+
+    // Fetch advisors in the same faculty who have a null clusterID
+    const eligibleAdvisors = await advisor.findAll({
+      where: {
+        facultyID: seniorAdvisor.facultyID,
+        advisor_level: "advisor",
+        clusterID: null, // Only include advisors without a cluster
+      },
+      attributes: ["uuid", "name", "surname", "email"], // Adjust attributes as needed
+    });
+
+    return res.status(200).json({
+      status: "success",
+      data: eligibleAdvisors,
+    });
+  } catch (error) {
+    console.error("Error fetching advisors for cluster add:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const addToCluster = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+    const { juniorID } = req.body; // The ID of the junior advisor to be added
+
+    // Check if the senior advisor exists
+    const seniorAdvisor = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+
+    if (!seniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Senior advisor not found.",
+      });
+    }
+
+    // Check if the junior advisor exists
+    const juniorAdvisor = await advisor.findOne({
+      where: { uuid: juniorID },
+    });
+
+    // Update the junior advisor's clusterID to the senior advisor's ID
+    await advisor.update(
+      { clusterID: seniorAdvisor.clusterID },
+      { where: { id: juniorAdvisor.id } }
+    );
+
+    // Find the existing cluster record or create one if it doesn't exist
+    const clusterRecord = await advisorCluster.findOne({
+      where: { seniorAdvisorID: seniorAdvisor.id },
+    });
+
+    if (clusterRecord) {
+      // Add the junior advisor's ID to the cluster array
+      const updatedAdvisorIDs = [
+        ...new Set([...clusterRecord.advisorIDs, juniorAdvisor.id]),
+      ];
+
+      await advisorCluster.update(
+        { advisorIDs: updatedAdvisorIDs },
+        { where: { seniorAdvisorID: seniorAdvisor.id } }
+      );
+    } else {
+      // If no record exists, create one
+      await advisorCluster.create({
+        seniorAdvisorID: seniorAdvisor.id,
+        advisorIDs: [juniorAdvisor.id], // Initialize with the junior advisor's ID
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Advisor added to the cluster successfully.",
+    });
+  } catch (error) {
+    console.error("Error adding advisor to cluster:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
   try {
@@ -984,6 +1370,12 @@ module.exports = {
   recordVideo,
   getLog,
   getLogs,
+  getCluster,
+  removeFromCluster,
+  getAdvisor,
+  reassign,
+  getAdvisorsForClusterAdd,
+  addToCluster,
   updateAdvisorSchedule,
   getAdvisorSchedule,
 };

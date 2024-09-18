@@ -12,6 +12,10 @@ module.exports = {
       facultyName: {
         type: Sequelize.STRING,
       },
+      curriculumType: {
+        type: Sequelize.ENUM("Major", "Programme"), // Define the enum values
+        allowNull: false,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

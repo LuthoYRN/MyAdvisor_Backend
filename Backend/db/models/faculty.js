@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       Faculty.hasOne(models.facultyAdmin, { foreignKey: "facultyID" });
       Faculty.hasMany(models.department, { foreignKey: "facultyID" });
       Faculty.hasMany(models.course, { foreignKey: "facultyID" });
+      Faculty.hasMany(models.advisor, { foreignKey: "facultyID" });
     }
   }
 
@@ -24,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
         type: DataTypes.STRING,
+        allowNull: false,
+      },
+      curriculumType: {
+        type: DataTypes.ENUM("Major", "Programme"),
         allowNull: false,
       },
     },
