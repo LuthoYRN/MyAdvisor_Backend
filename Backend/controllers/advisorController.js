@@ -6,21 +6,14 @@ const { sequelize } = require("../db/models");
 const moment = require("moment"); //for date manipulation
 const {
   advisor,
-  faculty,
   availability,
   student,
+  advisorCluster,
   notification,
   uploadedFile,
   appointment,
   adviceLog,
   appointmentRequest,
-  course,
-  completedCourse,
-  advisorMajor,
-  major,
-  department,
-  sharedCourse,
-  studentsMajor,
 } = require("../db/models");
 
 //API to get the advisor's dashboard
@@ -758,6 +751,103 @@ const getLog = async (req, res) => {
   }
 };
 
+// API call to get the advice logs for all advisors in the senior advisor's cluster
+const getLogs = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Check if the senior advisor exists
+    const seniorAdvisor = await advisor.findOne({ where: { uuid: advisorID } });
+    if (!seniorAdvisor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Senior Advisor not found",
+      });
+    }
+
+    // Find all advisors in the senior advisor's cluster
+    const advisorsInCluster = await advisor.findAll({
+      include: {
+        model: advisorCluster,
+        where: { seniorAdvisorID: seniorAdvisor.id },
+        attributes: [],
+      },
+      attributes: ["id", "name", "surname"], // Get advisor ID and name
+    });
+
+    const allLogs = [];
+
+    // Iterate through each advisor in the cluster and fetch their logs
+    for (const advisor of advisorsInCluster) {
+      const adviceLogs = await adviceLog.findAll({
+        include: [
+          {
+            model: appointment,
+            where: {
+              advisorID: advisor.id, // Get logs for each advisor
+            },
+            include: [
+              {
+                model: student,
+                attributes: ["name", "surname"],
+              },
+              {
+                model: uploadedFile,
+                as: "uploadedFiles",
+                attributes: ["filePathURL", "fileName"],
+                where: { uploadedBy: "advisor" },
+                required: false,
+              },
+            ],
+            attributes: ["date", "time"],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      // Map logs to the response format
+      const formattedLogs = adviceLogs.map((log) => {
+        const videoFile =
+          !log.notes && log.appointment.uploadedFiles
+            ? log.appointment.uploadedFiles[0]
+            : null;
+
+        return {
+          advisorName: `${advisor.name} ${advisor.surname}`, // Include advisor name
+          studentName: `${log.appointment.student.name} ${log.appointment.student.surname}`,
+          appointmentDate: moment(log.appointment.date).format("DD MMM YYYY"),
+          appointmentTime: moment(log.appointment.time, "HH:mm:ss").format(
+            "hh:mm A"
+          ),
+          createdAt: moment(log.createdAt).format("DD MMM YYYY, hh:mm A"),
+          type: log.notes ? "Note" : videoFile ? "Video" : "None",
+          logNotes: log.notes,
+          video: videoFile
+            ? {
+                fileName: videoFile.fileName,
+                filePathURL: videoFile.filePathURL,
+              }
+            : null,
+        };
+      });
+
+      // Add the logs of this advisor to the overall list
+      allLogs.push(...formattedLogs);
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: allLogs,
+    });
+  } catch (error) {
+    console.error("Error fetching advisor logs for cluster:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 //To fetch the current schedule of an advisor, including the days of the week and the available time slots for each day
 const getAdvisorSchedule = async (req, res) => {
   try {
@@ -893,6 +983,7 @@ module.exports = {
   recordMeetingNotes,
   recordVideo,
   getLog,
+  getLogs,
   updateAdvisorSchedule,
   getAdvisorSchedule,
 };

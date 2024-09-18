@@ -3,7 +3,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class AdvisorCluster extends Model {
     static associate(models) {
-      Cluster.hasMany(models.advisor, { foreignKey: "clusterID" });
+      AdvisorCluster.hasMany(models.advisor, { foreignKey: "clusterID" });
     }
   }
 
