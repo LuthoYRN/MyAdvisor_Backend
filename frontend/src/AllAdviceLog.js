@@ -58,6 +58,10 @@ const AllAdviceLog = () => {
     fetchLogs();
   }, []);
 
+  useEffect(() => {
+    setContent(null);
+  }, [filteredLogs]);
+
   return (
     <Main
       userType={
@@ -81,7 +85,6 @@ const AllAdviceLog = () => {
                     return log.advisorName.toLowerCase().includes(filterText);
                   });
                   setFilteredLogs(filtered);
-                  setContent(null);
                 }}
               />
             </div>
