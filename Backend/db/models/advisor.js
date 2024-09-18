@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "advisorID",
       });
       Advisor.belongsTo(models.advisorCluster, { foreignKey: "clusterID" });
+      Advisor.belongsTo(models.faculty, { foreignKey: "facultyID" });
     }
   }
 
@@ -94,6 +95,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true, // Allowing null in case an advisor is not assigned to a cluster
         references: {
           model: "advisorCluster",
+          key: "id",
+        },
+      },
+      facultyID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "faculty",
           key: "id",
         },
       },

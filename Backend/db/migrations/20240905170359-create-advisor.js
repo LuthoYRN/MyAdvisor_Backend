@@ -31,6 +31,22 @@ module.exports = {
       profile_url: {
         type: Sequelize.STRING,
       },
+      clusterID: {
+        type: Sequelize.INTEGER,
+        allowNull: true, // Allowing null in case an advisor is not assigned to a cluster
+        references: {
+          model: "advisorCluster",
+          key: "id",
+        },
+      },
+      facultyID: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "faculty", // Name of the faculty table
+          key: "id", // Reference key in the faculty table
+        },
+      },
       uuid: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
