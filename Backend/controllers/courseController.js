@@ -66,6 +66,19 @@ const getCourseForEditing = async (req, res) => {
       }
     }
 
+    // Retrieve all courses for prerequisite and equivalent options
+    const allCourses = await course.findAll({
+      attributes: ["id", "courseName", "credits", "nqf_level"], // Specify the fields you want to return
+    });
+
+    // If no courses are found
+    if (!allCourses || allCourses.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No courses found in the system",
+      });
+    }
+
     // Return course data with required information for editing
     return res.status(200).json({
       status: "success",
@@ -78,6 +91,7 @@ const getCourseForEditing = async (req, res) => {
         equivalents: courseDetails.equivalents, // Array of equivalent course IDs
         bothSemesters: courseDetails.bothSemesters,
         specialRequirement, // Object with condition and requirement or null
+        allCourses, // Include all available courses
       },
     });
   } catch (error) {
