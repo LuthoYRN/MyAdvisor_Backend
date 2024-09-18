@@ -11,6 +11,7 @@ const {
   facultyAdmin,
   department,
   sharedCourse,
+  systemAdmin,
   studentsMajor,
 } = require("../db/models");
 const bcrypt = require("bcrypt");
@@ -298,6 +299,24 @@ const login = async (req, res) => {
         status: "success",
         user_type: "facultyAdmin",
         user_id: logged_in.uuid,
+      });
+    }
+    // If not an advisor, check if the user is a faculty admin
+    result = await systemAdmin.findOne({ where: { email } });
+    if (result) {
+      // If the faculty admin is found, check password
+      if (!(await bcrypt.compare(password, result.password))) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Incorrect email or password",
+        });
+      }
+
+      const logged_in = result.toJSON();
+      return res.status(200).json({
+        status: "success",
+        user_type: "systemAdmin",
+        user_id: logged_in.id,
       });
     }
 

@@ -10,6 +10,7 @@ router
 router
   .route("/:currID/courses/addExisting")
   .get(courseController.getAllCourses);
+//.post(courseController.addExisting);
 router
   .route("/:currID/courses/:courseID") //individual course list
   .get(curriculumController.checkIfSafeToDelete) //on delete click
