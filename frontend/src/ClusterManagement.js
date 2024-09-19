@@ -18,6 +18,8 @@ const UserManagement = () => {
   const [workingID, setWorkingID] = React.useState(null);
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [showEditAdvisorModal, setShowEditAdvisorModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = React.useState(false);
   const [advisorSearch, setAdvisorSearch] = React.useState("");
   const [filteredAdvisors, setFilteredAdvisors] = React.useState([]);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
@@ -109,6 +111,12 @@ const UserManagement = () => {
       if (result.status === "success") {
         setUsers(users.filter((user) => user.id !== userId));
         setFilteredUsers(filteredUsers.filter((user) => user.id !== userId));
+        setShowDeleteModal(false);
+        const updatedUsers = users.filter((user) => user.uuid !== userId);
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+        setShowDeleteConfirmationModal(true);
+
       } else {
         console.error("Error removing user:", result.message);
       }
@@ -141,6 +149,7 @@ const UserManagement = () => {
         setShowEditAdvisorModal(false);
         setSelectedCourses([]);
         setCurriculumSearch("");
+        setShowConfirmationModal(true);
       } else {
         console.error("Error adding course:", result.message);
       }
@@ -234,11 +243,7 @@ const UserManagement = () => {
         setUsers([...users, selectedAdvisor]);
         setFilteredUsers([...users, selectedAdvisor]);
         setAdvisorSearch("");
-        <ConfirmationModal
-          status={"Success"}
-          message="Advisor added to the cluster successfully."
-          onConfirm={"/clusterManagement"}
-        />;
+        setShowConfirmationModal(true);
         console.log("Advisor added to the cluster successfully.");
       } else {
         console.error("Error adding advisor to cluster:", result.message);
@@ -421,6 +426,24 @@ const UserManagement = () => {
           </div>
         </div>
       )}
+      {
+        showConfirmationModal && (
+          <ConfirmationModal
+            status={"Success"}
+            message="Curriculum added to the cluster successfully."
+            close={()=>{setShowConfirmationModal(false)}}
+          />
+        )
+      }
+      {
+        showDeleteConfirmationModal && (
+          <ConfirmationModal
+            status={"Success"}
+            message="Advisor removed from the cluster successfully."
+            close={()=>{setShowDeleteConfirmationModal(false)}}
+          />
+        )
+      }
     </Main>
   );
 };

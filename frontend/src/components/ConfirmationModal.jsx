@@ -3,7 +3,7 @@ import Text from './Text';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
 
-const ConfirmationModal = ({ status, message, onConfirm }) => {
+const ConfirmationModal = ({ status, message, onConfirm, close }) => {
     let navigate = useNavigate();
 
     return (
@@ -19,6 +19,7 @@ const ConfirmationModal = ({ status, message, onConfirm }) => {
               text="Close"
               onClick={() => {
                 navigate(onConfirm);
+                close();
               }}
             />
           </div>
