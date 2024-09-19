@@ -1,12 +1,11 @@
 import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
+import { FaTimesCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button";
-import video from "./assets/Video.svg";
 import FileUploader from "./components/FileUploader";
+import Text from "./components/Text";
 import TextArea from "./components/TextArea";
-import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import Main from "./layout/Main";
 
 /* 
 Data Needed:
@@ -21,6 +20,8 @@ Data Needed:
 const Appointment = () => {
   const [comment, setComment] = React.useState("");
   const [file, setFile] = React.useState(null);
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
+
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -29,10 +30,14 @@ const Appointment = () => {
   };
 
   const handleContinue = () => {
-    // Save the comment to the database
-    navigate("/appointmentDate", {
-      state: { advisor: location.state, adviceRequired: comment, file: file },
-    });
+    if (!comment) {
+      setShowErrorModal(true); // Show error modal if no comment is provided
+    } else {
+      // Proceed to the next step if the comment is entered
+      navigate("/appointmentDate", {
+        state: { advisor: location.state, adviceRequired: comment, file: file },
+      });
+    }
   };
 
   return (
@@ -68,11 +73,30 @@ const Appointment = () => {
             </div>
 
             <div class="w-1/2 flex flex-auto">
-              <FileUploader handleFile={(uploadedFile)=> setFile(uploadedFile)} />
+              <FileUploader handleFile={(uploadedFile) => setFile(uploadedFile)} />
             </div>
           </div>
         </div>
       </div>
+      {showErrorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaTimesCircle className="text-red-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
+              Please enter a reason for your booking before continuing.
+            </Text>
+            <Button
+              text="Close"
+              onClick={() => setShowErrorModal(false)} // Close the modal
+            />
+          </div>
+        </div>
+      )}
     </Main>
   );
 };
