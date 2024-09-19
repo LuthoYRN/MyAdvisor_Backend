@@ -1,5 +1,6 @@
 const express = require("express");
 const studentController = require("./../controllers/studentController");
+const smartAdvisorController = require("./../controllers/smartAdvisorController");
 const router = express.Router();
 const { uploadImage, uploadDocument } = require("../middlewares/upload");
 
@@ -11,6 +12,10 @@ router.post(
   uploadImage.single("profilePicture"),
   studentController.updateProfilePicture
 );
+//course information
+router
+  .route("/:studentID/smartAdvisor/progress")
+  .get(smartAdvisorController.getCourseProgress);
 //notifications
 router
   .route("/:studentID/notifications")
