@@ -5,11 +5,13 @@ import Button from "./components/Button.jsx";
 import Pill from "./components/Pill.jsx";
 import config from "./config.js";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 const MeetingNotes = () => {
   const [selectedTimes, setSelectedTimes] = React.useState([]);
   const [selectedDate, setSelectedDate] = React.useState("");
   const [times, setTimes] = React.useState([]);
+  const [successModal, setSuccessModal] = React.useState(false);
   let navigate = useNavigate();
 
   const handleSelectDate = (text) => {
@@ -53,6 +55,7 @@ const MeetingNotes = () => {
 
         const result = await response.json();
         if (response.ok) {
+          setSuccessModal(true);
         } else {
           console.error("Failed to save schedule:", result);
         }
@@ -186,6 +189,13 @@ const MeetingNotes = () => {
           </div>
         </div>
       </div>
+      {successModal && (
+        <ConfirmationModal
+          status={"Success"}
+          message={"Schedule updated successfully."}
+          close={() => setSuccessModal(false)}
+        />
+      )}
     </Main>
   );
 };

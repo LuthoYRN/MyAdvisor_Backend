@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Text from "./components/Text.jsx";
-import Card from "./components/Card.jsx";
 import Header from "./components/Header.jsx";
 import Main from "./layout/Main.jsx";
-import moment from "moment";
-import config from "./config.js";
+import UCT_Background from "./assets/UCT_Background.jpg";
 
 const FacultyAdminDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -40,7 +37,8 @@ const FacultyAdminDashboard = () => {
           user_type="advisor"
         />
       </div>
-      <div className="flex-auto grid grid-cols-2 gap-14 justify-between bg-white rounded-2xl shadow-xl">
+      <div className="flex flex-auto justify-center items-center bg-white rounded-2xl shadow-xl">
+        <img src={UCT_Background} alt="UCT Background" className="rounded-2xl w-4/6" />
       </div>
     </Main>
   );
