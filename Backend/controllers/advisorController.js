@@ -969,7 +969,7 @@ const removeFromCluster = async (req, res) => {
 
 const getAdvisor = async (req, res) => {
   try {
-    const { advisorID, removeID } = req.params;
+    const { removeID } = req.params;
 
     // Find the junior advisor and include their faculty and curriculumType
     const juniorAdvisor = await advisor.findOne({

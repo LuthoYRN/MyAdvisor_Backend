@@ -152,8 +152,154 @@ const updateProfilePicture = async (req, res) => {
   }
 };
 
+// Controller function to get all majors/programmes in the faculty
+const getCurriculumsByFaculty = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+
+    // 1. Fetch the faculty to check its curriculumType (either "Major" or "Programme")
+    const facultySearch = await faculty.findOne({
+      where: { id: facultyID },
+      attributes: ["curriculumType", "facultyName"],
+    });
+
+    if (!faculty) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Faculty not found",
+      });
+    }
+
+    // 2. Initialize the variable to store the curriculums (majors/programmes)
+    let curriculums = [];
+
+    // 3. Fetch majors if the faculty offers majors
+    if (facultySearch.curriculumType === "Major") {
+      curriculums = await major.findAll({
+        include: {
+          model: department,
+          attributes: [],
+          where: { facultyID },
+        },
+        attributes: ["id", "majorName"],
+      });
+    }
+
+    // 4. Fetch programmes if the faculty offers programmes
+    if (facultySearch.curriculumType === "Programme") {
+      curriculums = await programme.findAll({
+        include: {
+          model: department,
+          attributes: [],
+          where: { facultyID },
+        },
+        attributes: ["id", "programmeName"],
+      });
+    }
+
+    // 5. If no curriculums found
+    if (curriculums.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: `No ${facultySearch.curriculumType.toLowerCase()}s found for this faculty`,
+      });
+    }
+
+    // 6. Send success response with the curriculums (majors/programmes)
+    return res.status(200).json({
+      status: "success",
+      faculty: facultySearch.facultyName,
+      curriculumType: facultySearch.curriculumType,
+      data: curriculums,
+    });
+  } catch (error) {
+    console.error("Error fetching curriculums for faculty:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// Controller function to get all advisors in a faculty
+const getAdvisorsByFaculty = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+
+    // 1. Fetch all advisors in the faculty based on the facultyID
+    const advisors = await advisor.findAll({
+      where: { facultyID },
+      attributes: [
+        "uuid",
+        "name",
+        "surname",
+        "email",
+        "office",
+        "advisor_level",
+      ],
+    });
+
+    // 2. If no advisors found for the faculty
+    if (!advisors || advisors.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No advisors found for this faculty.",
+      });
+    }
+
+    // 3. Return success response with the advisors
+    return res.status(200).json({
+      status: "success",
+      data: advisors,
+    });
+  } catch (error) {
+    console.error("Error fetching advisors by faculty:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// Controller to get all departments under a faculty
+const getDepartments = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+
+    // Fetch departments that belong to the specified faculty
+    const departments = await department.findAll({
+      where: { facultyID },
+      attributes: ["id", "name"], // Get department ID and name
+    });
+
+    // If no departments are found
+    if (!departments || departments.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No departments found for this faculty",
+      });
+    }
+
+    // Return the list of departments
+    return res.status(200).json({
+      status: "success",
+      data: departments,
+    });
+  } catch (error) {
+    console.error("Error fetching departments for faculty:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   updateProfilePicture,
   getFacultyAdminDashboard,
   getAllCoursesByFacultyID,
+  getCurriculumsByFaculty,
+  getAdvisorsByFaculty,
+  getDepartments,
+  
 };
