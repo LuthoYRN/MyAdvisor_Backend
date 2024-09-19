@@ -145,17 +145,7 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit 
               className="border p-1 rounded w-16"
             />
           </span>
-          <Select
-            classNames={"!w-32"}
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
-            options={[10, 20, 30, 40, 50].map((pageSize) => ({
-              value: pageSize,
-              label: `Show ${pageSize}`,
-            }))}
-          />
+          
         </div>
       </div>
     </div>
