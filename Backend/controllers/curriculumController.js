@@ -60,6 +60,7 @@ const getCurriculumsForAdvisor = async (req, res) => {
       const majors = advisorMajors.map((am) => ({
         curriculumID: am.major.id,
         curriculumName: am.major.majorName,
+        facultyID: am.major.department.faculty.id,
         facultyName: am.major.department.faculty.facultyName,
         type: "Major", // Type is Major
       }));
@@ -84,7 +85,7 @@ const getCurriculumsForAdvisor = async (req, res) => {
               include: [
                 {
                   model: faculty,
-                  attributes: ["facultyName"], // Get faculty name
+                  attributes: ["id", "facultyName"], // Get faculty name
                 },
               ],
             },
@@ -98,6 +99,7 @@ const getCurriculumsForAdvisor = async (req, res) => {
       const programmes = advisorProgrammes.map((ap) => ({
         curriculumID: ap.programme.id,
         curriculumName: ap.programme.programmeName,
+        facultyID: ap.programme.department.faculty.id,
         facultyName: ap.programme.department.faculty.facultyName,
         type: "Programme", // Type is Programme
       }));
