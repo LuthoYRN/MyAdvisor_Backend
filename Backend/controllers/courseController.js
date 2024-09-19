@@ -152,7 +152,7 @@ const updateCourse = async (req, res) => {
     if (equivalents !== undefined) updatedFields.equivalents = equivalents;
     if (bothSemesters !== undefined)
       updatedFields.bothSemesters = bothSemesters;
-    if (specialRequirements !== null)
+    if (specialRequirement !== undefined)
       updatedFields.specialRequirements = specialRequirements;
 
     // 4. Update the course in the database
@@ -287,8 +287,9 @@ const addNewCourse = async (req, res) => {
       nqfLevel,
       prerequisites = null,
       equivalents = null,
-      specialRequirements = null,
+      specialRequirement = null,
       bothSemesters,
+      facultyID,
       currID = null,
     } = req.body;
 
@@ -303,12 +304,12 @@ const addNewCourse = async (req, res) => {
 
     // 2. Create the special requirement string if provided
     let specialRequirementString = null;
-    if (specialRequirements) {
+    if (specialRequirement) {
       // If prerequisites are null and special requirements are provided, mark condition as [CX]
       if (!prerequisites) {
-        specialRequirementString = `[CX] ${specialRequirements.requirement}`;
+        specialRequirementString = `[CX] ${specialRequirement.requirement}`;
       } else {
-        specialRequirementString = `[${specialRequirements.condition}] ${specialRequirements.requirement}`;
+        specialRequirementString = `[${specialRequirement.condition}] ${specialRequirement.requirement}`;
       }
     }
 
@@ -320,6 +321,7 @@ const addNewCourse = async (req, res) => {
       nqf_level: nqfLevel,
       prerequisites: prerequisites, // Save prerequisites as array (can be null)
       equivalents: equivalents, // Save equivalents (can be null)
+      facultyID: facultyID,
       specialRequirements: specialRequirementString, // Save special requirements as string (can be null)
       bothSemesters, // Store boolean for both semesters availability
     });

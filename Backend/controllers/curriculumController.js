@@ -46,7 +46,7 @@ const getCurriculumsForAdvisor = async (req, res) => {
               include: [
                 {
                   model: faculty,
-                  attributes: ["facultyName"], // Get faculty name
+                  attributes: ["id", "facultyName"], // Get faculty name
                 },
               ],
             },
