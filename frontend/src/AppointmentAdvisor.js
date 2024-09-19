@@ -1,10 +1,11 @@
 import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
-import Button from "./components/Button";
-import UserCard from "./components/UserCard";
+import { FaTimesCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Button from "./components/Button";
+import Text from "./components/Text";
+import UserCard from "./components/UserCard";
 import config from "./config";
+import Main from "./layout/Main";
 /* 
 Data Needed:
 - Student Name
@@ -20,6 +21,8 @@ const Appointment = () => {
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
   const [loading, setLoading] = React.useState(true); // Initial state is true, indicating data is loading
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
+
 
   let navigate = useNavigate();
 
@@ -34,7 +37,7 @@ const Appointment = () => {
       navigate("/appointment", { state: selectedAdvisor });
       // Add your logic here to save the selected advisor
     } else {
-      alert("No advisor selected");
+      setShowErrorModal(true);
       // Handle the case when no advisor is selected
     }
   };
@@ -138,6 +141,25 @@ const Appointment = () => {
           <Button text="Back" onClick={handleBack} type="secondary" />
         </div>
       </div>
+      {showErrorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaTimesCircle className="text-red-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
+              Please select an advisor before continuing.
+            </Text>
+            <Button
+              text="Close"
+              onClick={() => setShowErrorModal(false)} // Close the modal
+            />
+          </div>
+        </div>
+      )}
     </Main>
   );
 };
