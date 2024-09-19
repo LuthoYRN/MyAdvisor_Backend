@@ -1,18 +1,22 @@
-import "./App.css";
 import React from "react";
-import CustomInput from "./components/CustomInput";
-import Button from "./components/Button";
-import Container from "./layout/Container";
-import Text from "./components/Text";
-import image from "./assets/advisor.png";
-import Select from "./components/Select";
 import { useNavigate } from "react-router-dom";
+import "./App.css";
+import image from "./assets/advisor.png";
+import Button from "./components/Button";
+import CustomInput from "./components/CustomInput";
+import Text from "./components/Text";
 import config from "./config";
+import Container from "./layout/Container";
 
 function Login() {
   let navigate = useNavigate();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+
+  const [usernameError, setUsernameError] = React.useState("");
+  const [passwordError, setPasswordError] = React.useState("");
+  const [usernamePasswordError, setUsernamePasswordError] = React.useState("");
+
 
   const handleUsernameChange = (value) => {
     setUsername(value);
@@ -23,6 +27,19 @@ function Login() {
   };
 
   const handleLogin = () => {
+    setUsernameError("");
+    setPasswordError("");
+    setUsernamePasswordError("");
+
+    if (!username) {
+      setUsernameError("Username is required");
+      return; // Stop the function if the username is missing
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      return; // Stop the function if the password is missing
+    }
     const data = {
       email: username,
       password: password,
@@ -42,8 +59,15 @@ function Login() {
       .then((result) => {
         // Handle the response from the API
         if (result.status === "fail") {
-          // Redirect the user to the appropriate page
-          alert("Login Failed");
+          // Display a specific error based on the failure reason
+          console.log(result.message);
+          if (result.message === "Incorrect email or password") {
+            setPasswordError("Incorrect password");
+          } else if (result.message === "User not found") {
+            setUsernameError("Incorrect username");
+          } else {
+            setUsernamePasswordError("Login failed, please try again.");
+          }
         }
         if (result.status === "success") {
           // Redirect the user to the appropriate page
@@ -80,6 +104,7 @@ function Login() {
           placeholder="Enter your username"
           onValueChange={handleUsernameChange}
         />
+        {usernameError && <Text classNames="text-red-500">{usernameError}</Text>}
         <CustomInput
           classNames="mb-1"
           label={"Password"}
@@ -87,7 +112,16 @@ function Login() {
           onValueChange={handlePasswordChange}
           type="password" // This ensures the password is masked
         />
+        {passwordError && <Text classNames="text-red-500">{passwordError}</Text>}
+
         <Button text={"Login"} onClick={handleLogin} />
+
+        {(usernameError && passwordError) && (
+          <Text classNames="text-red-500">
+            {usernamePasswordError}
+          </Text>
+        )}
+
         <Text classNames="mt-2" type={"paragraph"}>
           Don't have an account?{" "}
           <span
