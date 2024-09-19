@@ -21,6 +21,7 @@ function App() {
   const [firstMajor, setFirstMajor] = React.useState("");
   const [secondMajor, setSecondMajor] = React.useState("");
   const [thirdMajor, setThirdMajor] = React.useState("");
+  const [programme, setProgramme] = React.useState("");
   const [curriculums, setCurriculums] = React.useState([]);
   const navigate = useNavigate();
   const [showRequiredFieldsModal, setShowRequiredFieldsModal] = React.useState(false);
@@ -34,6 +35,7 @@ function App() {
     setFirstMajor(null);
     setSecondMajor(null);
     setThirdMajor(null);
+    setProgramme(null);
     const fetchMajors = async (facultyID) => {
       try {
         const response = await fetch(
@@ -71,8 +73,8 @@ function App() {
         email: email,
         password: password,
         confirmPassword: confirmPassword,
-        majors: selectedMajors,
-        programmeID: null,
+        majors: selectedMajors.length >=1 ? selectedMajors : null,
+        programmeID: programme ? programme : null,
       }),
     })
       .then((response) => response.json())
@@ -232,7 +234,7 @@ function App() {
                 label: curriculum.programmeName,
               }))
               ]}
-              onChange={(value) => setThirdMajor(value)}
+              onChange={(value) => setProgramme(value)}
               classNames={"mb-2"}
             />
           ) : null}
@@ -254,7 +256,7 @@ function App() {
                   !password ||
                   !confirmPassword ||
                   !faculty ||
-                  selectedMajors.length < 1 // Ensure at least two majors are selected
+                  (!programme && selectedMajors.length < 1) // Ensure at least one major is selected if no program is selected
                 ) {
                   setShowRequiredFieldsModal(true);
                   return;
