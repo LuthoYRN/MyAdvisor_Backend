@@ -29,6 +29,7 @@ const AddCourse = () => {
   const [specialRequirementsChoice, setSpecialRequirementsChoice] =
     React.useState(null);
   const [courses, setCourses] = React.useState([]);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -45,7 +46,6 @@ const AddCourse = () => {
 
     fetchPrerequisitesAndEquivalents();
   }, []);
-
 
   const handleSearchPrerequisites = (searchText) => {
     setPrerequisite(searchText);
@@ -96,21 +96,27 @@ const AddCourse = () => {
   };
 
   const handleSaveCourse = () => {
-    if (!courseCode || !courseName || !courseCredits || !nqfLevel || !faculty) {
+    if (!courseCode || !courseName || !courseCredits || !nqfLevel) {
       alert("Please fill in all required fields.");
       return;
     }
 
     const newCourse = {
-      courseID: courseCode,
+      courseCode,
       courseName,
-      credits: courseCredits,
-      nqf_level: nqfLevel,
-      faculty: location.state.facultyName,
-      specialRequirements,
-      availableBoth,
-      prerequisites: selectedPrerequisites,
+      courseCredits,
+      nqfLevel,
+      specialRequirements:
+        specialRequirements && specialRequirementsChoice
+          ? specialRequirements
+          : null,
+      bothSemesters: availableBoth,
+      prerequisites:
+        specialRequirementsChoice !== "complex" && selectedPrerequisites
+          ? selectedPrerequisites
+          : null,
       equivalents: selectedEquivalents,
+      currID: location.state.curriculumID,
     };
 
     fetch(`${config.backendUrl}/api/courses/add`, {
@@ -123,11 +129,7 @@ const AddCourse = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          <ConfirmationModal
-            status="Success"
-            message="Course added successfully"
-            onConfirm={"/courseManagement"}
-          />;
+          setShowSuccessModal(true);
         } else {
           console.error("Failed to add course.");
         }
@@ -162,7 +164,7 @@ const AddCourse = () => {
               value={courseCode}
               onValueChange={setCourseCode}
             />
-           
+
             <CustomInput
               label="Course Credits"
               placeholder="Enter course credits"
@@ -310,6 +312,13 @@ const AddCourse = () => {
           <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
+      {showSuccessModal && (
+        <ConfirmationModal
+          status="Success"
+          message="Course added successfully"
+          onConfirm={"/courseManagement"}
+        />
+      )}
     </Main>
   );
 };

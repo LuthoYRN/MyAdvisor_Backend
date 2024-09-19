@@ -27,8 +27,11 @@ const EditCourse = () => {
   const [specialRequirements, setSpecialRequirements] = React.useState("");
   const [availableBoth, setAvailableBoth] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
-  const [specialRequirementsChoice, setSpecialRequirementsChoice] = React.useState("");
+  const [specialRequirementsChoice, setSpecialRequirementsChoice] =
+    React.useState("");
   const [courses, setCourses] = React.useState([]);
+  const [showConfirmationModal, setShowConfirmationModal] =
+    React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,26 +51,26 @@ const EditCourse = () => {
         setCourseCode(data.data.courseCode);
         setCourseCredits(data.data.credits);
         setNqfLevel(data.data.nqfLevel);
-  
+
         // Handle prerequisites
         const prerequisitesData = data.data.prerequisites;
         const normalizedPrerequisites = Array.isArray(prerequisitesData)
           ? prerequisitesData
           : prerequisitesData
-          ? [prerequisitesData]
-          : [];
+            ? [prerequisitesData]
+            : [];
         setSelectedPrerequisites(normalizedPrerequisites);
         console.log("Prerequisites:", normalizedPrerequisites);
-  
+
         // Handle equivalents
         const equivalentsData = data.data.equivalents;
         const normalizedEquivalents = Array.isArray(equivalentsData)
           ? equivalentsData
           : equivalentsData
-          ? [equivalentsData]
-          : [];
+            ? [equivalentsData]
+            : [];
         setSelectedEquivalents(normalizedEquivalents);
-  
+
         setSpecialRequirements(data.data.specialRequirement?.requirement || "");
         setSpecialRequirementsChoice(
           data.data.specialRequirement?.condition?.toLowerCase() || ""
@@ -77,10 +80,9 @@ const EditCourse = () => {
         console.error("Error fetching course data:", error);
       }
     };
-  
+
     fetchCourseData();
   }, []);
-  
 
   const handleSearchPrerequisites = (searchText) => {
     setPrerequisite(searchText);
@@ -129,7 +131,7 @@ const EditCourse = () => {
   };
 
   const handleSaveCourse = () => {
-    if (!courseName || !courseCode || !courseCredits || !nqfLevel ) {
+    if (!courseName || !courseCode || !courseCredits || !nqfLevel) {
       alert(
         "All fields except special requirements and prerequisites must be filled."
       );
@@ -141,14 +143,19 @@ const EditCourse = () => {
       courseCode,
       credits: courseCredits,
       nqfLevel,
-      prerequisites: selectedPrerequisites.length
-        ? selectedPrerequisites
-        : null,
+      prerequisites:
+        selectedPrerequisites.length && specialRequirementsChoice !== "complex"
+          ? selectedPrerequisites
+          : null,
       equivalents: selectedEquivalents.length ? selectedEquivalents : null,
       bothSemesters: availableBoth,
-      specialRequirement: specialRequirements
-        ? { condition: "OR", requirement: specialRequirements }
-        : null,
+      specialRequirement:
+        specialRequirements && specialRequirementsChoice !== ""
+          ? {
+              condition: specialRequirementsChoice,
+              requirement: specialRequirements,
+            }
+          : null,
     };
 
     fetch(`${config.backendUrl}/api/courses/${location.state.courseID}/edit`, {
@@ -160,11 +167,7 @@ const EditCourse = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        <ConfirmationModal
-          status={"Success"}
-          message="Course updated successfully"
-          onConfirm={-1}
-        />;
+        setShowConfirmationModal(true);
       })
       .catch((error) => {
         console.error("Error updating course:", error);
@@ -201,7 +204,7 @@ const EditCourse = () => {
                   value={courseCode}
                   onValueChange={setCourseCode}
                 />
-               
+
                 <CustomInput
                   label="Course Credits"
                   placeholder="Enter course credits"
@@ -227,87 +230,104 @@ const EditCourse = () => {
                 </div>
               </div>
               <div class="flex flex-col gap-4 w-1/2">
-              <div class="border flex flex-col border-gray-200 rounded-2xl p-4 gap-4">
-              <CustomInput
-                label="Prerequisites"
-                placeholder="Enter course Prerequisites"
-                icon={search}
-                onValueChange={handleSearchPrerequisites}
-                value={prerequisite}
-                classNames={specialRequirementsChoice === "complex" && "hidden"}
-              />
-              {prerequisite && filteredPrerequisites.length >= 1 && (
-                <>
-                  <div>
-                    <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-200 rounded-2xl p-4 max-w-80">
-                      {filteredPrerequisites.map((prerequisite) => (
-                        <p
-                          onClick={() => {
-                            handleAddPrerequisite(prerequisite);
-                            setFilteredPrerequisites(
-                              courses.filter(
-                                (item) => item !== prerequisite
-                              )
-                            );
-                          }}
-                        >
-                          {prerequisite.id}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-              {selectedPrerequisites.length > 0 &&
-                specialRequirementsChoice !== "complex" && (
-                  <div class="flex flex-row gap-4 ">
-                    {selectedPrerequisites.map((prerequisite) => (
-                      <Tag
-                        text={prerequisite}
-                        onClick={() => handleRemovePrerequisite(prerequisite)}
-                      />
-                    ))}
-                  </div>
-                )}
-
-              <div class="flex gap-4 flex-row">
-                <div class="flex flex-row">
-                  <Checkbox
-                    checked={specialRequirementsChoice === "and"}
-                    onValueChange={() => setSpecialRequirementsChoice("and")}
-                  />
-                  <Text type="paragraph" classNames="mb-2">
-                    And
-                  </Text>
-                </div>
-                <div class="flex flex-row">
-                  <Checkbox
-                    checked={specialRequirementsChoice === "or"}
-                    onValueChange={() => setSpecialRequirementsChoice("or")}
-                  />
-                  <Text type="paragraph" classNames="mb-2">
-                    Or
-                  </Text>
-                </div>
-                <div class="flex flex-row">
-                  <Checkbox
-                    checked={specialRequirementsChoice === "complex"}
-                    onValueChange={() =>
-                      setSpecialRequirementsChoice("complex")
+                <div class="border flex flex-col border-gray-200 rounded-2xl p-4 gap-4">
+                  <CustomInput
+                    label="Prerequisites"
+                    placeholder="Enter course Prerequisites"
+                    icon={search}
+                    onValueChange={handleSearchPrerequisites}
+                    value={prerequisite}
+                    classNames={
+                      specialRequirementsChoice === "complex" && "hidden"
                     }
                   />
-                  <Text type="paragraph" classNames="mb-2">
-                    Complex
-                  </Text>
+                  {prerequisite && filteredPrerequisites.length >= 1 && (
+                    <>
+                      <div>
+                        <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-200 rounded-2xl p-4 max-w-80">
+                          {filteredPrerequisites.map((prerequisite) => (
+                            <p
+                              onClick={() => {
+                                handleAddPrerequisite(prerequisite);
+                                setFilteredPrerequisites(
+                                  courses.filter(
+                                    (item) => item !== prerequisite
+                                  )
+                                );
+                              }}
+                            >
+                              {prerequisite.id}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {selectedPrerequisites.length > 0 &&
+                    specialRequirementsChoice !== "complex" && (
+                      <div class="flex flex-row gap-4 ">
+                        {selectedPrerequisites.map((prerequisite) => (
+                          <Tag
+                            text={prerequisite}
+                            onClick={() =>
+                              handleRemovePrerequisite(prerequisite)
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                  <div class="flex gap-4 flex-row">
+                    <div class="flex flex-row">
+                      <Checkbox
+                        checked={specialRequirementsChoice === "and"}
+                        onValueChange={() =>
+                          setSpecialRequirementsChoice(
+                            specialRequirementsChoice === "and" ? "" : "and"
+                          )
+                        }
+                      />
+                      <Text type="paragraph" classNames="mb-2">
+                        And
+                      </Text>
+                    </div>
+                    <div class="flex flex-row">
+                      <Checkbox
+                        checked={specialRequirementsChoice === "or"}
+                        onValueChange={() =>
+                          setSpecialRequirementsChoice(
+                            specialRequirementsChoice === "or" ? "" : "or"
+                          )
+                        }
+                      />
+                      <Text type="paragraph" classNames="mb-2">
+                        Or
+                      </Text>
+                    </div>
+                    <div class="flex flex-row">
+                      <Checkbox
+                        checked={specialRequirementsChoice === "complex"}
+                        onValueChange={() =>
+                          setSpecialRequirementsChoice(
+                            specialRequirementsChoice === "complex"
+                              ? ""
+                              : "complex"
+                          )
+                        }
+                      />
+                      <Text type="paragraph" classNames="mb-2">
+                        Complex
+                      </Text>
+                    </div>
+                  </div>
+                  <CustomInput
+                    label={"Special Requirements"}
+                    placeholder={"Enter Special Requirements"}
+                    value={specialRequirements}
+                    onValueChange={(value) => setSpecialRequirements(value)}
+                    classNames={specialRequirementsChoice === "" && "hidden"}
+                  />
                 </div>
-              </div>
-              <CustomInput
-                label={"Special Requirements"}
-                placeholder={"Enter Special Requirements"}
-                value={specialRequirements}
-                onValueChange={(value) => setSpecialRequirements(value)}
-              />
-            </div>
                 <CustomInput
                   label="Equivalents"
                   placeholder="Enter Equivalents"
@@ -323,9 +343,7 @@ const EditCourse = () => {
                           onClick={() => {
                             handleAddEquivalent(equivalent);
                             setFilteredEquivalents(
-                              courses.filter(
-                                (item) => item !== equivalent
-                              )
+                              courses.filter((item) => item !== equivalent)
                             );
                           }}
                         >
@@ -336,12 +354,13 @@ const EditCourse = () => {
                   )}
                 </div>
                 <div class="flex flex-row gap-4">
-                  {selectedEquivalents.length >= 1 && selectedEquivalents.map((equivalent) => (
-                    <Tag
-                      text={equivalent}
-                      onClick={() => handleRemoveEquivalent(equivalent)}
-                    />
-                  ))}
+                  {selectedEquivalents.length >= 1 &&
+                    selectedEquivalents.map((equivalent) => (
+                      <Tag
+                        text={equivalent}
+                        onClick={() => handleRemoveEquivalent(equivalent)}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
@@ -352,6 +371,13 @@ const EditCourse = () => {
           <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
+      {showConfirmationModal && (
+        <ConfirmationModal
+          status={"Success"}
+          message="Course updated successfully"
+          onConfirm={-1}
+        />
+      )}
     </Main>
   );
 };
