@@ -111,13 +111,13 @@ const updateCourse = async (req, res) => {
       courseName,
       credits,
       nqfLevel,
-      prerequisites,
-      equivalents,
+      prerequisites = null,
+      equivalents = null,
       bothSemesters,
-      specialRequirement,
+      specialRequirement = null,
     } = req.body;
 
-    // Find the course by ID
+    // 1. Find the course by ID
     const courseExists = await course.findOne({ where: { id: courseID } });
 
     if (!courseExists) {
@@ -127,31 +127,36 @@ const updateCourse = async (req, res) => {
       });
     }
 
-    // Update the special requirements if present
+    // 2. Handle special requirements if present
     let specialRequirements = null;
-    if (
-      specialRequirement &&
-      specialRequirement.condition &&
-      specialRequirement.requirement
-    ) {
-      specialRequirements = `[${specialRequirement.condition}] ${specialRequirement.requirement}`;
+    if (specialRequirement) {
+      if (!prerequisites && specialRequirement.requirement) {
+        // If prerequisites are null, but specialRequirement exists, default to [CX]
+        specialRequirements = `[CX] ${specialRequirement.requirement}`;
+      } else if (
+        specialRequirement.condition &&
+        specialRequirement.requirement
+      ) {
+        specialRequirements = `[${specialRequirement.condition}] ${specialRequirement.requirement}`;
+      }
     }
 
-    // Update the course in the database
-    await course.update(
-      {
-        courseName,
-        credits,
-        nqf_level: nqfLevel,
-        prerequisites,
-        equivalents,
-        bothSemesters,
-        specialRequirements,
-      },
-      {
-        where: { id: courseID },
-      }
-    );
+    // 3. Only update the fields that are provided in the request body
+    const updatedFields = {};
+
+    if (courseName !== undefined) updatedFields.courseName = courseName;
+    if (credits !== undefined) updatedFields.credits = credits;
+    if (nqfLevel !== undefined) updatedFields.nqf_level = nqfLevel;
+    if (prerequisites !== undefined)
+      updatedFields.prerequisites = prerequisites;
+    if (equivalents !== undefined) updatedFields.equivalents = equivalents;
+    if (bothSemesters !== undefined)
+      updatedFields.bothSemesters = bothSemesters;
+    if (specialRequirements !== null)
+      updatedFields.specialRequirements = specialRequirements;
+
+    // 4. Update the course in the database
+    await course.update(updatedFields, { where: { id: courseID } });
 
     return res.status(200).json({
       status: "success",
@@ -273,7 +278,83 @@ const addExisting = async (req, res) => {
   }
 };
 
+const addNewCourse = async (req, res) => {
+  try {
+    const {
+      courseCode,
+      courseName,
+      courseCredits,
+      nqfLevel,
+      prerequisites = null,
+      equivalents = null,
+      specialRequirements = null,
+      bothSemesters,
+      currID = null,
+    } = req.body;
+
+    // 1. Check if the course already exists
+    const existingCourse = await course.findOne({ where: { id: courseCode } });
+    if (existingCourse) {
+      return res.status(409).json({
+        status: "fail",
+        message: "Course already exists with this code.",
+      });
+    }
+
+    // 2. Create the special requirement string if provided
+    let specialRequirementString = null;
+    if (specialRequirements) {
+      // If prerequisites are null and special requirements are provided, mark condition as [CX]
+      if (!prerequisites) {
+        specialRequirementString = `[CX] ${specialRequirements.requirement}`;
+      } else {
+        specialRequirementString = `[${specialRequirements.condition}] ${specialRequirements.requirement}`;
+      }
+    }
+
+    // 3. Create the course
+    const newCourse = await course.create({
+      id: courseCode,
+      courseName,
+      credits: courseCredits,
+      nqf_level: nqfLevel,
+      prerequisites: prerequisites, // Save prerequisites as array (can be null)
+      equivalents: equivalents, // Save equivalents (can be null)
+      specialRequirements: specialRequirementString, // Save special requirements as string (can be null)
+      bothSemesters, // Store boolean for both semesters availability
+    });
+
+    // 4. If currID is provided, link the course to the curriculum
+    if (currID) {
+      const curriculum = await sharedCourse.findOne({
+        where: { [Op.or]: [{ majorID: currID }, { programmeID: currID }] },
+      });
+
+      if (curriculum) {
+        await sharedCourse.create({
+          majorID: curriculum.majorID || null,
+          programmeID: curriculum.programmeID || null,
+          courseID: courseCode,
+        });
+      }
+    }
+
+    // 5. Send a success response
+    return res.status(201).json({
+      status: "success",
+      message: "Course added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding course:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
+  addNewCourse,
   getAllCourses,
   getCourseForEditing,
   updateCourse,
