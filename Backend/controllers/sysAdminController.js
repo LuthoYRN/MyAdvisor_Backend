@@ -1,5 +1,6 @@
 const { ValidationError, Op } = require("sequelize");
 const { sequelize } = require("../db/models");
+const bcrypt = require("bcrypt");
 const {
   advisor,
   student,
@@ -87,4 +88,53 @@ const getAllUsersForAdmin = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsersForAdmin };
+const getCluster = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+    // Fetch advisors in the same faculty who have a null clusterID
+    const eligibleAdvisors = await advisor.findAll({
+      where: {
+        facultyID,
+        advisor_level: "advisor",
+        clusterID: null, // Only include advisors without a cluster
+      },
+      attributes: ["id", "name", "surname", "email"], // Adjust attributes as needed
+    });
+
+    return res.status(200).json({
+      status: "success",
+      data: eligibleAdvisors,
+    });
+  } catch (error) {
+    console.error("Error fetching advisors for cluster add:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getSeniors = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+    const seniors = await advisor.findAll({
+      where: {
+        facultyID,
+        advisor_level: "senior",
+      },
+      attributes: ["id", "name", "surname", "email"],
+    });
+    return res.status(200).json({
+      status: "success",
+      data: seniors,
+    });
+  } catch (error) {
+    console.error("Error fetching seniors for faculty:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { getAllUsersForAdmin, getCluster, getSeniors };
