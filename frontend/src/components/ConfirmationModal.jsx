@@ -12,9 +12,11 @@ const ConfirmationModal = ({ status, message, onConfirm, close }) => {
             <Text type="sm-heading" classNames="mb-4">
               {status}
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <div className="flex max-w-64 flex-wrap">
+            <Text  classNames="mb-8">
                 {message}
             </Text>
+            </div>
             <Button
               text="Close"
               onClick={() => {

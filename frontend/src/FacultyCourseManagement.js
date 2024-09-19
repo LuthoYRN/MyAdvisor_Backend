@@ -32,7 +32,6 @@ const CurriculumManagement = () => {
   const [prerequisiteSearch, setPrerequisiteSearch] = useState("");
   const [filteredPrerequisites, setFilteredPrerequisites] = useState([]);
   const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -56,7 +55,7 @@ const CurriculumManagement = () => {
   const handleDelete = async (id) => {
     try {
       const response = await fetch(
-        `${config.backendUrl}/api/curriculum/${JSON.parse(localStorage.getItem("curriculum")).curriculumID}/courses/${id}`,
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/curriculums/${id}`,
         {
           method: "DELETE",
         }
@@ -65,8 +64,6 @@ const CurriculumManagement = () => {
         throw new Error("Network response was not ok");
       }
       setCourses(courses.filter((course) => courses.id !== course));
-      setShowDeleteModal(false);
-      setShowDeleteConfirmation(true)
     } catch (error) {
       console.error("Error deleting curriculum:", error);
     }
@@ -175,7 +172,7 @@ const CurriculumManagement = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
+        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
       }
       activeMenuItem={"manageMajors"}
     >
@@ -186,7 +183,7 @@ const CurriculumManagement = () => {
             text="+ Add New Course"
             onClick={() =>
               navigate("/addCourse", {
-                state: { curriculumID: JSON.parse(localStorage.getItem("curriculum")).curriculumID, facultyName: location.state.facultyName },
+                state: { curriculumID: JSON.parse(localStorage.getItem("curriculum").curriculumID), facultyName: location.state.facultyName },
               })
             }
           />
@@ -346,13 +343,6 @@ const CurriculumManagement = () => {
             `The course is a prerequisite or special requirement for ${courseDependencies.join(", ")}. Remove the dependencies first.`
           }
          close={() => setShowCourseDependencyModal(false)}
-        />
-      )}
-      {showDeleteConfirmation && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Course deleted successfully."}
-          close={() => setShowDeleteConfirmation(false)}
         />
       )}
     </Main>

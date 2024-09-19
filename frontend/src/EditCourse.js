@@ -177,7 +177,7 @@ const EditCourse = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
       }
     >
       <div class="flex flex-col flex-auto gap-4 p-8 rounded-2xl bg-white shadow-xl">
@@ -265,7 +265,7 @@ const EditCourse = () => {
                   )}
                   {selectedPrerequisites.length > 0 &&
                     specialRequirementsChoice !== "complex" && (
-                      <div class="flex flex-row gap-4 ">
+                      <div class="flex flex-wrap flex-row gap-4 ">
                         {selectedPrerequisites.map((prerequisite) => (
                           <Tag
                             text={prerequisite}
@@ -353,7 +353,7 @@ const EditCourse = () => {
                     </div>
                   )}
                 </div>
-                <div class="flex flex-row gap-4">
+                <div class="flex flex-wrap flex-row gap-4">
                   {selectedEquivalents.length >= 1 &&
                     selectedEquivalents.map((equivalent) => (
                       <Tag
@@ -376,6 +376,7 @@ const EditCourse = () => {
           status={"Success"}
           message="Course updated successfully"
           onConfirm={-1}
+          close={() => setShowConfirmationModal(false)}
         />
       )}
     </Main>

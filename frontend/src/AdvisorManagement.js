@@ -25,7 +25,9 @@ const AdvisorManagement = () => {
   React.useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${config.backendUrl}/api/facultyAdmin/facultyID/courses`);
+        const response = await fetch(
+          `${config.backendUrl}/api/facultyAdmin/facultyID/advisors`
+        );
         const result = await response.json();
         if (result.status === "success") {
           setUsers(result.data);
@@ -52,18 +54,24 @@ const AdvisorManagement = () => {
       accessorKey: "name",
     },
     {
+      header: "Surname",
+      accessorKey: "surname",
+    },
+    {
       header: "Email",
       accessorKey: "email",
     },
     {
-      header: "User Permission",
-      accessorKey: "permission",
+      header: "Office",
+      accessorKey: "office",
+    },
+    {
+      header: "Advior Level",
+      accessorKey: "advisor_level",
     },
   ];
 
   const [searchTerm, setSearchTerm] = React.useState("");
-
-
 
   const [filteredUsers, setFilteredUsers] = React.useState([]);
 
@@ -86,9 +94,10 @@ const AdvisorManagement = () => {
   React.useEffect(() => {
     if (users) {
       setFilteredUsers(
-        users.filter((user) =>
-          user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          (selectedPermission ? user.permission === selectedPermission : true)
+        users.filter(
+          (user) =>
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (selectedPermission ? user.permission === selectedPermission : true)
         )
       );
     }
@@ -118,7 +127,13 @@ const AdvisorManagement = () => {
         />
         <Button text="Add User" onClick={handleAddUser} />
       </div>
-      {filteredUsers.length > 0 && filteredUsers && <Table classNames="" Tabledata={filteredUsers} column={defaultColumns} />}
+      {filteredUsers.length > 0 && filteredUsers && (
+        <Table
+          classNames=""
+          Tabledata={filteredUsers}
+          column={defaultColumns}
+        />
+      )}
       {showAddUserModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl p-8">

@@ -33,6 +33,7 @@ import EditCourse from "./EditCourse";
 import AdvisorManagement from "./AdvisorManagement";
 import FacultyCurriculumManagement from "./FacultyCurriculumManagement";
 import StudentCourses from "./StudentCourses";
+import AddCurriculum from "./AddCurriculum";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -72,6 +73,7 @@ root.render(
       <Route path="/advisorManagement" element={<AdvisorManagement />} />
       <Route path="/facultyCurriculumManagement" element={<FacultyCurriculumManagement />} />
       <Route path="/studentCourses" element={<StudentCourses/>} />
+      <Route path="/addCurriculum" element={<AddCurriculum/>} />
     </Routes>
   </Router>
 );

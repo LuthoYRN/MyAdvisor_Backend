@@ -145,7 +145,7 @@ const AddCourse = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
       }
       activeMenuItem={"manageMajors"}
     >
@@ -339,7 +339,7 @@ const AddCourse = () => {
         <ConfirmationModal
           status="Success"
           message="Course added successfully"
-          onConfirm={"/courseManagement"}
+          onConfirm={-1}
         />
       )}
     </Main>
