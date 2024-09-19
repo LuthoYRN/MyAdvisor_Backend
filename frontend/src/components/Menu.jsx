@@ -55,7 +55,7 @@ const Menu = ({ userType, activeMenuItem }) => {
             />
             <MenuItem
               imageSrc={badge}
-              text="Manage Majors"
+              text="Manage Curriculums"
               isActive={activeMenuItem === "manageMajors"}
               onClick={() => {
                 navigate("/curriculumManagement");
@@ -107,7 +107,7 @@ const Menu = ({ userType, activeMenuItem }) => {
             />
             <MenuItem
               imageSrc={badge}
-              text="Manage Majors"
+              text="Manage Curriculums"
               isActive={activeMenuItem === "manageMajors"}
               onClick={() => {
                 navigate("/curriculumManagement");
@@ -149,6 +149,14 @@ const Menu = ({ userType, activeMenuItem }) => {
                 navigate("/notifications");
               }}
             />
+             <MenuItem
+              imageSrc={rule}
+              text="Manage Courses"
+              isActive={activeMenuItem === "manageCourses"}
+              onClick={() => {
+                navigate("/studentCourses");
+              }}
+            />
           </>
         )}
         {userType === "FacultyAdmin" && (
@@ -167,9 +175,9 @@ const Menu = ({ userType, activeMenuItem }) => {
             />
             <MenuItem
               imageSrc={badge}
-              text="Manage Majors"
+              text="Manage Curriculums"
               isActive={activeMenuItem === "manageMajors"}
-              onClick={() => {navigate("/courseManagement")}}
+              onClick={() => {navigate("/facultyCurriculumManagement")}}
             />
             <MenuItem
               imageSrc={rule}

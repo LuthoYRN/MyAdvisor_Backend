@@ -26,8 +26,10 @@ function App() {
   const navigate = useNavigate();
   const [showRequiredFieldsModal, setShowRequiredFieldsModal] = React.useState(false);
   const [showPasswordMismatchModal, setShowPasswordMismatchModal] = React.useState(false);
-  const [showEmailMiscMatchModal, setEmailMismatchModal] = React.useState(false);
-
+  const [showEmailMismatchModal, setEmailMismatchModal] = React.useState(false);
+  const [showPasswordLengthModal, setPasswordLengthModal] = React.useState(false);
+  const [showEmailInUse, setEmailInUse] = React.useState(false);
+  const [showNameSurname, setNameSurname] = React.useState(false);
 
 
   const handleFacultyChange = (value) => {
@@ -73,20 +75,30 @@ function App() {
         email: email,
         password: password,
         confirmPassword: confirmPassword,
-        majors: selectedMajors.length >=1 ? selectedMajors : null,
+        majors: selectedMajors.length >= 1 ? selectedMajors : null,
         programmeID: programme ? programme : null,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
+
         if (data.status === "fail") {
-          console.log(selectedMajors);
-          alert(data.message);
-          if (data.message === "Invalid email format.") {
+          if (data.message[0] === "Invalid email format.") {
             setEmailMismatchModal(true);
             return;
           }
-
+          if (data.message === "Password should be between 6 and 255 characters long.") {
+            setPasswordLengthModal(true);
+            return;
+          }
+          if (data.message === "Email is already in use") {
+            setEmailInUse(true);
+            return;
+          }
+          if (data.message[0] === "Name must only contain letters." || data.message[1] === "Surname must only contain letters.") {
+            setNameSurname(true);
+            return;
+          }
         } else {
           localStorage.setItem("user_id", data.user_id);
           navigate("/courseSelection");
@@ -311,7 +323,7 @@ function App() {
           </div>
         )}
 
-        {showEmailMiscMatchModal && (
+        {showEmailMismatchModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
             <div className="bg-white rounded-2xl p-8 relative">
               <div className="flex flex-row items-center gap-2 mb-4">
@@ -323,11 +335,61 @@ function App() {
               <Text type="sm-subheading" classNames="mb-8 text-xl">
                 Invalid emaill address. Please try again.
               </Text>
-              <Button text="Close" onClick={() => setShowPasswordMismatchModal(false)} />
+              <Button text="Close" onClick={() => setEmailMismatchModal(false)} />
             </div>
           </div>
         )}
 
+        {showPasswordLengthModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Error
+                </Text>
+              </div>
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Password should be between 6 and 255 characters long.
+              </Text>
+              <Button text="Close" onClick={() => setPasswordLengthModal(false)} />
+            </div>
+          </div>
+        )}
+
+        {showEmailInUse && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Error
+                </Text>
+              </div>
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Email is already in use
+              </Text>
+              <Button text="Close" onClick={() => setEmailInUse(false)} />
+            </div>
+          </div>
+        )}
+
+        {showNameSurname && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Error
+                </Text>
+              </div>
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Name and Surname must only contain letters
+              </Text>
+              <Button text="Close" onClick={() => setNameSurname(false)} />
+            </div>
+          </div>
+        )}
       </Container>
     </div>
   );

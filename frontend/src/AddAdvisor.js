@@ -7,6 +7,8 @@ import Select from "./components/Select.jsx";
 import Checkbox from "./components/Checkbox.jsx";
 import Tag from "./components/Tag.jsx";
 import search from "./assets/search.svg";
+import config from "./config.js";
+import { useNavigate } from "react-router-dom";
 
 /*
     Data Needed:
@@ -17,43 +19,121 @@ import search from "./assets/search.svg";
 
 const AddAdvisor = () => {
   // Mock data Need to give list of faculties and departments
-  const faculties = [
-    "Science",
-    "Engineering",
-    "Humanities",
-    "Commerce",
-    "Health Sciences",
-  ];
+ 
+const [faculties, setFaculties] = React.useState([]);
+const [seniorAdvisors, setSeniorAdvisors] = React.useState([]);
+const [Faculty, setSelectedFaculty] = React.useState("");
+let navigate = useNavigate();
 
-  const seniorAdvisor = [
-    ["John Doe", "Computer Science"],
-    ["Jane Doe", "Mathematics"],
-    ["James Doe", "Physics"],
-    ["Jill Doe", "Chemistry"],
-    ["Jack Doe", "Biology"],
-    ["Jenny Doe", "English"],
-    ["Jared Doe", "History"],
-    ["Jasmine Doe", "Geography"],
-    ["Micheal Doe", "Mechanical Engineering"],
-    ["Micheal Doe", "Civil Engineering"],
-    ["Micheal Doe", "Electrical Engineering"],
-    ["Micheal Doe", "Chemical Engineering"],
-    ["Micheal Doe", "Industrial Engineering"],
-    ["Micheal Doe", "Mining Engineering"],
-    ["Micheal Doe", "Geology"],
-    ["Micheal Doe", "Economics"],
-    ["Micheal Doe", "Business Management"],
-    ["Micheal Doe", "Marketing"],
-    ["Micheal Doe", "Finance"],
-    ["Micheal Doe", "Accounting"],
-    ["Micheal Doe", "Human Resources"],
-  ];
+React.useEffect(() => {
+  const fetchFaculties = async () => {
+    try {
+      const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor`);
+      const data = await response.json();
+      if (data.status === "success") {
+        setFaculties(data.data);
+        console.log("Faculties:", faculties);
+      }
+    } catch (error) {
+      console.error("Error fetching faculties:", error);
+    }
+  };
 
+  fetchFaculties();
+}, []);
+
+React.useEffect(() => {
+  // Fetch faculties and senior advisors data
+  const fetchFacultiesAndAdvisors = async () => {
+    try {
+      const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}/senior`);
+      const data = await response.json();
+      if (data.status === "success") {
+        setSeniorAdvisors(data.data);
+        // Assuming faculties are part of the response or fetched from another endpoint
+        setFaculties(["Faculty of Science", "Faculty of Engineering"]); // Example faculties
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  fetchFacultiesAndAdvisors();
+}, []);
+
+React.useEffect(() => {
+  if (Faculty) {
+    const fetchJuniorAdvisors = async () => {
+      try {
+        const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}/junior`);
+        const data = await response.json();
+        if (data.status === "success") {
+          setJuniorAdvisors(data.data.map(advisor => `${advisor.name} ${advisor.surname}`));
+        }
+      } catch (error) {
+        console.error("Error fetching junior advisors:", error);
+      }
+    };
+
+    fetchJuniorAdvisors();
+  }
+}, [Faculty]);
+
+React.useEffect(() => {
+  if (Faculty) {
+    const fetchMajors = async () => {
+      try {
+        const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`);
+        const data = await response.json();
+        if (data.status === "success") {
+          setFilteredSeniorAdvisors(data.data.map(major => [major.majorName, major.id]));
+        }
+      } catch (error) {
+        console.error("Error fetching majors:", error);
+      }
+    };
+
+    fetchMajors();
+  }
+}, [Faculty]);
+
+const handleAddAdmin = async () => {
+  const advisorData = {
+    name: Name,
+    surname: Surname,
+    email: Email,
+    faculty: Faculty,
+    advisorType: advisorType,
+    equivalents: equivalents,
+    juniorAdvisors: selectedJuniorAdvisors,
+  };
+
+  try {
+    const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(advisorData),
+    });
+
+    const data = await response.json();
+    if (data.status === "success") {
+      console.log("Advisor added successfully:", data);
+      // Optionally, reset form or give feedback to the user
+    } else {
+      console.error("Error adding advisor:", data.message);
+    }
+  } catch (error) {
+    console.error("Error adding advisor:", error);
+  }
+};
+  
   const [Name, setName] = React.useState("");
   const [Surname, setSurname] = React.useState("");
   const [Email, setEmail] = React.useState("");
 
-  const [Faculty, setSelectedFaculty] = React.useState("");
+  
   const [advisorType, setAdvisorType] = React.useState("");
   const [equivalents, setEquivalents] = React.useState("");
   const [juniorAdvisors, setJuniorAdvisors] = React.useState([]);
@@ -67,7 +147,6 @@ const AddAdvisor = () => {
     []
   );
 
-  const handleAddAdmin = () => {};
 
   const handleAddAdvisor = (juniorAdvisor) => {
     setSelectedJuniorAdvisors([...selectedJuniorAdvisors, juniorAdvisor]);
@@ -110,10 +189,11 @@ const AddAdvisor = () => {
               <Select
                 label="Faculty"
                 options={faculties.map((item) => ({
-                  value: item,
-                  label: item,
+                  value: item.id,
+                  label: item.facultyName,
                 }))}
                 value={Faculty}
+                onChange={(value) => {setSelectedFaculty(value)}}
               />
 
               <div className="flex flex-col gap-4">
@@ -140,7 +220,7 @@ const AddAdvisor = () => {
             </div>
             <div className="flex flex-row gap-8 max-w-md">
               <Button text="Save" onClick={handleAddAdmin} />
-              <Button text="Back" type="secondary" />
+              <Button text="Back" onClick={()=>navigate(-1)} type="secondary" />
             </div>
           </div>
           <div className="flex flex-col gap-4 w-5/12">

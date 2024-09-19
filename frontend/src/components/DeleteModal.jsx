@@ -3,7 +3,7 @@ import Text from "./Text";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 
-const ConfirmationModal = ({ status, message, returnMessage }) => {
+const DeleteModal = ({ status, message, returnMessage }) => {
   let navigate = useNavigate();
 
   return (
@@ -37,4 +37,4 @@ const ConfirmationModal = ({ status, message, returnMessage }) => {
   );
 };
 
-export default ConfirmationModal;
+export default DeleteModal;

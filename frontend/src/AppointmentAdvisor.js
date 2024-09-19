@@ -18,7 +18,7 @@ Data Needed:
 
 const Appointment = () => {
   const [advisors, setAdvisors] = React.useState([]);
-  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [activeIndex, setActiveIndex] = React.useState(null);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
   const [loading, setLoading] = React.useState(true); // Initial state is true, indicating data is loading
   const [showErrorModal, setShowErrorModal] = React.useState(false);

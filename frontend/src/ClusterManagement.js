@@ -334,6 +334,9 @@ const UserManagement = () => {
                 />
               </div>
             )}
+            <div class="flex flex-row gap-4 mt-8">
+            
+              
             <Button
               text="Add"
               onClick={() => {
@@ -341,6 +344,8 @@ const UserManagement = () => {
                 setShowAddUserModal(false);
                 }}
                 />
+                <Button text="Cancel" onClick={()=> setShowAddUserModal(false)} />
+                </div>
                 </div>
               </div>
               )}
@@ -430,7 +435,7 @@ const UserManagement = () => {
         showConfirmationModal && (
           <ConfirmationModal
             status={"Success"}
-            message="Curriculum added to the cluster successfully."
+            message="Advisor added to the cluster successfully."
             close={()=>{setShowConfirmationModal(false)}}
           />
         )

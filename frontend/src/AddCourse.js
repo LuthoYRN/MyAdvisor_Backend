@@ -108,7 +108,10 @@ const AddCourse = () => {
       nqfLevel,
       specialRequirements:
         specialRequirements && specialRequirementsChoice
-          ? specialRequirements
+          ? {
+            condition: specialRequirementsChoice,
+            requirement: specialRequirements,
+          }
           : null,
       bothSemesters: availableBoth,
       prerequisites:
@@ -142,7 +145,7 @@ const AddCourse = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
       }
       activeMenuItem={"manageMajors"}
     >
@@ -164,7 +167,6 @@ const AddCourse = () => {
               value={courseCode}
               onValueChange={setCourseCode}
             />
-
             <CustomInput
               label="Course Credits"
               placeholder="Enter course credits"
@@ -178,13 +180,24 @@ const AddCourse = () => {
               onValueChange={setNqfLevel}
               numeric={true}
             />
+            <Select
+              label="Faculty"
+              options={[
+                { value: "science", label: "Science" },
+                { value: "arts", label: "Arts" },
+                { value: "commerce", label: "Commerce" },
+                // Add more options as needed
+              ]}
+              value={faculty}
+              onValueChange={setFaculty}
+            />
             <div class="flex flex-row">
               <Checkbox
                 checked={availableBoth}
                 onValueChange={() => setAvailableBoth(!availableBoth)}
               />
               <Text type="paragraph" classNames="mb-2">
-                Available both semesers
+                Available both semesters
               </Text>
             </div>
           </div>
@@ -201,7 +214,7 @@ const AddCourse = () => {
               {prerequisite && filteredPrerequisites.length >= 1 && (
                 <>
                   <div>
-                    <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-400 rounded-2xl p-4 max-w-80">
+                    <div class="absolute z-20 max-h-60 overflow-y-auto bg-gray-200 rounded-2xl p-4 max-w-80">
                       {filteredPrerequisites.map((prerequisite) => (
                         <p
                           onClick={() => {
@@ -231,12 +244,15 @@ const AddCourse = () => {
                     ))}
                   </div>
                 )}
-
               <div class="flex gap-4 flex-row">
                 <div class="flex flex-row">
                   <Checkbox
                     checked={specialRequirementsChoice === "and"}
-                    onValueChange={() => setSpecialRequirementsChoice("and")}
+                    onValueChange={() =>
+                      setSpecialRequirementsChoice(
+                        specialRequirementsChoice === "and" ? "" : "and"
+                      )
+                    }
                   />
                   <Text type="paragraph" classNames="mb-2">
                     And
@@ -245,7 +261,11 @@ const AddCourse = () => {
                 <div class="flex flex-row">
                   <Checkbox
                     checked={specialRequirementsChoice === "or"}
-                    onValueChange={() => setSpecialRequirementsChoice("or")}
+                    onValueChange={() =>
+                      setSpecialRequirementsChoice(
+                        specialRequirementsChoice === "or" ? "" : "or"
+                      )
+                    }
                   />
                   <Text type="paragraph" classNames="mb-2">
                     Or
@@ -255,7 +275,9 @@ const AddCourse = () => {
                   <Checkbox
                     checked={specialRequirementsChoice === "complex"}
                     onValueChange={() =>
-                      setSpecialRequirementsChoice("complex")
+                      setSpecialRequirementsChoice(
+                        specialRequirementsChoice === "complex" ? "" : "complex"
+                      )
                     }
                   />
                   <Text type="paragraph" classNames="mb-2">
@@ -268,6 +290,7 @@ const AddCourse = () => {
                 placeholder={"Enter Special Requirements"}
                 value={specialRequirements}
                 onValueChange={(value) => setSpecialRequirements(value)}
+                classNames={specialRequirementsChoice ? "" : "hidden"}
               />
             </div>
             <CustomInput
@@ -316,7 +339,7 @@ const AddCourse = () => {
         <ConfirmationModal
           status="Success"
           message="Course added successfully"
-          onConfirm={"/courseManagement"}
+          onConfirm={-1}
         />
       )}
     </Main>
