@@ -60,11 +60,10 @@ function Login() {
         // Handle the response from the API
         if (result.status === "fail") {
           // Display a specific error based on the failure reason
-          console.log(result.message);
           if (result.message === "Incorrect email or password") {
             setPasswordError("Incorrect password");
           } else if (result.message === "User not found") {
-            setUsernameError("Incorrect username");
+            setUsernameError("User not found");
           } else {
             setUsernamePasswordError("Login failed, please try again.");
           }
