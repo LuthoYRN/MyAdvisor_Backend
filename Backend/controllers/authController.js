@@ -220,21 +220,39 @@ const signup = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during signup:", error.message);
+
     if (error.name === "SequelizeValidationError") {
-      const validationErrors = error.errors.map((err) => err.message);
-      const fieldErrors = error.errors.map((err) => err.path);
+      const validationErrors = error.errors.map((err) => err.message); // Collect the error messages
+      const fieldErrors = error.errors.map((err) => err.path); // Collect which fields caused the error
 
       let message = [];
 
       if (fieldErrors.includes("name")) {
-        message.push("Name cannot be empty.");
+        const nameError = validationErrors.find((msg) =>
+          msg.includes("must only contain letters")
+        );
+        if (nameError) {
+          message.push("Name must only contain letters.");
+        } else {
+          message.push("Name cannot be empty.");
+        }
       }
+
       if (fieldErrors.includes("surname")) {
-        message.push("Surname cannot be empty.");
+        const surnameError = validationErrors.find((msg) =>
+          msg.includes("must only contain letters")
+        );
+        if (surnameError) {
+          message.push("Surname must only contain letters.");
+        } else {
+          message.push("Surname cannot be empty.");
+        }
       }
+
       if (fieldErrors.includes("email")) {
         message.push("Invalid email format.");
       }
+
       return res.status(400).json({
         status: "fail",
         message: message,
@@ -247,7 +265,6 @@ const signup = async (req, res) => {
     });
   }
 };
-
 // Login function
 const login = async (req, res) => {
   try {

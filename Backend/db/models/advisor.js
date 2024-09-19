@@ -42,6 +42,15 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: {
             msg: "Name cannot be empty", // Custom validation message
           },
+          isAlphaOnly(value) {
+            // Custom validator to check if the name contains any numeric values
+            const regex = /^[A-Za-z\s]+$/;
+            if (!regex.test(value)) {
+              throw new Error(
+                "Name must only contain letters and spaces (no numbers)."
+              );
+            }
+          },
         },
         type: DataTypes.STRING,
         allowNull: false,
@@ -50,6 +59,15 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           notEmpty: {
             msg: "Surname cannot be empty", // Custom validation message
+          },
+          isAlphaOnly(value) {
+            // Custom validator to check if the name contains any numeric values
+            const regex = /^[A-Za-z\s]+$/;
+            if (!regex.test(value)) {
+              throw new Error(
+                "Surname must only contain letters and spaces (no numbers)."
+              );
+            }
           },
         },
         type: DataTypes.STRING,
