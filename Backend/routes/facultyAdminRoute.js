@@ -18,7 +18,8 @@ router
 //adding curriculum
 router
   .route("/:facultyID/curriculums/add")
-  .get(facultyAdminController.getDepartments)//.post(facultyAdminController.addCurriculum);
+  .get(facultyAdminController.getDepartments);
+  //.post(facultyAdminController.addCurriculum);
 //all courses in the system
 router
   .route("/:facultyID/courses")
