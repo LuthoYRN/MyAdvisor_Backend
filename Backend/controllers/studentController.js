@@ -469,7 +469,9 @@ const getAdvisorsForStudent = async (req, res) => {
         const advisorID = ap.advisor.uuid;
 
         if (advisorProgrammeMap[advisorID]) {
-          advisorProgrammeMap[advisorID].programmes.push(ap.programme.programmeName);
+          advisorProgrammeMap[advisorID].programmes.push(
+            ap.programme.programmeName
+          );
         } else {
           advisorProgrammeMap[advisorID] = {
             uuid: ap.advisor.uuid,
@@ -566,7 +568,6 @@ const getAdvisorsForStudent = async (req, res) => {
   }
 };
 
-
 //API call to get an advisor's available times based on queried date
 const getAdvisorAvailability = async (req, res) => {
   try {
@@ -634,10 +635,25 @@ const getAdvisorAvailability = async (req, res) => {
       moment(time, "HH:mm:ss").format("HH:mm")
     );
 
+    // Get current time only if the date is today
+    const isToday = moment().isSame(parsedDate, "day");
+    let currentTime = null;
+    if (isToday) {
+      currentTime = moment().format("HH:mm");
+    }
+
     // Filter available times by removing already booked times
-    const availableTimes = availabilities.times.filter(
-      (time) => !bookedTimes.includes(time)
-    );
+    const availableTimes = availabilities.times.filter((time) => {
+      const formattedTime = moment(time, "HH:mm").format("HH:mm");
+      const isTimeAvailable = !bookedTimes.includes(formattedTime);
+
+      // Exclude times before the current time if it's today
+      if (isToday && formattedTime <= currentTime) {
+        return false;
+      }
+
+      return isTimeAvailable;
+    });
 
     return res.status(200).json({
       status: "success",
@@ -669,21 +685,22 @@ const bookAppointment = async (req, res) => {
         .json({ status: "fail", message: "Student or Advisor not found" });
     }
 
-    // Check if the student has already booked an appointment with the advisor on the same date
+    // Get the current date in the format "YYYY-MM-DD"
+    const currentDate = moment().format("YYYY-MM-DD");
+
+    // Check if the student has a confirmed appointment on or after the current date
     const existingStudentAppointment = await appointment.findOne({
       where: {
         studentID: theStudent.id,
-        advisorID: theAdvisor.id,
-        date, // Same day
-        status: { [Op.not]: "Rejected" }, // Ignore rejected appointments
+        date: { [Op.gte]: currentDate }, // On or after the current date
+        status: "Confirmed", // Only confirmed appointments
       },
     });
 
     if (existingStudentAppointment) {
       return res.status(400).json({
         status: "fail",
-        message:
-          "You have already booked an appointment with this advisor on the same day.",
+        message: "You already have a confirmed appointment.",
       });
     }
     // Check if there's an existing appointment at the same date and time
