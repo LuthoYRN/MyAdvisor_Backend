@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         validate: {
-          isIn: [["BBuSci", "BCom", "BscEng", "BSc", "BAS"]],
+          isIn: [["BBusSci", "BCom", "BscEng", "BSc", "BAS"]],
         },
       },
       programmeName: {

@@ -294,6 +294,85 @@ const getDepartments = async (req, res) => {
   }
 };
 
+// Controller to add a new curriculum (major/programme) to a faculty
+const addCurriculum = async (req, res) => {
+  try {
+    const { facultyID } = req.params;
+    const { curriculumID, curriculumName, departmentID } = req.body;
+    const facultyExists = await faculty.findOne({
+      where: { id: facultyID },
+    });
+    const curriculumType = facultyExists.curriculumType;
+    // Validate departmentID
+    const departmentExists = await department.findOne({
+      where: { id: departmentID, facultyID },
+    });
+
+    if (!departmentExists) {
+      return res.status(404).json({
+        status: "fail",
+        message:
+          "Department not found or does not belong to the specified faculty.",
+      });
+    }
+
+    let newCurriculum;
+
+    // Handle Major addition
+    if (curriculumType === "Major") {
+      // Validate required fields for Major
+      if (!curriculumName) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Major name is required.",
+        });
+      }
+
+      // Create a new Major
+      newCurriculum = await major.create({
+        id:curriculumID, // Major ID
+        majorName:curriculumName,
+        departmentID,
+      });
+    }
+
+    // Handle Programme addition
+    else if (curriculumType === "Programme") {
+      const { prefix, electiveCreditCount } = req.body; // Expect these fields for Programme
+      // Validate required fields for Programme
+      if (!curriculumName || !prefix || !electiveCreditCount) {
+        return res.status(400).json({
+          status: "fail",
+          message:
+            "Programme name, prefix, and elective credit count are required.",
+        });
+      }
+
+      // Create a new Programme
+      newCurriculum = await programme.create({
+        id: curriculumID, // Programme ID
+        prefix,
+        programmeName: curriculumName,
+        electiveCreditCount,
+        departmentID,
+      });
+    }
+
+    // Return success response
+    return res.status(201).json({
+      status: "success",
+      message: `${curriculumType} added successfully to the faculty.`,
+      data: newCurriculum,
+    });
+  } catch (error) {
+    console.error("Error adding curriculum:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   updateProfilePicture,
   getFacultyAdminDashboard,
@@ -301,5 +380,5 @@ module.exports = {
   getCurriculumsByFaculty,
   getAdvisorsByFaculty,
   getDepartments,
-  
+  addCurriculum,
 };
