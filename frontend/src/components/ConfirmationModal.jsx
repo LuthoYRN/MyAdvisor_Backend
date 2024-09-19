@@ -21,7 +21,7 @@ const ConfirmationModal = ({ status, message, onConfirm, close }) => {
               text="Close"
               onClick={() => {
                 navigate(onConfirm);
-                close();
+                close && close();
               }}
             />
           </div>

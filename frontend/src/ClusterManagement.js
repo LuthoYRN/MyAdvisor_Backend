@@ -435,7 +435,7 @@ const UserManagement = () => {
         showConfirmationModal && (
           <ConfirmationModal
             status={"Success"}
-            message="Curriculum added to the cluster successfully."
+            message="Advisor added to the cluster successfully."
             close={()=>{setShowConfirmationModal(false)}}
           />
         )
