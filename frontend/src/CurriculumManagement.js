@@ -106,6 +106,8 @@ const CurriculumManagement = () => {
       ) : null}
       {showDeleteModal && (
         <DeleteModal
+        message={`Are you sure you want to delete ${curriculums.find(c => c.curriculumID === workingID).curriculumName}`}
+        
           returnMessage={(status) => {
             if (status === "yes") {
               handleDelete(workingID);

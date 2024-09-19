@@ -372,7 +372,7 @@ const UserManagement = () => {
                 setCurriculumSearch(value);
                 setFilteredCourses(
                   courses.filter((course) =>
-                  course.id.toLowerCase().includes(value.toLowerCase())
+                  course.majorName.toLowerCase().includes(value.toLowerCase())
                   )
                 );
                 }}
@@ -390,7 +390,7 @@ const UserManagement = () => {
                     setCurriculumSearch("");
                     }}
                   >
-                    {course.id}
+                    {course.majorName}
                   </p>
                   ))}
                 </div>
@@ -401,7 +401,7 @@ const UserManagement = () => {
                 {selectedCourses.map((course) => (
                   <Tag
                   key={course.id}
-                  text={course.id}
+                  text={course.majorName}
                   onClick={() =>
                     setSelectedCourses(
                     selectedCourses.filter((c) => c.id !== course.id)

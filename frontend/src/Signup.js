@@ -1,13 +1,14 @@
-import "./App.css";
 import React from "react";
-import CustomInput from "./components/CustomInput";
-import Button from "./components/Button";
-import Container from "./layout/Container";
-import Text from "./components/Text";
-import image from "./assets/advisor.png";
-import Select from "./components/Select";
-import config from "./config";
+import { FaTimesCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import "./App.css";
+import image from "./assets/advisor.png";
+import Button from "./components/Button";
+import CustomInput from "./components/CustomInput";
+import Select from "./components/Select";
+import Text from "./components/Text";
+import config from "./config";
+import Container from "./layout/Container";
 
 function App() {
   const [firstName, setFirstName] = React.useState("");
@@ -22,9 +23,17 @@ function App() {
   const [thirdMajor, setThirdMajor] = React.useState("");
   const [curriculums, setCurriculums] = React.useState([]);
   const navigate = useNavigate();
+  const [showRequiredFieldsModal, setShowRequiredFieldsModal] = React.useState(false);
+  const [showPasswordMismatchModal, setShowPasswordMismatchModal] = React.useState(false);
+  const [showEmailMiscMatchModal, setEmailMismatchModal] = React.useState(false);
+
+
 
   const handleFacultyChange = (value) => {
     setFaculty(value);
+    setFirstMajor(null);
+    setSecondMajor(null);
+    setThirdMajor(null);
     const fetchMajors = async (facultyID) => {
       try {
         const response = await fetch(
@@ -69,7 +78,13 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === "fail") {
-          console.error(data.message);
+          console.log(selectedMajors);
+          alert(data.message);
+          if (data.message === "Invalid email format.") {
+            setEmailMismatchModal(true);
+            return;
+          }
+
         } else {
           localStorage.setItem("user_id", data.user_id);
           navigate("/courseSelection");
@@ -212,10 +227,10 @@ function App() {
           ) : curriculums ? (
             <Select
               label={"Curriculum"}
-              options={[ { value: "", label: "Select Curriculum" },...curriculums.map((curriculum) => ({
-                  value: curriculum.id,
-                  label: curriculum.programmeName,
-                }))
+              options={[{ value: "", label: "Select Curriculum" }, ...curriculums.map((curriculum) => ({
+                value: curriculum.id,
+                label: curriculum.programmeName,
+              }))
               ]}
               onChange={(value) => setThirdMajor(value)}
               classNames={"mb-2"}
@@ -239,15 +254,13 @@ function App() {
                   !password ||
                   !confirmPassword ||
                   !faculty ||
-                  selectedMajors.length < 2 // Ensure at least two majors are selected
+                  selectedMajors.length < 1 // Ensure at least two majors are selected
                 ) {
-                  alert(
-                    "Please fill in all required fields and select at least two majors."
-                  );
+                  setShowRequiredFieldsModal(true);
                   return;
                 }
                 if (password !== confirmPassword) {
-                  alert("Passwords do not match.");
+                  setShowPasswordMismatchModal(true);
                   return;
                 }
                 handleRegister();
@@ -261,6 +274,58 @@ function App() {
           src={image}
           alt="advisor"
         />
+
+        {showRequiredFieldsModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Error
+                </Text>
+              </div>
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Please fill in all required fields.
+              </Text>
+              <Button text="Close" onClick={() => setShowRequiredFieldsModal(false)} />
+            </div>
+          </div>
+        )}
+
+        {showPasswordMismatchModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Error
+                </Text>
+              </div>
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Passwords do not match. Please try again.
+              </Text>
+              <Button text="Close" onClick={() => setShowPasswordMismatchModal(false)} />
+            </div>
+          </div>
+        )}
+
+        {showEmailMiscMatchModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaTimesCircle className="text-red-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Error
+                </Text>
+              </div>
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Invalid emaill address. Please try again.
+              </Text>
+              <Button text="Close" onClick={() => setShowPasswordMismatchModal(false)} />
+            </div>
+          </div>
+        )}
+
       </Container>
     </div>
   );
