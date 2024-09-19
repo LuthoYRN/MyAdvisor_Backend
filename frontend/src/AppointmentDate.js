@@ -2,12 +2,12 @@ import React from "react";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button";
+import ConfirmationModal from "./components/ConfirmationModal";
 import Pill from "./components/Pill";
 import Text from "./components/Text";
 import CustomCalendar from "./components/customCalendar";
 import config from "./config";
 import Main from "./layout/Main";
-import ConfirmationModal from "./components/ConfirmationModal";
 /*
 Data Needed:
 - Student Name
@@ -27,6 +27,7 @@ const AppointmentDate = () => {
   const [selectedIndex, setSelectedIndex] = React.useState();
   const [availableTime, setAvailableSlots] = React.useState([]);
   const [loadingTimes, setLoadingTimes] = React.useState(false); // State to track loading status of time slots
+  const [alreadyMadeBooking, setAlreadyMadeBooking] = React.useState(false);
 
   let navigate = useNavigate();
   let location = useLocation();
@@ -36,44 +37,46 @@ const AppointmentDate = () => {
   };
 
   const handleCloseModal = () => {
-  setShowConfirmationModal(false);
-  setShowSuccessModal(false);
-  
-  const handleConfirmationModal = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("date", date); // Add date
-      formData.append("time", selectedTime); // Add selected time
-      formData.append("comment", location.state.adviceRequired); // Add comment
+    setShowConfirmationModal(false);
+    setShowSuccessModal(false);
+    setAlreadyMadeBooking(false);
 
-      // If a file was uploaded, append the file to the formData
-      if (location.state.file && location.state.file.length > 0) {
-        formData.append("document", location.state.file[0]); // Only append the first file
-      }
-      // Make the POST request
-      const response = await fetch(
-        `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
-        {
-          method: "POST",
-          headers: {
-            "ngrok-skip-browser-warning": "69420", // Custom header if needed for ngrok
-          },
-          body: formData, // Pass the formData
+    const handleConfirmationModal = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("date", date); // Add date
+        formData.append("time", selectedTime); // Add selected time
+        formData.append("comment", location.state.adviceRequired); // Add comment
+
+        // If a file was uploaded, append the file to the formData
+        if (location.state.file && location.state.file.length > 0) {
+          formData.append("document", location.state.file[0]); // Only append the first file
         }
-      );
+        // Make the POST request
+        const response = await fetch(
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/${location.state.advisor.uuid}/appointment/availability`,
+          {
+            method: "POST",
+            headers: {
+              "ngrok-skip-browser-warning": "69420", // Custom header if needed for ngrok
+            },
+            body: formData, // Pass the formData
+          }
+        );
 
-      if (response.ok) {
-        setShowSuccessModal(true); // Show success modal
-      } else {
-        <ConfirmationModal status={"Error"} message={response.status} onConfirm={"/appointmentDate"}/>
+        if (response.ok) {
+          setShowSuccessModal(true); // Show success modal
+        } else {
+          setAlreadyMadeBooking(true);
+          <ConfirmationModal status={"Error"} message={response.status} onConfirm={"/appointmentDate"} />
+        }
+      } catch (error) {
+        console.error("Error booking appointment:", error);
       }
-    } catch (error) {
-      console.error("Error booking appointment:", error);
-    }
-  };
+    };
 
-  handleConfirmationModal();
-};
+    handleConfirmationModal();
+  };
 
   const handleDateSelect = (date) => {
     // Save the date to the database
@@ -248,8 +251,6 @@ const AppointmentDate = () => {
                 Error
               </Text>
             </div>
-
-
             <Text type="sm-subheading" classNames="mb-8 text-xl">
               Please select a time slot to confirm the appointment
             </Text>
@@ -257,6 +258,24 @@ const AppointmentDate = () => {
           </div>
         </div>
       )}
+
+      {alreadyMadeBooking && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaTimesCircle className="text-red-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
+              You already have a meeting scheduled meeting.
+            </Text>
+            <Button text="Close" onClick={() => navigate("/dashboard")} />
+          </div>
+        </div>
+      )}
+
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8 relative">
