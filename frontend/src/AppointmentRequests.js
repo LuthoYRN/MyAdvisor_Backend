@@ -124,6 +124,7 @@ const AppointmentRequests = () => {
           profile_url={`${JSON.parse(localStorage.getItem("userData")).advisor.profile_url}`}
           user={`${JSON.parse(localStorage.getItem("userData")).advisor.name}`}
           info={JSON.parse(localStorage.getItem("userData")).advisor.office}
+          user_type={"Advisor"}
         />
       </div>
       <div className="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">

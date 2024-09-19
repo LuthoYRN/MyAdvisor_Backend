@@ -15,6 +15,7 @@ import { set } from "date-fns";
 
 const CurriculumManagement = () => {
   const [courses, setCourses] = useState(null);
+  const [allCourses, setAllCourses] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [workingID, setWorkingID] = useState(null);
   let navigate = useNavigate();
@@ -96,6 +97,7 @@ const CurriculumManagement = () => {
         }
         const data = await response.json();
         setFilteredCourses(data.data);
+        setAllCourses(data.data);
       } catch (error) {
         console.error("Error fetching filtered courses:", error);
       }
@@ -233,7 +235,7 @@ const CurriculumManagement = () => {
               onValueChange={(value) => {
               setCourseSearch(value);
               setFilteredCourses(
-                courses.filter((course) =>
+                allCourses.filter((course) =>
                 course.id.toLowerCase().includes(value.toLowerCase())
                 )
               );
@@ -241,14 +243,15 @@ const CurriculumManagement = () => {
             />
             <div>
               {courseSearch && filteredCourses.length >= 1 && (
-              <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48">
-                {filteredCourses.map((course) => (
+              <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
+                {filteredCourses.map((course, index) => (
                 <p
                   onClick={() => {
                   setSelectedCourses([course]);
                   setFilteredCourses([]);
                   setCourseSearch("");
                   }}
+                  key={index}
                 >
                   {course.id}
                 </p>
@@ -272,7 +275,7 @@ const CurriculumManagement = () => {
               onValueChange={(value) => {
                 setPrerequisiteSearch(value);
                 setFilteredPrerequisites(
-                  courses.filter((course) =>
+                  allCourses.filter((course) =>
                     course.id.toLowerCase().includes(value.toLowerCase())
                   )
                 );
@@ -321,6 +324,8 @@ const CurriculumManagement = () => {
                   setShowAddExistingCourseModal(false);
                   setCourseSearch("");
                   setPrerequisiteSearch("");
+                  setSelectedPrerequisites([]);
+                  setSelectedCourses([]);
                 }}
               />
             </div>

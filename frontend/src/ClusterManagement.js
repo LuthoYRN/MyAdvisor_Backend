@@ -340,30 +340,30 @@ const UserManagement = () => {
                 handleAddAdvisorToCluster();
                 setShowAddUserModal(false);
                 }}
-              />
+                />
+                </div>
               </div>
-            </div>
-            )}
-            {showDeleteModal && (
-            <DeleteModal
-              message={`Are you sure you want to remove: ${workingID}`}
-              returnMessage={(message) =>
-              message === "yes"
+              )}
+              {showDeleteModal && (
+              <DeleteModal
+                message={`Are you sure you want to remove: ${users.find(user => user.uuid === workingID)?.name || 'this advisor'}`}
+                returnMessage={(message) =>
+                message === "yes"
                 ? handleRemoveUser(workingID)
                 : setShowDeleteModal(false)
-              }
-            />
-            )}
-            {showEditAdvisorModal && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white rounded-2xl p-8">
-              <Text type="sm-heading" classNames="mb-4">
+                }
+              />
+              )}
+              {showEditAdvisorModal && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-2xl p-8">
+                <Text type="sm-heading" classNames="mb-4">
                 Add or Remove Curriculums Advised
-              </Text>
-              <Text type="sm-subheading" classNames="mb-8">
+                </Text>
+                <Text type="sm-subheading" classNames="mb-8">
                 Select which curriculums you want to add or remove
-              </Text>
-              <CustomInput
+                </Text>
+                <CustomInput
                 label="Curriculums Name"
                 placeholder="Enter Curriculums Name"
                 icon={search}
