@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Text from "./Text";
 
 const FileUploader = ({handleFile}) => {
   const [files, setFiles] = useState(null);
@@ -10,6 +11,12 @@ const FileUploader = ({handleFile}) => {
       setFiles(e.target.files);
       handleFile(e.target.files);
     }
+  };
+
+  const handleRemoveFile = (index) => {
+    const newFiles = Array.from(files);
+    newFiles.splice(index, 1);
+    setFiles(newFiles.length > 0 ? newFiles : null);
   };
 
   return (
@@ -52,18 +59,16 @@ const FileUploader = ({handleFile}) => {
             key={file.name}
             className="mb-4 p-4 bg-gray-100 rounded shadow"
           >
-            <h3 className="font-bold">File number {index + 1} details:</h3>
+            <Text type="sm-heading">File details:</Text>
             <ul className="list-disc list-inside">
-              <li>
-                <strong>Name:</strong> {file.name}
-              </li>
-              <li>
-                <strong>Type:</strong> {file.type}
-              </li>
-              <li>
-                <strong>Size:</strong> {file.size} bytes
-              </li>
+              <Text>Name: {file.name}</Text>
             </ul>
+            <button
+              onClick={() => handleRemoveFile(index)}
+              className="mt-2 text-red-600 hover:text-red-800"
+            >
+              Remove
+            </button>
           </section>
         ))}
       <Result status={status} />
