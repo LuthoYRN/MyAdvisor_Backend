@@ -261,13 +261,13 @@ const UserManagement = () => {
       <div className="flex gap-8 mb-8 h-10 flex-row">
         <CustomInput
           classNames="w-5/6 !h-10"
-          placeholder="Search for users"
+          placeholder="Search for Advisors"
           icon={search}
           value={searchTerm}
           onValueChange={(value) => setSearchTerm(value)}
         />
         <div className="w-1/4">
-          <Button text="Add User" onClick={handleAddUser} />
+          <Button text="Add Advisor" onClick={handleAddUser} />
         </div>
       </div>
       {filteredUsers.length > 0 && filteredUsers && (

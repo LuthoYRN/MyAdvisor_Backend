@@ -86,7 +86,7 @@ const AdvisorManagement = () => {
         const result = await response.json();
         if (result.status === "success") {
           setSelectedCourses(result.data.curriculumsAdvising);
-          console.log(result.data.curriculumsAdvising);
+          setCourses(result.data.curriculumsInFaculty);
         }
       } catch (error) {
         console.error("Error fetching advising courses:", error);
@@ -172,7 +172,7 @@ const AdvisorManagement = () => {
       <div className="flex gap-8 mb-8 h-10 flex-row">
         <CustomInput
           classNames="w-5/6 !h-10"
-          placeholder="Search for users"
+          placeholder="Search for Advisors"
           icon={search}
           value={searchTerm}
           onValueChange={(value) => setSearchTerm(value)}
@@ -186,7 +186,7 @@ const AdvisorManagement = () => {
           value={selectedPermission}
           onChange={handlePermissionChange}
         />
-        <Button text="Add User" onClick={()=>navigate("/addAdvisor")} />
+        <Button text="Add Advisor" onClick={()=>navigate("/addAdvisor")} />
       </div>
       {filteredUsers.length > 0 && filteredUsers && (
         <Table
@@ -242,14 +242,14 @@ const AdvisorManagement = () => {
                 setCurriculumSearch(value);
                 setFilteredCourses(
                   courses.filter((course) =>
-                  course.majorName.toLowerCase().includes(value.toLowerCase())
+                  course.majorName.toLowerCase().includes(curriculumSearch.toLowerCase())
                   )
                 );
                 }}
               />
               <div>
-                {curriculumSearch && filteredCourses.length >= 1 && (
-                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48">
+                {curriculumSearch && filteredCourses.length && (
+                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
                   {filteredCourses.map((course) => (
                   <p
                     onClick={() => {

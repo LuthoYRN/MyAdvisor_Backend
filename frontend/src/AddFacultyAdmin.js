@@ -106,7 +106,7 @@ const AddFacultyAdmin = () => {
           </div>
           <div className="flex flex-row gap-8 max-w-md">
             <Button text="Save" onClick={handleAddAdmin} />
-            <Button text="Back" type="secondary" onClick={navigate(-1)}/>
+            <Button text="Back" type="secondary" onClick={()=>navigate(-1)}/>
           </div>
         </div>
       </div>

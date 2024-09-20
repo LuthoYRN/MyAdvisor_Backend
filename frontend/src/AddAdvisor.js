@@ -55,7 +55,7 @@ const AddAdvisor = () => {
         );
         const data = await response.json();
         if (data.status === "success") {
-          setSeniorAdvisors(data.data);
+          setJuniorAdvisors(data.data);
           // Assuming faculties are part of the response or fetched from another endpoint
         }
       } catch (error) {
@@ -75,7 +75,7 @@ const AddAdvisor = () => {
           );
           const data = await response.json();
           if (data.status === "success") {
-            setJuniorAdvisors(data.data);
+            setSeniorAdvisors(data.data);
           }
         } catch (error) {
           console.error("Error fetching junior advisors:", error);

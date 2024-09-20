@@ -66,7 +66,7 @@ const CurriculumManagement = () => {
       }
       setCourses(courses.filter((course) => courses.id !== course));
       setShowDeleteModal(false);
-      setShowDeleteConfirmation(true)
+      setShowDeleteConfirmation(true);
     } catch (error) {
       console.error("Error deleting curriculum:", error);
     }
@@ -113,7 +113,6 @@ const CurriculumManagement = () => {
     fetchFilteredCourses();
   }, [showAddExistingCourseModal]);
 
-  
   const handleAddExistingCourse = async () => {
     console.log("Adding existing course:", selectedCourses[0].id);
     try {
@@ -122,23 +121,26 @@ const CurriculumManagement = () => {
         {
           method: "POST",
           headers: {
-        "Content-Type": "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-        courseID: selectedCourses[0].id,
-        prerequisiteFor: selectedPrerequisites.map((course) => course.id),
+            courseID: selectedCourses[0].id,
+            prerequisiteFor:
+              selectedPrerequisites.length >= 1
+                ? selectedPrerequisites.map((course) => course.id)
+                : null,
           }),
         }
       );
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw alert("Network response was not ok: ", response.status);
       }
       const data = await response.json();
       setCourses([...courses, data.data]);
       setShowAddExistingCourseModal(false);
       setSelectedCourses([]);
       setSelectedPrerequisites([]);
-        } catch (error) {
+    } catch (error) {
       console.error("Error adding existing course:", error);
     }
   };
@@ -161,7 +163,6 @@ const CurriculumManagement = () => {
     },
   ];
 
- 
   const handleAddPrerequisites = (course) => {
     setSelectedPrerequisites([...selectedPrerequisites, course]);
   };
@@ -176,7 +177,8 @@ const CurriculumManagement = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level ||
+        "FacultyAdmin"
       }
       activeMenuItem={"manageMajors"}
     >
@@ -187,7 +189,11 @@ const CurriculumManagement = () => {
             text="+ Add New Course"
             onClick={() =>
               navigate("/addCourse", {
-                state: { curriculumID: JSON.parse(localStorage.getItem("curriculum")).curriculumID, facultyID: location.state.facultyID },
+                state: {
+                  curriculumID: JSON.parse(localStorage.getItem("curriculum"))
+                    .curriculumID,
+                  facultyID: location.state.facultyID,
+                },
               })
             }
           />
@@ -223,12 +229,12 @@ const CurriculumManagement = () => {
             } else {
               setShowDeleteModal(false);
             }
-            }}
-          />
-          )}
-          {showAddExistingCourseModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-2xl p-8">
+          }}
+        />
+      )}
+      {showAddExistingCourseModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
               Add Existing Course
             </Text>
@@ -241,38 +247,38 @@ const CurriculumManagement = () => {
               icon={search}
               value={courseSearch}
               onValueChange={(value) => {
-              setCourseSearch(value);
-              setFilteredCourses(
-                allCourses.filter((course) =>
-                course.id.toLowerCase().includes(value.toLowerCase())
-                )
-              );
+                setCourseSearch(value);
+                setFilteredCourses(
+                  allCourses.filter((course) =>
+                    course.id.toLowerCase().includes(value.toLowerCase())
+                  )
+                );
               }}
             />
             <div>
               {courseSearch && filteredCourses.length >= 1 && (
-              <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
-                {filteredCourses.map((course, index) => (
-                <p
-                  onClick={() => {
-                  setSelectedCourses([course]);
-                  setFilteredCourses([]);
-                  setCourseSearch("");
-                  }}
-                  key={index}
-                >
-                  {course.id}
-                </p>
-                ))}
-              </div>
+                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
+                  {filteredCourses.map((course, index) => (
+                    <p
+                      onClick={() => {
+                        setSelectedCourses([course]);
+                        setFilteredCourses([]);
+                        setCourseSearch("");
+                      }}
+                      key={index}
+                    >
+                      {course.id}
+                    </p>
+                  ))}
+                </div>
               )}
             </div>
             {selectedCourses.length > 0 && (
               <div class="flex flex-row gap-4 my-4">
-              <Tag
-                text={selectedCourses[0].id}
-                onClick={() => setSelectedCourses([])}
-              />
+                <Tag
+                  text={selectedCourses[0].id}
+                  onClick={() => setSelectedCourses([])}
+                />
               </div>
             )}
             <CustomInput
@@ -322,10 +328,7 @@ const CurriculumManagement = () => {
             )}
 
             <div class="flex flex-row gap-4 mt-8">
-              <Button
-                text="Add"
-                onClick={() => handleAddExistingCourse()}
-              />
+              <Button text="Add" onClick={() => handleAddExistingCourse()} />
               <Button
                 text="Cancel"
                 onClick={() => {
@@ -343,10 +346,8 @@ const CurriculumManagement = () => {
       {showCourseDependencyModal && (
         <ConfirmationModal
           status={"Warning"}
-          message={
-            `The course is a prerequisite or special requirement for ${courseDependencies.join(", ")}. Remove the dependencies first.`
-          }
-         close={() => setShowCourseDependencyModal(false)}
+          message={`The course is a prerequisite or special requirement for ${courseDependencies.join(", ")}. Remove the dependencies first.`}
+          close={() => setShowCourseDependencyModal(false)}
         />
       )}
       {showDeleteConfirmation && (
