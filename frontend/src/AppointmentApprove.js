@@ -99,7 +99,7 @@ const AppointmentDetails = () => {
                 type="danger"
                 onClick={()=>setShowRejectionModal(true)}
               />
-              <Button text="Back" type="secondary" onClick={navigate(-1)}/>
+              <Button text="Back" type="secondary" onClick={()=>navigate(-1)}/>
             </div>
           </div>
 

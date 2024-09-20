@@ -187,7 +187,7 @@ const CurriculumManagement = () => {
             text="+ Add New Course"
             onClick={() =>
               navigate("/addCourse", {
-                state: { curriculumID: JSON.parse(localStorage.getItem("curriculum")).curriculumID, facultyName: location.state.facultyName },
+                state: { curriculumID: JSON.parse(localStorage.getItem("curriculum")).curriculumID, facultyID: location.state.facultyID },
               })
             }
           />

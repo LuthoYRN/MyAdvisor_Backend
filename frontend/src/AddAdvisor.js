@@ -394,6 +394,7 @@ const AddAdvisor = () => {
           status={"Success"}
           message={"Advisor added successfully."}
           close={() => setShowSuccessModal(false)}
+          onConfirm={-1}
         />
       )}
     </Main>
