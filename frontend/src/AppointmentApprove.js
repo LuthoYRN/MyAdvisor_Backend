@@ -1,23 +1,30 @@
 import React from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
+import download from "./assets/download.svg";
 import Button from "./components/Button";
 import Text from "./components/Text";
 import TextArea from "./components/TextArea";
-import download from "./assets/download.svg";
 import config from "./config";
 import Main from "./layout/Main";
 
 const AppointmentDetails = () => {
-  const [showConfirmationModal, setShowConfirmationModal] =
-    React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
   const [showRejectionModal, setShowRejectionModal] = React.useState(false);
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
   const [rejectedReason, setRejectedReason] = React.useState(null);
+
   let location = useLocation();
   let navigate = useNavigate();
 
-
   const handleAppointment = (status) => () => {
+    // Check if rejecting and no reason is provided
+    if (status === "reject" && (!rejectedReason || rejectedReason.trim() === "")) {
+      setShowRejectionModal(false);  // Close rejection modal
+      setShowErrorModal(true);       // Show error modal
+      return;
+    }
+
     fetch(
       `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/requests/${location.state.requestID}?action=${status}`,
       {
@@ -32,14 +39,13 @@ const AppointmentDetails = () => {
     )
       .then((response) => {
         if (response.ok) {
-          // Show confirmation modal
+          // Show confirmation modal on success
           setShowConfirmationModal(true);
         } else {
           console.error("Failed to update appointment status");
         }
       })
       .catch((error) => {
-        // handle the error
         console.error("Error:", error);
       });
   };
@@ -62,7 +68,6 @@ const AppointmentDetails = () => {
                 Student
               </Text>
               <Text type="paragraph" classNames="mb-8">
-                {/* Replace the placeholder tex with the actual name*/}
                 {location.state.notificationDetails.studentName}
               </Text>
               <div className="flex flex-row gap-4 justify-between">
@@ -71,7 +76,6 @@ const AppointmentDetails = () => {
                     Date
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {/* Replace the placeholder tex with the actual date*/}
                     {location.state.notificationDetails.date}
                   </Text>
                 </div>
@@ -80,7 +84,6 @@ const AppointmentDetails = () => {
                     Time
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
-                    {/* Replace the placeholder tex with the actual time*/}
                     {location.state.notificationDetails.time}
                   </Text>
                 </div>
@@ -97,9 +100,9 @@ const AppointmentDetails = () => {
               <Button
                 text="Reject"
                 type="danger"
-                onClick={()=>setShowRejectionModal(true)}
+                onClick={() => setShowRejectionModal(true)}
               />
-              <Button text="Back" type="secondary" onClick={()=>navigate(-1)}/>
+              <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
             </div>
           </div>
 
@@ -108,25 +111,26 @@ const AppointmentDetails = () => {
               Uploaded Documents
             </Text>
             <div class="flex flex-wrap gap-4 mb-8">
-                {location.state.notificationDetails.documents && location.state.notificationDetails.documents.length > 0 ? (
-                  location.state.notificationDetails.documents.map((document, index) => (
-                    <a
-                      key={index}
-                      href={document.fileURL}
-                      download
-                      target="_blank" rel="noreferrer"
-                    >
-                      <div className="flex items-center justify-center p-8 flex-col rounded-2xl shadow-lg bg-gray-200 gap-4">
-                        <img width={40} height={40} src={download} alt="file" />
-                      <Text  >{document.fileName}</Text> 
-                      </div>
-                     
-                    </a>
-                  ))
-                ) : (
-                  <Text  type="paragraph">No files uploaded.</Text>
-                  
-                )}
+              {location.state.notificationDetails.documents && location.state.notificationDetails.documents.length > 0 ? (
+                location.state.notificationDetails.documents.map((document, index) => (
+                  <a
+                    key={index}
+                    href={document.fileURL}
+                    download
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <div className="flex items-center justify-center p-8 flex-col rounded-2xl shadow-lg bg-gray-200 gap-4">
+                      <img width={40} height={40} src={download} alt="file" />
+                      <Text>{document.fileName}</Text>
+                    </div>
+
+                  </a>
+                ))
+              ) : (
+                <Text type="paragraph">No files uploaded.</Text>
+
+              )}
             </div>
           </div>
         </div>
@@ -180,6 +184,30 @@ const AppointmentDetails = () => {
                 }}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {showErrorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8" style={{ width: "30%", maxWidth: "400px", minWidth: "300px" }}>
+            <div className="flex flex-row items-center gap-2 mb-4 justify-center">
+              <FaTimesCircle className="text-red-500 text-3xl" /> {/* Error Icon */}
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+
+            <Text type="paragraph" classNames="mb-8 text-center">
+              You cannot send a rejection without entering a message.
+            </Text>
+            <Button
+              text="Continue"
+              onClick={() => {
+                setShowErrorModal(false);
+                setShowRejectionModal(true);  // Reopen the rejection modal
+              }}
+            />
           </div>
         </div>
       )}
