@@ -13,6 +13,7 @@ import moment from "moment";
 const Dashboard = () => {
   const location = useLocation();
   const [userData, setUserData] = useState(null); // Changed to null to handle loading state
+  const [progress, setProgress] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +39,40 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      try {
+        const response = await fetch(
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/smartAdvisor/progress`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        const progressData = await response.json();
+        console.log("Progress Data:", progressData);
+        setProgress(progressData.data);
+        
+      } catch (error) {
+        console.error("Error fetching progress data:", error);
+      }
+    };
+
+    fetchProgressData();
+  }, []);
+
+  const [chatLines, setChatLines] = useState([]);
+
+  useEffect(() => {
+    if (userData) {
+      setChatLines([{ text: `Hi ${userData.student.name}, how can I help you today?`, type: "chat" }]);
+    }
+  }, [userData]);
+
   if (!userData) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -47,7 +82,54 @@ const Dashboard = () => {
   }
 
   const { student, upcomingAppointments, unreadNotifications } = userData;
+  const handleOptionClick = (option) => {
+    if (option === "Remaining courses") {
+      if (progress && progress.remainingCourses && progress.remainingCourses.length > 0) {
+        const remainingCoursesText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses.map(course => course.courseName).join(", ")}.`;
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: remainingCoursesText, type: "chat" },
+          { text: "Is there anything else I can help you with?", type: "chat" },
+        ]);
+      } else if (progress && progress.remainingCourses && progress.remainingCourses.length === 0) {
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: "Congratulations! You have completed all your courses.", type: "chat" },
+          { text: "Is there anything else I can help you with?", type: "chat" },
+        ]);
+      } else {
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: "Loading your remaining courses, please wait...", type: "chat" },
+        ]);
+      }
+    }
+    if (option === "Completed courses") {
+      if (progress && progress.completedCourses && progress.completedCourses.length > 0) {
+        const remainingCoursesText = `You completed ${progress.completedCourses.length} courses: ${progress.completedCourses.map(course => course.courseID).join(", ")}.`;
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: remainingCoursesText, type: "chat" },
+          { text: "Is there anything else I can help you with?", type: "chat" },
+        ]);
+      } else if (progress && progress.completedCourses && progress.completedCourses.length === 0) {
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: "Congratulations! You have completed all your courses.", type: "chat" },
+          { text: "Is there anything else I can help you with?", type: "chat" },
+        ]);
+      } else {
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: "Loading your remaining courses, please wait...", type: "chat" },
+        ]);
+      }
+    }
+    // Handle other options similarly
+  };
+  
 
+ 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
       <div className="mb-10 max-h-36">
@@ -96,23 +178,15 @@ const Dashboard = () => {
           <div className="border-b border-gray-500"></div>
 
           <div className="flex flex-col p-8">
-            <ChatLine
-              text={`Hi ${student.name}, how can I help you today?`}
-              type="chat"
-            />
-            <ChatLine
-              text={`Hi ${student.name}, how can I help you today?`}
-              type="user"
-            />
-            <ChatLine
-              text={`Hi ${student.name}, how can I help you today?`}
-              type="chat"
-            />
+            {chatLines.map((line, index) => (
+              <ChatLine key={index} text={line.text} type={line.type} />
+            ))}
+            
             <div className="flex w-4/6 justify-end ml-auto flex-wrap">
-              <ChatLine text="Credit Calculation" type="option" />
-              <ChatLine text="Remaining courses" type="option" />
-              <ChatLine text="Equivalent Courses" type="option" />
-              <ChatLine text="Common Electives" type="option" />
+              <ChatLine text="Completed Courses" type="option" onClick={() => handleOptionClick("Completed courses")} />
+              <ChatLine text="Remaining courses" type="option" onClick={() => handleOptionClick("Remaining courses")} />
+              <ChatLine text="Equivalent Courses" type="option" onClick={() => handleOptionClick("Equivalent Courses")} />
+              <ChatLine text="Common Electives" type="option" onClick={() => handleOptionClick("Common Electives")} />
             </div>
           </div>
         </div>

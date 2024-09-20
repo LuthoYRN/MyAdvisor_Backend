@@ -195,6 +195,7 @@ const AdvisorManagement = () => {
           column={defaultColumns}
           handleRowEdit={(id) => {setWorkingID(id); setShowEditAdvisorModal(true);}}
           idRow={"uuid"}  
+          canDelete={false}
         />
       )}
       {showAddUserModal && (
