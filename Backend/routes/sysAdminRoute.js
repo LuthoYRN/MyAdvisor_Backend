@@ -6,9 +6,15 @@ const router = express.Router();
 //all courses in the system
 router.route("/users").get(sysAdminController.getAllUsersForAdmin);
 //add admin
-router.route("/users/add/admin").get(authController.getFaculties).post();
+router
+  .route("/users/add/admin")
+  .get(authController.getFaculties)
+  .post(sysAdminController.addAdmin);
 //add advisor
-router.route("/users/add/advisor").get(authController.getFaculties);
+router
+  .route("/users/add/advisor")
+  .get(authController.getFaculties)
+  .post(sysAdminController.addAdvisor);
 router
   .route("/users/add/advisor/:facultyID")
   .get(authController.getCurriculumsByFaculty);

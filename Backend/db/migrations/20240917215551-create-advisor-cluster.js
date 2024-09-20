@@ -19,7 +19,7 @@ module.exports = {
       },
       advisorIDs: {
         type: Sequelize.ARRAY(Sequelize.INTEGER), // Store an array of advisor IDs
-        allowNull: false,
+        allowNull: true,
       },
     });
   },

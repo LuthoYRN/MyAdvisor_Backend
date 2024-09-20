@@ -6,6 +6,7 @@ const {
   student,
   facultyAdmin,
   faculty,
+  advisorCluster,
   programme,
   course,
   advisorMajor,
@@ -137,4 +138,231 @@ const getSeniors = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsersForAdmin, getCluster, getSeniors };
+//write code to add a faculty admin
+const addAdmin = async (req, res) => {
+  try {
+    const { name, surname, email, facultyID } = req.body;
+
+    // Ensure all required fields are provided
+    if (!name || !surname || !email || !facultyID) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Please provide all required fields (name, surname, email, faculty).",
+      });
+    }
+    // Check if an admin already exists with the provided email
+    const existingAdmin = await facultyAdmin.findOne({ where: { email } });
+    if (existingAdmin) {
+      return res.status(409).json({
+        status: "fail",
+        message: "Email is already in use by another admin.",
+      });
+    }
+    // Hash the password before storing it
+    const hashedPassword = await bcrypt.hash("hashedpassword", 10);
+    // Create a new admin
+    const newAdmin = await facultyAdmin.create({
+      name,
+      surname,
+      email,
+      password: hashedPassword,
+      profile_url:
+        "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png",
+      facultyID,
+    });
+
+    // Return success response
+    return res.status(201).json({
+      status: "success",
+      message: "Admin added successfully.",
+      data: newAdmin,
+    });
+  } catch (error) {
+    console.error("Error adding admin:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+const addAdvisor = async (req, res) => {
+  try {
+    const {
+      name,
+      surname,
+      email,
+      office,
+      advisor_level, // "senior" or "advisor"
+      facultyID,
+      curriculums, // Array of major or programme IDs
+      seniorAdvisorID, // Passed when adding a junior advisor
+      cluster = [], // Passed when adding a senior advisor with a list of advisor IDs
+    } = req.body;
+
+    // Validate required fields
+    if (
+      !name ||
+      !surname ||
+      !email ||
+      !office ||
+      !advisor_level ||
+      !curriculums ||
+      !facultyID
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: "All required fields must be provided.",
+      });
+    }
+
+    // Check if email is already in use
+    const existingAdvisor = await advisor.findOne({ where: { email } });
+    if (existingAdvisor) {
+      return res.status(409).json({
+        status: "fail",
+        message: "Email is already in use by another advisor.",
+      });
+    }
+
+    // Hash the password before saving (assuming a default password for now)
+    const hashedPassword = await bcrypt.hash("hashedpassword", 10);
+
+    let clusterID = null; // For cluster assignment later
+
+    // Create the new advisor
+    const newAdvisor = await advisor.create({
+      name,
+      surname,
+      email,
+      password: hashedPassword,
+      office,
+      profile_url:
+        "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png",
+      advisor_level,
+      facultyID,
+      clusterID: advisor_level === "advisor" ? clusterID : null, // Assign clusterID for junior advisors
+    });
+
+    // If adding a junior advisor (advisor_level === "advisor")
+    if (advisor_level === "advisor") {
+      // Validate that seniorAdvisorID is provided
+      if (!seniorAdvisorID) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Senior advisor ID must be provided for advisors.",
+        });
+      }
+
+      // Find the senior advisor to retrieve the clusterID
+      const seniorAdvisor = await advisor.findOne({
+        where: { id: seniorAdvisorID },
+      });
+
+      if (!seniorAdvisor) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Senior advisor not found.",
+        });
+      }
+
+      clusterID = seniorAdvisor.clusterID; // Assign the junior advisor to this cluster
+
+      // Add the junior advisor to the existing cluster
+      await advisorCluster.update(
+        {
+          advisorIDs: sequelize.fn(
+            "array_append",
+            sequelize.col("advisorIDs"),
+            newAdvisor.id
+          ),
+        },
+        { where: { seniorAdvisorID: seniorAdvisorID } }
+      );
+
+      // Update the new junior advisor with the clusterID
+      await newAdvisor.update({ clusterID: clusterID });
+    }
+
+    // If adding a senior advisor (advisor_level === "senior"), create a new cluster
+    if (advisor_level === "senior") {
+      const newCluster = await advisorCluster.create({
+        seniorAdvisorID: newAdvisor.id,
+        advisorIDs: [], // Initially empty, can be updated later
+      });
+
+      // Update the new senior advisor with the new cluster ID
+      await newAdvisor.update({ clusterID: newCluster.id });
+
+      // Add all IDs in the `cluster` array to the new senior advisor's cluster
+      // Add all IDs in the `cluster` array to the new senior advisor's cluster
+      if (cluster.length > 0) {
+        for (const juniorAdvisorID of cluster) {
+          await advisorCluster.update(
+            {
+              advisorIDs: sequelize.fn(
+                "array_append",
+                sequelize.col("advisorIDs"),
+                juniorAdvisorID // Append one value at a time
+              ),
+            },
+            { where: { seniorAdvisorID: newAdvisor.id } }
+          );
+
+          // Also, update all the junior advisors' clusterID
+          await advisor.update(
+            { clusterID: newCluster.id },
+            { where: { id: juniorAdvisorID } }
+          );
+        }
+      }
+    }
+
+    // Find the faculty to check the curriculumType
+    const facultySearch = await faculty.findOne({
+      where: { id: facultyID },
+      attributes: ["curriculumType"],
+    });
+
+    // Depending on the curriculumType (Major or Programme), add the advisor to the appropriate table
+    const curriculumType = facultySearch.curriculumType;
+
+    if (curriculumType === "Major") {
+      // Add advisor to advisorMajor table
+      for (const curriculumID of curriculums) {
+        await advisorMajor.create({
+          advisorID: newAdvisor.id,
+          majorID: curriculumID,
+        });
+      }
+    } else if (curriculumType === "Programme") {
+      // Add advisor to advisorProgramme table
+      for (const curriculumID of curriculums) {
+        await advisorProgramme.create({
+          advisorID: newAdvisor.id,
+          programmeID: curriculumID,
+        });
+      }
+    }
+
+    return res.status(201).json({
+      status: "success",
+      message: `Advisor added successfully.`,
+      data: newAdvisor,
+    });
+  } catch (error) {
+    console.error("Error adding advisor:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = {
+  addAdmin,
+  addAdvisor,
+  getAllUsersForAdmin,
+  getCluster,
+  getSeniors,
+};
