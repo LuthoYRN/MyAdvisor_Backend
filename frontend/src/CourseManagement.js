@@ -1,18 +1,15 @@
-import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
-import Table from "./components/Table";
-import { useEffect, useState } from "react";
-import config from "./config";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import DeleteModal from "./components/DeleteModal";
+import React, { useEffect, useState } from "react";
+import { FaCheckCircle, FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
+import { useLocation, useNavigate } from "react-router-dom";
+import search from "./assets/search.svg";
 import Button from "./components/Button";
 import CustomInput from "./components/CustomInput";
+import Table from "./components/Table";
 import Tag from "./components/Tag";
-import search from "./assets/search.svg";
-import { set } from "date-fns";
-import ConfirmationModal from "./components/ConfirmationModal";
+import Text from "./components/Text";
+import config from "./config";
+import Main from "./layout/Main";
+
 
 const CurriculumManagement = () => {
   const [courses, setCourses] = useState(null);
@@ -134,7 +131,7 @@ const CurriculumManagement = () => {
       );
       const responseData = await response.json();
       if (!response.ok) {
-        throw alert( responseData.message);
+        throw alert(responseData.message);
       }
       const data = await response.json();
       setCourses([...courses, data.data]);
@@ -163,6 +160,46 @@ const CurriculumManagement = () => {
       accessorKey: "nqfLevel",
     },
   ];
+
+  const DeleteModal = ({ message, returnMessage }) => {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+        <div
+          className="bg-white rounded-2xl p-6 relative"
+          style={{ width: '30%', minWidth: '350px', maxWidth: '400px' }}
+        >
+          <div className="flex flex-row items-center justify-center mb-4">
+            <FaExclamationTriangle className="text-yellow-500 text-3xl mr-2" />
+            <Text type="sm-heading" classNames="text-center">
+              Warning
+            </Text>
+          </div>
+          <Text type="paragraph" classNames="text-center mb-8">
+            {message}
+          </Text>
+          <div className="flex justify-center gap-4">
+            <Button
+              text="Yes"
+              onClick={() => {
+                setShowDeleteModal(false); // Close modal immediately when clicked
+                returnMessage('yes');      // Then proceed with action
+              }}
+              className="bg-red-500 text-white"
+            />
+            <Button
+              text="No"
+              onClick={() => {
+                setShowDeleteModal(false); // Close modal immediately when clicked
+                returnMessage('no');
+              }}
+              className="bg-blue-500 text-white"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
 
   const handleAddPrerequisites = (course) => {
     setSelectedPrerequisites([...selectedPrerequisites, course]);
@@ -227,12 +264,12 @@ const CurriculumManagement = () => {
           returnMessage={(status) => {
             if (status === "yes") {
               handleDelete(workingID);
-            } else {
-              setShowDeleteModal(false);
             }
+            // Modal will close regardless of whether 'yes' or 'no' is clicked
           }}
         />
       )}
+
       {showAddExistingCourseModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl p-8">
@@ -345,19 +382,43 @@ const CurriculumManagement = () => {
         </div>
       )}
       {showCourseDependencyModal && (
-        <ConfirmationModal
-          status={"Warning"}
-          message={`The course is a prerequisite or special requirement for ${courseDependencies.join(", ")}. Remove the dependencies first.`}
-          close={() => setShowCourseDependencyModal(false)}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '40%', height: 'auto', padding: '2rem' }}>
+            <div className="flex flex-row items-center gap-2 mb-4 justify-center">
+              <FaExclamationCircle className="text-yellow-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Warning
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl text-center">
+              The course is a prerequisite or special requirement for {courseDependencies.join(", ")}.
+              Remove the dependencies first.
+            </Text>
+            <div className="flex justify-center">
+              <Button text="Close" onClick={() => setShowCourseDependencyModal(false)} />
+            </div>
+          </div>
+        </div>
       )}
       {showDeleteConfirmation && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Course deleted successfully."}
-          close={() => setShowDeleteConfirmation(false)}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '40%', padding: '2rem' }}>
+            <div className="flex flex-row items-center gap-2 mb-4 justify-center">
+              <FaCheckCircle className="text-green-500 text-3xl" />  {/* Success Icon */}
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl text-center">
+              Course deleted successfully.
+            </Text>
+            <div className="flex justify-center">
+              <Button text="Close" onClick={() => setShowDeleteConfirmation(false)} />
+            </div>
+          </div>
+        </div>
       )}
+
     </Main>
   );
 };
