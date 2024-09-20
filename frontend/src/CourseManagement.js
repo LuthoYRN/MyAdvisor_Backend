@@ -30,6 +30,8 @@ const CurriculumManagement = () => {
   const [filteredPrerequisites, setFilteredPrerequisites] = useState([]);
   const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -129,19 +131,25 @@ const CurriculumManagement = () => {
           }),
         }
       );
-      const responseData = await response.json();
-      if (!response.ok) {
-        throw alert(responseData.message);
+
+      if (response.ok) {
+        const responseData = await response.json();
+        setCourses([...courses, responseData.data]); // Update the course list
+        setShowAddExistingCourseModal(false); // Close the "Add Existing Course" modal
+        setSelectedCourses([]); // Clear selected courses
+        setSelectedPrerequisites([]); // Clear selected prerequisites
+
+        // Show the success confirmation modal
+        setShowSuccessModal(true);
+      } else {
+        const responseData = await response.json();
+        throw new Error(responseData.message);
       }
-      const data = await response.json();
-      setCourses([...courses, data.data]);
-      setShowAddExistingCourseModal(false);
-      setSelectedCourses([]);
-      setSelectedPrerequisites([]);
     } catch (error) {
       console.error("Error adding existing course:", error);
     }
   };
+
   const defaultColumns = [
     {
       header: "Course ID",
@@ -402,9 +410,9 @@ const CurriculumManagement = () => {
       )}
       {showDeleteConfirmation && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '40%', padding: '2rem' }}>
+          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '30%', minWidth: '300px', maxWidth: '350px' }}>
             <div className="flex flex-row items-center gap-2 mb-4 justify-center">
-              <FaCheckCircle className="text-green-500 text-3xl" />  {/* Success Icon */}
+              <FaCheckCircle className="text-green-500 text-3xl" /> {/* Success Icon */}
               <Text type="sm-heading" classNames="text-center">
                 Success
               </Text>
@@ -419,6 +427,30 @@ const CurriculumManagement = () => {
         </div>
       )}
 
+      {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '30%', minWidth: '320px', maxWidth: '380px' }}>
+            <div className="flex flex-row items-center justify-center mb-4">
+              <FaCheckCircle className="text-green-500 text-3xl mr-2" />
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+            <Text type="paragraph" classNames="text-center mb-8">
+              Course added successfully.
+            </Text>
+            <div className="flex justify-center">
+              <Button
+                text="Close"
+                onClick={() => {
+                  setShowSuccessModal(false); // Close the modal
+                  navigate("/courseManagement"); // Navigate back to the CourseManagement page
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </Main>
   );
 };
