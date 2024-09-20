@@ -55,7 +55,7 @@ const MeetingNotes = () => {
         />
         <div class="flex flex-row gap-8 max-w-md">
           <Button text="Save" onClick={handleSaveNotes} />
-          <Button text="Back" type="secondary" />
+          <Button text="Back" type="secondary" onClick={()=>navigate(-1)} />
         </div>
       </div>
       {showConfirmationModal && (

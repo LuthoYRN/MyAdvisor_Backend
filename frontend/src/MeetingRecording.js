@@ -112,7 +112,7 @@ const MeetingRecording = () => {
                     text={"Save Recording"}
                   />
                 )}
-                <Button text={"Cancel"} type={"secondary"} />
+                <Button text={"Cancel"} type={"secondary"} onClick={()=> navigate(-1)} />
               </div>
             </div>
           )}

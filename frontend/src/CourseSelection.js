@@ -1,15 +1,15 @@
+import { useEffect, useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "./App.css";
-import CustomInput from "./components/CustomInput";
-import Button from "./components/Button";
-import Container from "./layout/Container";
-import Text from "./components/Text";
 import image from "./assets/advisor.png";
 import search from "./assets/search.svg";
-import { useEffect, useState } from "react";
+import Button from "./components/Button";
+import CustomInput from "./components/CustomInput";
 import Tag from "./components/Tag";
-import ConfirmationModal from "./components/ConfirmationModal";
-import { useNavigate } from "react-router-dom";
+import Text from "./components/Text";
 import config from "./config";
+import Container from "./layout/Container";
 
 function CourseSelection() {
   const [courses, setCourses] = useState([]);
@@ -110,7 +110,8 @@ function CourseSelection() {
             onMouseLeave={() => {
               if (course === "") {
                 setFilteredCourses([]);
-              }}
+              }
+            }
             }
           />
           <div>
@@ -148,11 +149,21 @@ function CourseSelection() {
           alt="advisor"
         />
         {showConfirmationModal && (
-          <ConfirmationModal
-            status="Success"
-            message="Course Registration Successful"
-            onConfirm="/"
-          />
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <div className="bg-white rounded-2xl p-8 relative">
+              <div className="flex flex-row items-center gap-2 mb-4">
+                <FaCheckCircle className="text-green-500 text-3xl" />
+                <Text type="sm-heading" classNames="text-center">
+                  Success
+                </Text>
+              </div>
+
+              <Text type="sm-subheading" classNames="mb-8 text-xl">
+                Course Registration Successful
+              </Text>
+              <Button text="Close" onClick={() => navigate("/dashboard")} />
+            </div>
+          </div>
         )}
       </Container>
     </div>

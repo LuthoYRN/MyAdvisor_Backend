@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Text from "./Text";
 
 const FileUploader = ({handleFile}) => {
   const [files, setFiles] = useState(null);
@@ -12,16 +13,22 @@ const FileUploader = ({handleFile}) => {
     }
   };
 
+  const handleRemoveFile = (index) => {
+    const newFiles = Array.from(files);
+    newFiles.splice(index, 1);
+    setFiles(newFiles.length > 0 ? newFiles : null);
+  };
+
   return (
     <div className="flex-auto rounded-2xl p-4 max-w-lg mx-auto">
       <div className="input-group mb-4">
         <label
-          for="uploadFile1"
-          class="text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-black border-dashed mx-auto"
+          htmlFor="uploadFile1"
+          className="text-gray-500 font-semibold text-base rounded max-w-md h-52 flex flex-col items-center justify-center cursor-pointer border-2 border-black border-dashed mx-auto"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-11 mb-2 fill-gray-500"
+            className="w-11 mb-2 fill-gray-500"
             viewBox="0 0 32 32"
           >
             <path
@@ -35,12 +42,12 @@ const FileUploader = ({handleFile}) => {
           </svg>
           Upload file
           <input
-            onClick={handleFileChange}
+            onChange={handleFileChange}
             type="file"
             id="uploadFile1"
-            class="hidden"
+            className="hidden"
           />
-          <p class="text-xs font-medium text-gray-400 mt-2">
+          <p className="text-xs font-medium text-gray-400 mt-2">
             PNG, JPG SVG, WEBP, and GIF are Allowed.
           </p>
         </label>
@@ -52,18 +59,16 @@ const FileUploader = ({handleFile}) => {
             key={file.name}
             className="mb-4 p-4 bg-gray-100 rounded shadow"
           >
-            <h3 className="font-bold">File number {index + 1} details:</h3>
+            <Text type="sm-heading">File details:</Text>
             <ul className="list-disc list-inside">
-              <li>
-                <strong>Name:</strong> {file.name}
-              </li>
-              <li>
-                <strong>Type:</strong> {file.type}
-              </li>
-              <li>
-                <strong>Size:</strong> {file.size} bytes
-              </li>
+              <Text>Name: {file.name}</Text>
             </ul>
+            <button
+              onClick={() => handleRemoveFile(index)}
+              className="mt-2 text-red-600 hover:text-red-800"
+            >
+              Remove
+            </button>
           </section>
         ))}
       <Result status={status} />
