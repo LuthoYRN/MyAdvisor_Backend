@@ -1,11 +1,11 @@
 import React from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
+import { FaCheckCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import Button from "./components/Button.jsx";
 import Pill from "./components/Pill.jsx";
+import Text from "./components/Text.jsx";
 import config from "./config.js";
-import { useNavigate } from "react-router-dom";
-import ConfirmationModal from "./components/ConfirmationModal.jsx";
+import Main from "./layout/Main.jsx";
 
 const MeetingNotes = () => {
   const [selectedTimes, setSelectedTimes] = React.useState([]);
@@ -190,11 +190,25 @@ const MeetingNotes = () => {
         </div>
       </div>
       {successModal && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Schedule updated successfully."}
-          close={() => setSuccessModal(false)}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div
+            className="bg-white rounded-2xl p-8 relative"
+            style={{ width: "30%", maxWidth: "400px", minWidth: "300px" }} // Adjusted width
+          >
+            <div className="flex flex-row items-center gap-2 mb-4 justify-center">
+              <FaCheckCircle className="text-green-500 text-3xl" /> {/* Success Icon */}
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+            <Text type="paragraph" classNames="text-center mb-8">
+              Schedule updated successfully.
+            </Text>
+            <div className="flex justify-center">
+              <Button text="Close" onClick={() => setSuccessModal(false)} />
+            </div>
+          </div>
+        </div>
       )}
     </Main>
   );
