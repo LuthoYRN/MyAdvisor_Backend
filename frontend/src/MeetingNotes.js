@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button.jsx";
 import Text from "./components/Text.jsx";
@@ -15,10 +15,16 @@ import Main from "./layout/Main.jsx";
 const MeetingNotes = () => {
   const [notes, setNotes] = useState("");
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   let navigate = useNavigate();
   let location = useLocation();
 
   const handleSaveNotes = async () => {
+    if (!notes.trim()) {
+      setShowErrorModal(true);
+      return;
+    }
+
     try {
       const response = await fetch(
         `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/note`,
@@ -55,7 +61,7 @@ const MeetingNotes = () => {
         />
         <div class="flex flex-row gap-8 max-w-md">
           <Button text="Save" onClick={handleSaveNotes} />
-          <Button text="Back" type="secondary" onClick={()=>navigate(-1)} />
+          <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
       {showConfirmationModal && (
@@ -71,6 +77,28 @@ const MeetingNotes = () => {
               Successfully saved notes
             </Text>
             <Button text="Close" onClick={() => navigate("/advisorDashboard")} />
+          </div>
+        </div>
+      )}
+      {showErrorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8 relative">
+            <div className="flex flex-row items-center gap-2 mb-4">
+              <FaExclamationCircle className="text-red-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl">
+              You cannot capture empty notes.
+            </Text>
+            <Button
+              text="Continue"
+              onClick={() => {
+                setShowErrorModal(false);
+                navigate("/MeetingNotes");
+              }}
+            />
           </div>
         </div>
       )}
