@@ -269,7 +269,7 @@ const AppointmentDate = () => {
               </Text>
             </div>
             <Text type="sm-subheading" classNames="mb-8 text-xl">
-              You already have a meeting scheduled meeting.
+              You already have a meeting scheduled.
             </Text>
             <Button text="Close" onClick={() => navigate("/dashboard")} />
           </div>
