@@ -65,7 +65,7 @@ const FacultyCurriculumManagement = () => {
     const curriculum = curriculums.find(c => c.id === curriculumID);
     if (curriculum) {
       navigate(`/courseManagement`, { state: { facultyName: localStorage.getItem("userData").facultyName } });
-      localStorage.setItem("curriculum", JSON.stringify({curriculumID: curriculumID, facultyName: localStorage.getItem("userData").facultyName}));
+      localStorage.setItem("curriculum", JSON.stringify({curriculumID: curriculumID, facultyID:JSON.parse(localStorage.getItem("userData")).facultyID,facultyName: localStorage.getItem("userData").facultyName}));
     }
    
   };
