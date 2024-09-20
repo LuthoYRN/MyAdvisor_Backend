@@ -648,9 +648,9 @@ const getAdvisorAvailability = async (req, res) => {
       const isTimeAvailable = !bookedTimes.includes(formattedTime);
 
       // Exclude times before the current time if it's today
-      if (isToday && formattedTime <= currentTime) {
-        return false;
-      }
+      //  if (isToday && formattedTime <= currentTime) {
+      //  return false;
+      //}
 
       return isTimeAvailable;
     });
