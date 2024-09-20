@@ -100,26 +100,28 @@ const AddCourse = () => {
       alert("Please fill in all required fields.");
       return;
     }
+    console.log(JSON.parse(localStorage.getItem("curriculum")).curriculumID);
 
     const newCourse = {
       courseCode,
       courseName,
-      courseCredits,
-      nqfLevel,
-      specialRequirements:
-        specialRequirements && specialRequirementsChoice
-          ? {
-            condition: specialRequirementsChoice,
-            requirement: specialRequirements,
-          }
-          : null,
+      courseCredits: parseInt(courseCredits),
+      nqfLevel: parseInt(nqfLevel, 10),
+      specialRequirement:
+      specialRequirements && specialRequirementsChoice
+        ? {
+        condition: specialRequirementsChoice.toUpperCase(),
+        requirement: specialRequirements,
+        }
+        : null,
       bothSemesters: availableBoth,
       prerequisites:
-        specialRequirementsChoice !== "complex" && selectedPrerequisites
-          ? selectedPrerequisites
-          : null,
+      specialRequirementsChoice !== "complex" && selectedPrerequisites
+        ? selectedPrerequisites
+        : null,
       equivalents: selectedEquivalents,
-      currID: location.state.curriculumID,
+      currID: JSON.parse(localStorage.getItem("curriculum")).curriculumID,
+      facultyID: parseInt(JSON.parse(localStorage.getItem("curriculum")).facultyID, 10),
     };
 
     fetch(`${config.backendUrl}/api/courses/add`, {
@@ -131,8 +133,10 @@ const AddCourse = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.success) {
+        console.log(data);
+        if (data.status === "success") {
           setShowSuccessModal(true);
+          console.log("Course added successfully.");
         } else {
           console.error("Failed to add course.");
         }
@@ -180,17 +184,7 @@ const AddCourse = () => {
               onValueChange={setNqfLevel}
               numeric={true}
             />
-            <Select
-              label="Faculty"
-              options={[
-                { value: "science", label: "Science" },
-                { value: "arts", label: "Arts" },
-                { value: "commerce", label: "Commerce" },
-                // Add more options as needed
-              ]}
-              value={faculty}
-              onValueChange={setFaculty}
-            />
+           
             <div class="flex flex-row">
               <Checkbox
                 checked={availableBoth}

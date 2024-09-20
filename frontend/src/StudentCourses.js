@@ -6,21 +6,16 @@ import Main from "./layout/Main.jsx";
 import config from "./config.js";
 import Text from "./components/Text";
 import Button from "./components/Button.jsx";
+import ConfirmationModal from "./components/ConfirmationModal.jsx";
 
 const StudentCourses = () => {
   const [courseSearch, setCourseSearch] = useState("");
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
-  const allCourses = [
-    { id: "CSE 101", name: "Introduction to Computer Science" },
-    { id: "CSE 102", name: "Introduction to Programming" },
-    { id: "CSE 103", name: "Discrete Mathematics" },
-    { id: "CSE 104", name: "Introduction to Data Structures" },
-    { id: "CSE 105", name: "Introduction to Algorithms" },
-  ];
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showAddCourses, setShowAddCourses] = useState(false);
   const [userData, setUserData] = useState(null); // Changed to null to handle loading state
-
+  const [progress, setProgress] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -45,6 +40,60 @@ const StudentCourses = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      try {
+        const response = await fetch(
+          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/smartAdvisor/progress`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+        const progressData = await response.json();
+        console.log("Progress Data:", progressData);
+        setProgress(progressData.data);
+      } catch (error) {
+        console.error("Error fetching progress data:", error);
+      }
+    };
+
+    fetchProgressData();
+  }, []);
+
+  const handleAddCourses = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/auth/signup/${localStorage.getItem("user_id")}/courses`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+          body: JSON.stringify({
+            courses: [
+              ...selectedCourses.map((course) => course.courseID),
+              ...progress.completedCourses.map((course) => course.courseID),
+            ],
+          }),
+        }
+      );
+      if (response.ok) {
+        console.log("Courses added successfully");
+        setShowAddCourses(false);
+        setShowSuccessModal(true);
+      } else {
+        console.error("Failed to add courses");
+      }
+    } catch (error) {
+      console.error("Error adding courses:", error);
+    }
+  };
+
   if (!userData) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -54,39 +103,6 @@ const StudentCourses = () => {
   }
 
   const { student, unreadNotifications } = userData;
-
-  const courses = [
-    {
-      courseCode: "CSE 101",
-      courseName: "Introduction to Computer Science",
-      courseType: "Core",
-      courseCredits: 3,
-    },
-    {
-      courseCode: "CSE 102",
-      courseName: "Introduction to Programming",
-      courseType: "Core",
-      courseCredits: 3,
-    },
-    {
-      courseCode: "CSE 103",
-      courseName: "Discrete Mathematics",
-      courseType: "Core",
-      courseCredits: 3,
-    },
-    {
-      courseCode: "CSE 104",
-      courseName: "Introduction to Data Structures",
-      courseType: "Core",
-      courseCredits: 3,
-    },
-    {
-      courseCode: "CSE 105",
-      courseName: "Introduction to Algorithms",
-      courseType: "Core",
-      courseCredits: 3,
-    },
-  ];
 
   return (
     <Main userType={"student"} activeMenuItem={"manageCourses"}>
@@ -104,17 +120,9 @@ const StudentCourses = () => {
         <Text type="heading" classNames="mb-8">
           My Courses
         </Text>
-        <div className="flex flex-col gap-4">
-          {courses.map((course, index) => (
-            <div
-              key={index}
-              className="flex flex-row justify-between items-center p-4 bg-gray-100 rounded-xl"
-            >
-              <Text>{course.courseCode}</Text>
-              <Text>{course.courseName}</Text>
-              <Text>{course.courseType}</Text>
-              <Text>{course.courseCredits}</Text>
-            </div>
+        <div className="flex flex-row max-w-lg flex-wrap gap-4">
+          {progress.completedCourses.map((course, index) => (
+            <Text>{course.courseID}</Text>
           ))}
         </div>
         <div class="w-48">
@@ -138,8 +146,10 @@ const StudentCourses = () => {
                 onValueChange={(value) => {
                   setCourseSearch(value);
                   setFilteredCourses(
-                    allCourses.filter((course) =>
-                      course.id.toLowerCase().includes(value.toLowerCase())
+                    progress.remainingCourses.filter((course) =>
+                      course.courseID
+                        .toLowerCase()
+                        .includes(value.toLowerCase())
                     )
                   );
                 }}
@@ -150,30 +160,47 @@ const StudentCourses = () => {
                     {filteredCourses.map((course, index) => (
                       <p
                         onClick={() => {
-                          setSelectedCourses([course]);
+                          setSelectedCourses([...selectedCourses, course]);
                           setFilteredCourses([]);
                           setCourseSearch("");
                         }}
                         key={index}
                       >
-                        {course.id}
+                        {course.courseID}
                       </p>
                     ))}
                   </div>
                 )}
               </div>
-              {selectedCourses.length > 0 && (
-                <div class="flex flex-row gap-4 my-4">
-                  <Tag
-                    text={selectedCourses[0].id}
-                    onClick={() => setSelectedCourses([])}
-                  />
-                </div>
-              )}
-              <Button text="Add" onClick={() => setShowAddCourses(false)} />
+              {selectedCourses.length > 0 &&
+                selectedCourses.map((selectedCourse, index) => (
+                  <div key={index} className="flex flex-row gap-4 my-4">
+                    <Tag
+                      text={selectedCourse.courseID}
+                      onClick={() => setSelectedCourses([])}
+                    />
+                  </div>
+                ))}
+              <Button
+                text="Add"
+                onClick={() => {
+                  setShowAddCourses(false);
+                  handleAddCourses();
+                }}
+              />
             </div>
           </div>
         </>
+      )}
+      {showSuccessModal && (
+        <ConfirmationModal
+          status="Success"
+          message="Courses added successfully"
+          close={() => {
+            setShowSuccessModal(false);
+            window.location.reload();
+          }}
+        />
       )}
     </Main>
   );

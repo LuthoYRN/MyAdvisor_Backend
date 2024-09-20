@@ -24,7 +24,7 @@ const CurriculumManagement = () => {
         }
         const data = await response.json();
         setCurriculums(data.data);
-        console.log("Curriculums:", curriculums);
+        console.log("Curriculums:", data.data);
       } catch (error) {
         console.error("Error fetching curriculums:", error);
       }
@@ -58,7 +58,7 @@ const CurriculumManagement = () => {
   const handleEdit = (curriculumID) => {
     const curriculum = curriculums.find(c => c.curriculumID === curriculumID);
     if (curriculum) {
-      navigate(`/courseManagement`, { state: { curriculumID: curriculumID, facultyName: curriculum.facultyName } });
+      navigate(`/courseManagement`, { state: { curriculumID: curriculumID, facultyID: curriculum.facultyID } });
       localStorage.setItem("curriculum", JSON.stringify(curriculum));
       console.log("Curriculum:", curriculum);
     }

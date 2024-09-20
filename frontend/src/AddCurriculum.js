@@ -44,7 +44,7 @@ const AddCourse = () => {
           `${config.backendUrl}/api/facultyAdmin/${facultyID}/curriculums/add`
         );
         const data = await response.json();
-        setDepartments(data.data);
+        setDepartments(data.data || []);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
@@ -122,7 +122,7 @@ const AddCourse = () => {
               value={curriculumID}
               onValueChange={(value) => setCurriculumID(value)}
             />
-            {location.state.curriculumType === "Major" && (
+            {location.state.curriculumType === "Programme" && (
               <>
                 <CustomInput
                   label="Elective Credit Count"
@@ -141,7 +141,7 @@ const AddCourse = () => {
             )}
             <Select
               label="Department"
-              options={departments.map((department) => ({
+              options={ departments.map((department) => ({
                 value: department.id,
                 label: department.name,
               }))}

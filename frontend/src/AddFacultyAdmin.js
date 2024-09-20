@@ -9,6 +9,7 @@ import Tag from "./components/Tag.jsx";
 import search from "./assets/search.svg";
 import config from "./config.js";
 import ConfirmationModal from "./components/ConfirmationModal";
+import { useNavigate } from "react-router-dom";
 
 const AddFacultyAdmin = () => {
   // Mock data Need to give list of faculties and departments
@@ -19,12 +20,14 @@ const AddFacultyAdmin = () => {
   const [faculties, setFaculties] = React.useState([]);
   const [selectedFaculty, setSelectedFaculty] = React.useState("");
   const [successModal, setSuccessModal] = React.useState(false);
+  let navigate = useNavigate();
 
   React.useEffect(() => {
     fetch(`${config.backendUrl}/api/sysAdmin/users/add/admin`)
       .then((response) => response.json())
       .then((data) => {
         setFaculties(data.data);
+        setSelectedFaculty(data.data[0].id);
       })
       .catch((error) => console.error("Error fetching faculties:", error));
   }, []);
@@ -52,6 +55,10 @@ const AddFacultyAdmin = () => {
       })
       .then((data) => {
         setSuccessModal(true);
+        setName("");
+        setSurname("");
+        setEmail("");
+        setSelectedFaculty(faculties[0]?.id || "");
         // Optionally, reset form fields or show success message
       })
       .catch((error) => {
@@ -99,7 +106,7 @@ const AddFacultyAdmin = () => {
           </div>
           <div className="flex flex-row gap-8 max-w-md">
             <Button text="Save" onClick={handleAddAdmin} />
-            <Button text="Back" type="secondary" />
+            <Button text="Back" type="secondary" onClick={()=>navigate(-1)}/>
           </div>
         </div>
       </div>

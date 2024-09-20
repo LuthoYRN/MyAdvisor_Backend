@@ -78,7 +78,7 @@ const Header = ({
             : navigate("/notifications");
         }}
       >
-        {!JSON.parse(localStorage.getItem("userData")).facultyID && (
+        {localStorage.getItem("userData") && !JSON.parse(localStorage.getItem("userData")).facultyID && (
           <>
             <img src={notification} alt="notification" className="w-10 h-10" />
             {unreadCount > 0 && (

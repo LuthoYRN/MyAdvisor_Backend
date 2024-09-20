@@ -126,7 +126,7 @@ const UserManagement = () => {
         />
         <Button text="Add User" onClick={handleAddUser} />
       </div>
-      {filteredUsers.length > 0 && filteredUsers && <Table classNames="" Tabledata={filteredUsers} column={defaultColumns} />}
+      {filteredUsers.length > 0 && filteredUsers && <Table classNames="" Tabledata={filteredUsers} column={defaultColumns} canDelete={false} canEdit={false}/>}
       {showAddUserModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl p-8">

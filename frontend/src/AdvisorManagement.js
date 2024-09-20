@@ -14,6 +14,14 @@ import config from "./config";
 
 const AdvisorManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+  const [workingID, setWorkingID] = React.useState(null);
+  const [courses, setCourses] = React.useState([]);
+  const [showEditAdvisorModal, setShowEditAdvisorModal] = React.useState(false);
+  const [curriculumSearch, setCurriculumSearch] = React.useState("");
+  const [filteredCourses, setFilteredCourses] = React.useState([]);
+  const [selectedCourses, setSelectedCourses] = React.useState([]);
+
 
   const handleCloseModal = () => {
     setShowAddUserModal(false);
@@ -40,6 +48,56 @@ const AdvisorManagement = () => {
 
     fetchUsers();
   }, []);
+
+  const handleEditAdivsor = async () => {
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/cluster/${workingID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            curriculumsAdvised: selectedCourses.map((course) => course.id),
+          }),
+        }
+      );
+      const result = await response.json();
+      if (result.status === "success") {
+        setShowEditAdvisorModal(false);
+        setSelectedCourses([]);
+        setCurriculumSearch("");
+        setShowConfirmationModal(true);
+      } else {
+        console.error("Error adding course:", result.message);
+      }
+    } catch (error) {
+      console.error("Error adding course:", error);
+    }
+  }
+
+  React.useEffect(() => {
+    const fetchAdvisingCourses = async () => {
+      try {
+        const response = await fetch(
+          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/cluster/${workingID}`
+        );
+        const result = await response.json();
+        if (result.status === "success") {
+          setSelectedCourses(result.data.curriculumsAdvising);
+          setCourses(result.data.curriculumsInFaculty);
+        }
+      } catch (error) {
+        console.error("Error fetching advising courses:", error);
+      }
+    };
+
+    if (showEditAdvisorModal) {
+      fetchAdvisingCourses();
+    }
+  }, [showEditAdvisorModal, workingID]);
+
 
   const [users, setUsers] = React.useState(null);
 
@@ -101,11 +159,6 @@ const AdvisorManagement = () => {
       );
     }
   }, [users, searchTerm, selectedPermission]);
-  const [showEditAdvisorModal, setShowEditAdvisorModal] = React.useState(false);
-  const [curriculumSearch, setCurriculumSearch] = React.useState("");
-  const [filteredCourses, setFilteredCourses] = React.useState([]);
-  const [selectedCourses, setSelectedCourses] = React.useState([]);
-  const courses = []; // Define courses array or fetch it from an API
 
   const handleEditAdvisor = () => {
     // Implement the function to handle editing advisor
@@ -119,7 +172,7 @@ const AdvisorManagement = () => {
       <div className="flex gap-8 mb-8 h-10 flex-row">
         <CustomInput
           classNames="w-5/6 !h-10"
-          placeholder="Search for users"
+          placeholder="Search for Advisors"
           icon={search}
           value={searchTerm}
           onValueChange={(value) => setSearchTerm(value)}
@@ -133,14 +186,16 @@ const AdvisorManagement = () => {
           value={selectedPermission}
           onChange={handlePermissionChange}
         />
-        <Button text="Add User" onClick={()=>navigate("/addAdvisor")} />
+        <Button text="Add Advisor" onClick={()=>navigate("/addAdvisor")} />
       </div>
       {filteredUsers.length > 0 && filteredUsers && (
         <Table
           classNames=""
           Tabledata={filteredUsers}
           column={defaultColumns}
-          canEdit={false}
+          handleRowEdit={(id) => {setWorkingID(id); setShowEditAdvisorModal(true);}}
+          idRow={"uuid"}  
+          canDelete={false}
         />
       )}
       {showAddUserModal && (
@@ -188,14 +243,14 @@ const AdvisorManagement = () => {
                 setCurriculumSearch(value);
                 setFilteredCourses(
                   courses.filter((course) =>
-                  course.majorName.toLowerCase().includes(value.toLowerCase())
+                  course.majorName.toLowerCase().includes(curriculumSearch.toLowerCase())
                   )
                 );
                 }}
               />
               <div>
-                {curriculumSearch && filteredCourses.length >= 1 && (
-                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48">
+                {curriculumSearch && filteredCourses.length && (
+                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
                   {filteredCourses.map((course) => (
                   <p
                     onClick={() => {
@@ -229,7 +284,7 @@ const AdvisorManagement = () => {
               )}
 
               <div class="flex flex-row gap-4 mt-8">
-                <Button text="Add" />
+                <Button text="Add" onClick={()=> handleEditAdivsor()}/>
                 <Button
                 text="Cancel"
                 onClick={() => {
