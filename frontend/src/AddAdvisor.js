@@ -9,131 +9,141 @@ import Tag from "./components/Tag.jsx";
 import search from "./assets/search.svg";
 import config from "./config.js";
 import { useNavigate } from "react-router-dom";
-
-/*
-    Data Needed:
-    - List of faculties and departments with their relationships
-    - Save Admin to DB
-
-  */
+import ConfirmationModal from "./components/ConfirmationModal";
 
 const AddAdvisor = () => {
-  // Mock data Need to give list of faculties and departments
- 
-const [faculties, setFaculties] = React.useState([]);
-const [seniorAdvisors, setSeniorAdvisors] = React.useState([]);
-const [Faculty, setSelectedFaculty] = React.useState("");
-let navigate = useNavigate();
+  const [faculties, setFaculties] = React.useState([]);
+  const [seniorAdvisors, setSeniorAdvisors] = React.useState([]);
+  const [Faculty, setSelectedFaculty] = React.useState("");
+  const [majors, setMajors] = React.useState([]);
+  const [juniorAdvisorsSearch, setJuniorAdvisorsSearch] = React.useState("");
+  const [selectedSeniorAdvisor, setSelectedSeniorAdvisor] = React.useState("");
+  const [Office, setOffice] = React.useState("");
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+  let navigate = useNavigate();
 
-React.useEffect(() => {
-  const fetchFaculties = async () => {
-    try {
-      const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor`);
-      const data = await response.json();
-      if (data.status === "success") {
-        setFaculties(data.data);
-        console.log("Faculties:", faculties);
-      }
-    } catch (error) {
-      console.error("Error fetching faculties:", error);
-    }
-  };
 
-  fetchFaculties();
-}, []);
-
-React.useEffect(() => {
-  // Fetch faculties and senior advisors data
-  const fetchFacultiesAndAdvisors = async () => {
-    try {
-      const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}/senior`);
-      const data = await response.json();
-      if (data.status === "success") {
-        setSeniorAdvisors(data.data);
-        // Assuming faculties are part of the response or fetched from another endpoint
-        setFaculties(["Faculty of Science", "Faculty of Engineering"]); // Example faculties
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  fetchFacultiesAndAdvisors();
-}, []);
-
-React.useEffect(() => {
-  if (Faculty) {
-    const fetchJuniorAdvisors = async () => {
+  React.useEffect(() => {
+    const fetchFaculties = async () => {
       try {
-        const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}/junior`);
+        const response = await fetch(
+          `${config.backendUrl}/api/sysAdmin/users/add/advisor`
+        );
         const data = await response.json();
         if (data.status === "success") {
-          setJuniorAdvisors(data.data.map(advisor => `${advisor.name} ${advisor.surname}`));
+          setFaculties(data.data);
+          console.log("Faculties:", faculties);
         }
       } catch (error) {
-        console.error("Error fetching junior advisors:", error);
+        console.error("Error fetching faculties:", error);
       }
     };
 
-    fetchJuniorAdvisors();
-  }
-}, [Faculty]);
+    fetchFaculties();
+  }, []);
 
-React.useEffect(() => {
-  if (Faculty) {
-    const fetchMajors = async () => {
+  React.useEffect(() => {
+    // Fetch faculties and senior advisors data
+    const fetchFacultiesAndAdvisors = async () => {
       try {
-        const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`);
+        const response = await fetch(
+          `${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}/senior`
+        );
         const data = await response.json();
         if (data.status === "success") {
-          setFilteredSeniorAdvisors(data.data.map(major => [major.majorName, major.id]));
+          setSeniorAdvisors(data.data);
+          // Assuming faculties are part of the response or fetched from another endpoint
         }
       } catch (error) {
-        console.error("Error fetching majors:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchMajors();
-  }
-}, [Faculty]);
+    fetchFacultiesAndAdvisors();
+  }, [Faculty]);
 
-const handleAddAdmin = async () => {
-  const advisorData = {
-    name: Name,
-    surname: Surname,
-    email: Email,
-    faculty: Faculty,
-    advisorType: advisorType,
-    equivalents: equivalents,
-    juniorAdvisors: selectedJuniorAdvisors,
+  React.useEffect(() => {
+    if (Faculty) {
+      const fetchJuniorAdvisors = async () => {
+        try {
+          const response = await fetch(
+            `${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}/junior`
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            setJuniorAdvisors(data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching junior advisors:", error);
+        }
+      };
+
+      fetchJuniorAdvisors();
+    }
+  }, [Faculty]);
+
+  React.useEffect(() => {
+    if (Faculty) {
+      const fetchMajors = async () => {
+        try {
+          const response = await fetch(
+            `${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            setMajors(data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching majors:", error);
+        }
+      };
+
+      fetchMajors();
+    }
+  }, [Faculty]);
+
+
+  const handleAddAdmin = async () => {
+    const advisorData = {
+      name: Name,
+      surname: Surname,
+      email: Email,
+      office: Office,
+      advisor_level: advisorType,
+      facultyID: Faculty,
+      curriculums: majors.map((major) => major.id),
+      seniorAdvisorID: advisorType === "junior" ? selectedSeniorAdvisor : undefined,
+      cluster: advisorType === "senior" ? selectedJuniorAdvisors.map((advisor) => advisor.id) : undefined,
+    };
+
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(advisorData),
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        setShowSuccessModal(true);
+        // Optionally, reset form or give feedback to the user
+      } else {
+        console.error("Error adding advisor:", data.message);
+      }
+    } catch (error) {
+      console.error("Error adding advisor:", error);
+    }
   };
 
-  try {
-    const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(advisorData),
-    });
-
-    const data = await response.json();
-    if (data.status === "success") {
-      console.log("Advisor added successfully:", data);
-      // Optionally, reset form or give feedback to the user
-    } else {
-      console.error("Error adding advisor:", data.message);
-    }
-  } catch (error) {
-    console.error("Error adding advisor:", error);
-  }
-};
-  
   const [Name, setName] = React.useState("");
   const [Surname, setSurname] = React.useState("");
   const [Email, setEmail] = React.useState("");
 
-  
   const [advisorType, setAdvisorType] = React.useState("");
   const [equivalents, setEquivalents] = React.useState("");
   const [juniorAdvisors, setJuniorAdvisors] = React.useState([]);
@@ -143,10 +153,6 @@ const handleAddAdmin = async () => {
   const [selectedJuniorAdvisors, setSelectedJuniorAdvisors] = React.useState(
     []
   );
-  const [filteredSeniorAdvisors, setFilteredSeniorAdvisors] = React.useState(
-    []
-  );
-
 
   const handleAddAdvisor = (juniorAdvisor) => {
     setSelectedJuniorAdvisors([...selectedJuniorAdvisors, juniorAdvisor]);
@@ -159,7 +165,7 @@ const handleAddAdmin = async () => {
   };
 
   return (
-    <Main userType="SystemAdmin" activeMenuItem="addAdvisor">
+    <Main userType={JSON.parse(localStorage.getItem("userData"))?.facultyID ? "FacultyAdmin" : "SystemAdmin" } activeMenuItem="addAdvisor">
       <div className="flex flex-col flex-auto gap-2 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Add Advisor
@@ -171,19 +177,25 @@ const handleAddAdmin = async () => {
                 label="Name"
                 placeholder="Enter name"
                 value={Name}
-                onValueChange={setName}
+                onValueChange={(value) => setName(value)}
               />
               <CustomInput
                 label="Surname"
                 placeholder="Enter surname"
                 value={Surname}
-                onValueChange={setSurname}
+                onValueChange={(value) => setSurname(value)}
               />
               <CustomInput
                 label="Email"
                 placeholder="Enter email"
                 value={Email}
-                onValueChange={setEmail}
+                onValueChange={(value) => setEmail(value)}
+              />
+              <CustomInput
+                label="Office"
+                placeholder="Enter office details"
+                value={Office}
+                onValueChange={(value) => setOffice(value)}
               />
 
               <Select
@@ -193,7 +205,9 @@ const handleAddAdmin = async () => {
                   label: item.facultyName,
                 }))}
                 value={Faculty}
-                onChange={(value) => {setSelectedFaculty(value)}}
+                onChange={(value) => {
+                  setSelectedFaculty(value);
+                }}
               />
 
               <div className="flex flex-col gap-4">
@@ -220,26 +234,31 @@ const handleAddAdmin = async () => {
             </div>
             <div className="flex flex-row gap-8 max-w-md">
               <Button text="Save" onClick={handleAddAdmin} />
-              <Button text="Back" onClick={()=>navigate(-1)} type="secondary" />
+              <Button
+                text="Back"
+                onClick={() => navigate(-1)}
+                type="secondary"
+              />
             </div>
           </div>
           <div className="flex flex-col gap-4 w-5/12">
             <Select
               label={"Major Advised"}
               placeholder={"Select the major advised"}
-              options={filteredSeniorAdvisors.map((item) => ({
-                value: item[0],
-                label: item[0],
+              options={majors.map((item) => ({
+                value: item.id,
+                label: item.majorName,
               }))}
             />
             {advisorType === "junior" ? (
               <Select
                 label={"Senior Advisor"}
                 placeholder={"Select your senior advisor"}
-                options={filteredSeniorAdvisors.map((item) => ({
-                  value: item[0],
-                  label: item[0],
+                options={seniorAdvisors.map((item) => ({
+                  value: item.id,
+                  label: `${item.name} ${item.surname}`,
                 }))}
+                onChange={(value) => setSelectedSeniorAdvisor(value)}
               />
             ) : advisorType === "senior" ? (
               <>
@@ -247,28 +266,43 @@ const handleAddAdmin = async () => {
                   label="Advisor Cluster"
                   placeholder="Select the advisors in your cluster"
                   icon={search}
-                  onValueChange={(value) => setJuniorAdvisors(value)}
-                  value={juniorAdvisors}
+                  onValueChange={(value) => {
+                    setJuniorAdvisorsSearch(value);
+                    setFilteredJuniorAdvisors(
+                      juniorAdvisors.filter(
+                        (item) =>
+                          item.name
+                            .toLowerCase()
+                            .includes(value.toLowerCase()) ||
+                          item.surname
+                            .toLowerCase()
+                            .includes(value.toLowerCase())
+                      )
+                    );
+                  }}
+                  value={juniorAdvisorsSearch}
                 />
                 <div>
-                  {filteredJuniorAdvisors.length >= 1 && (
-                    <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
-                      {filteredJuniorAdvisors.map((juniorAdvisor) => (
-                        <Text
-                          onClick={() => {
-                            handleAddAdvisor(juniorAdvisor);
-                            setFilteredJuniorAdvisors(
-                              filteredJuniorAdvisors.filter(
-                                (item) => item !== juniorAdvisor
-                              )
-                            );
-                          }}
-                        >
-                          {juniorAdvisor}
-                        </Text>
-                      ))}
-                    </div>
-                  )}
+                  {filteredJuniorAdvisors.length >= 1 &&
+                    juniorAdvisorsSearch && (
+                      <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
+                        {filteredJuniorAdvisors.map((juniorAdvisor) => (
+                          <Text
+                            onClick={() => {
+                              handleAddAdvisor(juniorAdvisor);
+                              setFilteredJuniorAdvisors(
+                                filteredJuniorAdvisors.filter(
+                                  (item) => item.name !== juniorAdvisor.name
+                                )
+                              );
+                              setJuniorAdvisorsSearch("");
+                            }}
+                          >
+                            {juniorAdvisor.name + " " + juniorAdvisor.surname}
+                          </Text>
+                        ))}
+                      </div>
+                    )}
                 </div>
                 <div class="flex flex-row flex-wrap gap-4 ">
                   {selectedJuniorAdvisors.map((juniorAdvisor) => (
@@ -283,6 +317,15 @@ const handleAddAdmin = async () => {
           </div>
         </div>
       </div>
+      {
+        showSuccessModal && (
+          <ConfirmationModal
+            status={"Success"}
+            message={"Advisor added successfully."}
+            close={() => setShowSuccessModal(false)}
+          />
+        )
+      }
     </Main>
   );
 };

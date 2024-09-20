@@ -8,14 +8,12 @@ import advisor from "./assets/advisor.svg";
 import CustomInput from "./components/CustomInput";
 import Select from "./components/Select";
 import search from "./assets/search.svg";
+import Tag from "./components/Tag"; // Import the Tag component
 import { useNavigate } from "react-router-dom";
 import config from "./config";
 
 const AdvisorManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
-  const handleAddUser = () => {
-    setShowAddUserModal(true);
-  };
 
   const handleCloseModal = () => {
     setShowAddUserModal(false);
@@ -26,11 +24,12 @@ const AdvisorManagement = () => {
     const fetchUsers = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/facultyAdmin/facultyID/advisors`
+          `${config.backendUrl}/api/facultyAdmin/${JSON.parse(localStorage.getItem("userData")).facultyID }/advisors`
         );
         const result = await response.json();
         if (result.status === "success") {
           setUsers(result.data);
+          console.log("Users:", result.data);
         } else {
           console.error("Failed to fetch users");
         }
@@ -47,7 +46,7 @@ const AdvisorManagement = () => {
   const defaultColumns = [
     {
       header: "ID",
-      accessorKey: "id",
+      accessorKey: "uuid",
     },
     {
       header: "Name",
@@ -102,6 +101,15 @@ const AdvisorManagement = () => {
       );
     }
   }, [users, searchTerm, selectedPermission]);
+  const [showEditAdvisorModal, setShowEditAdvisorModal] = React.useState(false);
+  const [curriculumSearch, setCurriculumSearch] = React.useState("");
+  const [filteredCourses, setFilteredCourses] = React.useState([]);
+  const [selectedCourses, setSelectedCourses] = React.useState([]);
+  const courses = []; // Define courses array or fetch it from an API
+
+  const handleEditAdvisor = () => {
+    // Implement the function to handle editing advisor
+  };
 
   return (
     <Main userType="FacultyAdmin" activeMenuItem="studentAdvisors">
@@ -119,19 +127,20 @@ const AdvisorManagement = () => {
         <Select
           options={[
             { value: "", label: "All" },
-            { value: "student", label: "Student" },
+            { value: "senior", label: "Senior Advisor" },
             { value: "advisor", label: "Advisor" },
           ]}
           value={selectedPermission}
           onChange={handlePermissionChange}
         />
-        <Button text="Add User" onClick={handleAddUser} />
+        <Button text="Add User" onClick={()=>navigate("/addAdvisor")} />
       </div>
       {filteredUsers.length > 0 && filteredUsers && (
         <Table
           classNames=""
           Tabledata={filteredUsers}
           column={defaultColumns}
+          canEdit={false}
         />
       )}
       {showAddUserModal && (
@@ -158,6 +167,78 @@ const AdvisorManagement = () => {
               </div>
             </div>
             <Button text="Close" onClick={handleCloseModal} />
+          </div>
+        </div>
+      )}
+      {showEditAdvisorModal && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-2xl p-8">
+                <Text type="sm-heading" classNames="mb-4">
+                Add or Remove Curriculums Advised
+                </Text>
+                <Text type="sm-subheading" classNames="mb-8">
+                Select which curriculums you want to add or remove
+                </Text>
+                <CustomInput
+                label="Curriculums Name"
+                placeholder="Enter Curriculums Name"
+                icon={search}
+                value={curriculumSearch}
+                onValueChange={(value) => {
+                setCurriculumSearch(value);
+                setFilteredCourses(
+                  courses.filter((course) =>
+                  course.majorName.toLowerCase().includes(value.toLowerCase())
+                  )
+                );
+                }}
+              />
+              <div>
+                {curriculumSearch && filteredCourses.length >= 1 && (
+                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48">
+                  {filteredCourses.map((course) => (
+                  <p
+                    onClick={() => {
+                    if (!selectedCourses.some((c) => c.id === course.id)) {
+                      setSelectedCourses([...selectedCourses, course]);
+                    }
+                    setFilteredCourses([]);
+                    setCurriculumSearch("");
+                    }}
+                  >
+                    {course.majorName}
+                  </p>
+                  ))}
+                </div>
+                )}
+              </div>
+              {selectedCourses.length > 0 && (
+                <div class="flex flex-row gap-4 my-4 flex-wrap">
+                {selectedCourses.map((course) => (
+                  <Tag
+                  key={course.id}
+                  text={course.majorName}
+                  onClick={() =>
+                    setSelectedCourses(
+                    selectedCourses.filter((c) => c.id !== course.id)
+                    )
+                  }
+                  />
+                ))}
+                </div>
+              )}
+
+              <div class="flex flex-row gap-4 mt-8">
+                <Button text="Add" />
+                <Button
+                text="Cancel"
+                onClick={() => {
+                  setShowEditAdvisorModal(false);
+                  setCurriculumSearch("");
+                  setSelectedCourses([]);
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

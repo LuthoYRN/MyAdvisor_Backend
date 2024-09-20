@@ -4,6 +4,7 @@ import notification from "../assets/notification.svg";
 import Text from "./Text";
 import { useNavigate } from "react-router-dom";
 import config from "../config";
+import ConfirmationModal from "./ConfirmationModal";
 
 const Header = ({
   user,
@@ -15,6 +16,7 @@ const Header = ({
   unreadCount,
 }) => {
   let navigate = useNavigate();
+  const [successModal, setSuccessModal] = React.useState(false);
 
   const changeProfile = () => {
     const fileInput = document.createElement("input");
@@ -27,10 +29,9 @@ const Header = ({
         const formData = new FormData();
         formData.append("profilePicture", file); // Use 'profilePicture' as the key
 
-
         try {
           const response = await fetch(
-            `${config.backendUrl}/api/${localStorage.getItem("userData").advisor ? "advisor" : "student"}/${localStorage.getItem("user_id")}/uploadProfilePicture`,
+            `${config.backendUrl}/api/${localStorage.getItem("userData")?.advisor ? "advisor" : JSON.parse(localStorage.getItem("userData")).facultyID ? "facultyAdmin" : "student"}/${localStorage.getItem("user_id")}/uploadProfilePicture`,
             {
               method: "POST",
               body: formData,
@@ -39,7 +40,7 @@ const Header = ({
 
           if (response.ok) {
             const data = await response.json();
-            // Optionally, update the UI or display a success message here
+            setSuccessModal(true);
           } else {
             console.error("File upload failed:", response.statusText);
           }
@@ -77,13 +78,27 @@ const Header = ({
             : navigate("/notifications");
         }}
       >
-        <img src={notification} alt="notification" className="w-10 h-10" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-            {unreadCount}
-          </span>
+        {!JSON.parse(localStorage.getItem("userData")).facultyID && (
+          <>
+            <img src={notification} alt="notification" className="w-10 h-10" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                {unreadCount}
+              </span>
+            )}
+          </>
         )}
       </div>
+      {successModal && (
+        <ConfirmationModal
+          setModal={setSuccessModal}
+          message="Profile picture updated successfully"
+          close={() => {
+            setSuccessModal(false);
+            window.location.reload(); // Refresh the page
+          }}
+        />
+      )}
     </div>
   );
 };

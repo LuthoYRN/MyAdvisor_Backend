@@ -7,106 +7,56 @@ import Select from "./components/Select.jsx";
 import Checkbox from "./components/Checkbox.jsx";
 import Tag from "./components/Tag.jsx";
 import search from "./assets/search.svg";
-
-/*
-    Data Needed:
-    - List of faculties and departments with their relationships
-    - Save Admin to DB
-
-  */
+import config from "./config.js";
+import ConfirmationModal from "./components/ConfirmationModal";
 
 const AddFacultyAdmin = () => {
   // Mock data Need to give list of faculties and departments
-  const faculties = [
-    "Science",
-    "Engineering",
-    "Humanities",
-    "Commerce",
-    "Health Sciences",
-  ];
-
-  const departments = [
-    ["Computer Science", "Science"],
-    ["Mathematics", "Science"],
-    ["Physics", "Science"],
-    ["Chemistry", "Science"],
-    ["Biology", "Science"],
-    ["English", "Humanities"],
-    ["History", "Humanities"],
-    ["Geography", "Humanities"],
-    ["Mechanical Engineering", "Engineering"],
-    ["Civil Engineering", "Engineering"],
-    ["Electrical Engineering", "Engineering"],
-    ["Chemical Engineering", "Engineering"],
-    ["Industrial Engineering", "Engineering"],
-    ["Mining Engineering", "Engineering"],
-    ["Geology", "Science"],
-    ["Economics", "Commerce"],
-    ["Business Management", "Commerce"],
-    ["Marketing", "Commerce"],
-    ["Finance", "Commerce"],
-    ["Accounting", "Commerce"],
-    ["Human Resources", "Commerce"],
-  ];
-
-  const seniorAdvisor = [
-    ["John Doe", "Computer Science"],
-    ["Jane Doe", "Mathematics"],
-    ["James Doe", "Physics"],
-    ["Jill Doe", "Chemistry"],
-    ["Jack Doe", "Biology"],
-    ["Jenny Doe", "English"],
-    ["Jared Doe", "History"],
-    ["Jasmine Doe", "Geography"],
-    ["Micheal Doe", "Mechanical Engineering"],
-    ["Micheal Doe", "Civil Engineering"],
-    ["Micheal Doe", "Electrical Engineering"],
-    ["Micheal Doe", "Chemical Engineering"],
-    ["Micheal Doe", "Industrial Engineering"],
-    ["Micheal Doe", "Mining Engineering"],
-    ["Micheal Doe", "Geology"],
-    ["Micheal Doe", "Economics"],
-    ["Micheal Doe", "Business Management"],
-    ["Micheal Doe", "Marketing"],
-    ["Micheal Doe", "Finance"],
-    ["Micheal Doe", "Accounting"],
-    ["Micheal Doe", "Human Resources"],
-  ];
 
   const [Name, setName] = React.useState("");
   const [Surname, setSurname] = React.useState("");
   const [Email, setEmail] = React.useState("");
-  const [Department, setDepartment] = React.useState(
-    departments
-      .filter((item) => item[1] === faculties[0])
-      .map((item) => item[0])
-  );
-  const [SelectedDepartment, setSelectedDepartment] = React.useState("");
-  const [Faculty, setSelectedFaculty] = React.useState("");
-  const [advisorType, setAdvisorType] = React.useState("");
-  const [equivalents, setEquivalents] = React.useState("");
-  const [juniorAdvisors, setJuniorAdvisors] = React.useState([]);
-  const [filteredJuniorAdvisors, setFilteredJuniorAdvisors] = React.useState(
-    []
-  );
-  const [selectedJuniorAdvisors, setSelectedJuniorAdvisors] = React.useState(
-    []
-  );
+  const [faculties, setFaculties] = React.useState([]);
+  const [selectedFaculty, setSelectedFaculty] = React.useState("");
+  const [successModal, setSuccessModal] = React.useState(false);
 
-  const handleAddAdmin = () => {};
+  React.useEffect(() => {
+    fetch(`${config.backendUrl}/api/sysAdmin/users/add/admin`)
+      .then((response) => response.json())
+      .then((data) => {
+        setFaculties(data.data);
+      })
+      .catch((error) => console.error("Error fetching faculties:", error));
+  }, []);
 
-  const filteredSeniorAdvisors = seniorAdvisor.filter(
-    (item) => item[1] === SelectedDepartment
-  );
+  const handleAddAdmin = () => {
+    const adminData = {
+      name: Name,
+      surname: Surname,
+      email: Email,
+      facultyID: selectedFaculty,
+    };
 
-  const handleAddAdvisor = (juniorAdvisor) => {
-    setSelectedJuniorAdvisors([...selectedJuniorAdvisors, juniorAdvisor]);
-  };
-
-  const handleRemoveAdvisor = (juniorAdvisor) => {
-    setSelectedJuniorAdvisors(
-      selectedJuniorAdvisors.filter((item) => item !== juniorAdvisor)
-    );
+    fetch(`${config.backendUrl}/api/sysAdmin/users/add/admin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(adminData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setSuccessModal(true);
+        // Optionally, reset form fields or show success message
+      })
+      .catch((error) => {
+        console.error("Error adding admin:", error);
+      });
   };
 
   return (
@@ -139,27 +89,27 @@ const AddFacultyAdmin = () => {
             <Select
               label="Faculty"
               options={faculties.map((item) => ({
-                value: item,
-                label: item,
+                value: item.id,
+                label: item.facultyName,
               }))}
               onChange={(value) => {
-                setDepartment(
-                  departments
-                    .filter((item) => item[1] === value)
-                    .map((item) => item[0])
-                );
                 setSelectedFaculty(value);
               }}
             />
-
-           
           </div>
           <div className="flex flex-row gap-8 max-w-md">
-              <Button text="Save" onClick={handleAddAdmin} />
-              <Button text="Back" type="secondary" />
-            </div>
+            <Button text="Save" onClick={handleAddAdmin} />
+            <Button text="Back" type="secondary" />
+          </div>
         </div>
       </div>
+      {successModal && (
+        <ConfirmationModal
+          status={"Success"}
+          message={"Admin added successfully."}
+          close={() => setSuccessModal(false)}
+        />
+      )}
     </Main>
   );
 };

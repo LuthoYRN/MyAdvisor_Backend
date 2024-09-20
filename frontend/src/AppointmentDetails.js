@@ -7,6 +7,7 @@ import Button from "./components/Button";
 import Text from "./components/Text";
 import config from "./config";
 import Main from "./layout/Main";
+import notes from "./assets/notes.png";
 
 
 const AppointmentDetails = () => {
@@ -193,7 +194,7 @@ const AppointmentDetails = () => {
                     navigate("/meetingNotes", { state: location.state.id })
                   }
                   class="cursor-pointer"
-                  src={video}
+                  src={notes}
                   alt="video"
                 />
               </div>

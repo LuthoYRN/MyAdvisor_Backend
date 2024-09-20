@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit, canDelete = true }) => {
+const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit, canDelete = true , canEdit = true}) => {
   const [data, setData] = React.useState([...Tabledata]);
   const [columns, setColumns] = React.useState([...column]);
 
@@ -83,7 +83,7 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
                   </td>
                 ))}
                 <td class="flex gap-4">
-                  <Button text="Edit" onClick={()=>handleRowEdit(row.getValue(idRow))}/>
+                 {canEdit && <Button text="Edit" onClick={()=>handleRowEdit(row.getValue(idRow))}/>}
                   {canDelete &&<Button
                     type={"danger"}
                     text="Delete"

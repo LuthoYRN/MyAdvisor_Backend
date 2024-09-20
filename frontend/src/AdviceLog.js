@@ -58,6 +58,7 @@ const AdviceLog = () => {
 
   useEffect(() => {
     setContent(null);
+    setLogType(null);
   }, [filteredLogs]);
 
   return (
