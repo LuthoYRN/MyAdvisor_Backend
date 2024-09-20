@@ -132,8 +132,9 @@ const CurriculumManagement = () => {
           }),
         }
       );
+      const responseData = await response.json();
       if (!response.ok) {
-        throw alert("Network response was not ok: ", response.status);
+        throw alert( responseData.message);
       }
       const data = await response.json();
       setCourses([...courses, data.data]);
