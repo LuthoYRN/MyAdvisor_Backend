@@ -39,7 +39,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-
   useEffect(() => {
     const fetchProgressData = async () => {
       try {
@@ -56,7 +55,6 @@ const Dashboard = () => {
         const progressData = await response.json();
         console.log("Progress Data:", progressData);
         setProgress(progressData.data);
-        
       } catch (error) {
         console.error("Error fetching progress data:", error);
       }
@@ -69,7 +67,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (userData) {
-      setChatLines([{ text: `Hi ${userData.student.name}, how can I help you today?`, type: "chat" }]);
+      setChatLines([
+        {
+          text: `Hi ${userData.student.name}, how can I help you today?`,
+          type: "chat",
+        },
+      ]);
     }
   }, [userData]);
 
@@ -84,52 +87,78 @@ const Dashboard = () => {
   const { student, upcomingAppointments, unreadNotifications } = userData;
   const handleOptionClick = (option) => {
     if (option === "Remaining courses") {
-      if (progress && progress.remainingCourses && progress.remainingCourses.length > 0) {
-        const remainingCoursesText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses.map(course => course.courseName).join(", ")}.`;
+      if (
+        progress &&
+        progress.remainingCourses &&
+        progress.remainingCourses.length > 0
+      ) {
+        const remainingCoursesText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses.map((course) => course.courseName).join(", ")}.`;
         setChatLines((prevChatLines) => [
           ...prevChatLines,
           { text: remainingCoursesText, type: "chat" },
           { text: "Is there anything else I can help you with?", type: "chat" },
         ]);
-      } else if (progress && progress.remainingCourses && progress.remainingCourses.length === 0) {
+      } else if (
+        progress &&
+        progress.remainingCourses &&
+        progress.remainingCourses.length === 0
+      ) {
         setChatLines((prevChatLines) => [
           ...prevChatLines,
-          { text: "Congratulations! You have completed all your courses.", type: "chat" },
+          {
+            text: "Congratulations! You have completed all your courses.",
+            type: "chat",
+          },
           { text: "Is there anything else I can help you with?", type: "chat" },
         ]);
       } else {
         setChatLines((prevChatLines) => [
           ...prevChatLines,
-          { text: "Loading your remaining courses, please wait...", type: "chat" },
+          {
+            text: "Loading your remaining courses, please wait...",
+            type: "chat",
+          },
         ]);
       }
     }
     if (option === "Completed courses") {
-      if (progress && progress.completedCourses && progress.completedCourses.length > 0) {
-        const remainingCoursesText = `You completed ${progress.completedCourses.length} courses: ${progress.completedCourses.map(course => course.courseID).join(", ")}.`;
+      if (
+        progress &&
+        progress.completedCourses &&
+        progress.completedCourses.length > 0
+      ) {
+        const remainingCoursesText = `You completed ${progress.completedCourses.length} courses: ${progress.completedCourses.map((course) => course.courseID).join(", ")}.`;
         setChatLines((prevChatLines) => [
           ...prevChatLines,
           { text: remainingCoursesText, type: "chat" },
           { text: "Is there anything else I can help you with?", type: "chat" },
         ]);
-      } else if (progress && progress.completedCourses && progress.completedCourses.length === 0) {
+      } else if (
+        progress &&
+        progress.completedCourses &&
+        progress.completedCourses.length === 0
+      ) {
         setChatLines((prevChatLines) => [
           ...prevChatLines,
-          { text: "Congratulations! You have completed all your courses.", type: "chat" },
+          {
+            text: "Congratulations! You have completed all your courses.",
+            type: "chat",
+          },
           { text: "Is there anything else I can help you with?", type: "chat" },
         ]);
       } else {
         setChatLines((prevChatLines) => [
           ...prevChatLines,
-          { text: "Loading your remaining courses, please wait...", type: "chat" },
+          {
+            text: "Loading your remaining courses, please wait...",
+            type: "chat",
+          },
         ]);
       }
     }
     // Handle other options similarly
   };
-  
 
- 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
       <div className="mb-10 max-h-36">
@@ -177,16 +206,33 @@ const Dashboard = () => {
 
           <div className="border-b border-gray-500"></div>
 
-          <div className="flex flex-col p-8">
+          <div className="flex flex-col lg:max-h-[200px] xl:max-h-[500px] overflow-y-auto p-8">
+            {" "}
+            {/* Added a height limit */}
             {chatLines.map((line, index) => (
               <ChatLine key={index} text={line.text} type={line.type} />
             ))}
-            
             <div className="flex w-4/6 justify-end ml-auto flex-wrap">
-              <ChatLine text="Completed Courses" type="option" onClick={() => handleOptionClick("Completed courses")} />
-              <ChatLine text="Remaining courses" type="option" onClick={() => handleOptionClick("Remaining courses")} />
-              <ChatLine text="Equivalent Courses" type="option" onClick={() => handleOptionClick("Equivalent Courses")} />
-              <ChatLine text="Common Electives" type="option" onClick={() => handleOptionClick("Common Electives")} />
+              <ChatLine
+                text="Completed Courses"
+                type="option"
+                onClick={() => handleOptionClick("Completed courses")}
+              />
+              <ChatLine
+                text="Remaining courses"
+                type="option"
+                onClick={() => handleOptionClick("Remaining courses")}
+              />
+              <ChatLine
+                text="Equivalent Courses"
+                type="option"
+                onClick={() => handleOptionClick("Equivalent Courses")}
+              />
+              <ChatLine
+                text="Common Electives"
+                type="option"
+                onClick={() => handleOptionClick("Common Electives")}
+              />
             </div>
           </div>
         </div>
