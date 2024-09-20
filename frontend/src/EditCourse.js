@@ -1,17 +1,14 @@
 import React from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
-import Button from "./components/Button.jsx";
-import CustomInput from "./components/CustomInput.jsx";
+import { FaCheckCircle } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import search from "./assets/search.svg";
-import Tag from "./components/Tag.jsx";
-import Select from "./components/Select.jsx";
+import Button from "./components/Button.jsx";
 import Checkbox from "./components/Checkbox.jsx";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import CustomInput from "./components/CustomInput.jsx";
+import Tag from "./components/Tag.jsx";
+import Text from "./components/Text.jsx";
 import config from "./config.js";
-import ConfirmationModal from "./components/ConfirmationModal.jsx";
-import { set } from "date-fns";
+import Main from "./layout/Main.jsx";
 
 const EditCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
@@ -152,9 +149,9 @@ const EditCourse = () => {
       specialRequirement:
         specialRequirements && specialRequirementsChoice !== ""
           ? {
-              condition: specialRequirementsChoice,
-              requirement: specialRequirements,
-            }
+            condition: specialRequirementsChoice,
+            requirement: specialRequirements,
+          }
           : null,
     };
 
@@ -372,12 +369,31 @@ const EditCourse = () => {
         </div>
       </div>
       {showConfirmationModal && (
-        <ConfirmationModal
-          status={"Success"}
-          message="Course updated successfully"
-          onConfirm={-1}
-          close={() => setShowConfirmationModal(false)}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div
+            className="bg-white rounded-2xl p-8 relative"
+            style={{ width: '30%', minWidth: '320px', maxWidth: '600px', padding: '2rem' }}
+          >
+            <div className="flex flex-row items-center gap-2 mb-4 justify-center">
+              <FaCheckCircle className="text-green-500 text-3xl" /> {/* Success Icon */}
+              <Text type="sm-heading" classNames="text-center">
+                Success
+              </Text>
+            </div>
+            <Text type="sm-subheading" classNames="mb-8 text-xl text-center">
+              Course updated successfully.
+            </Text>
+            <div className="flex justify-center">
+              <Button
+                text="Close"
+                onClick={() => {
+                  setShowConfirmationModal(false);
+                  navigate(-1);  // Assuming you want to navigate back after closing
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </Main>
   );
