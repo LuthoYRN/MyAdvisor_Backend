@@ -28,4 +28,7 @@ router
 router
   .route("/:facultyID/advisors")
   .get(facultyAdminController.getAdvisorsByFaculty);
+router
+  .route("/:facultyID/advisors/:advisorID")
+  .delete(facultyAdminController.deleteAdvisor);
 module.exports = router;

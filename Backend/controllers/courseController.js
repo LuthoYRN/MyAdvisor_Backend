@@ -218,16 +218,36 @@ const addExisting = async (req, res) => {
         message: "Curriculum not found.",
       });
     }
-
     // 2. Check if the course is already in the curriculum
-    const existingCourse = await sharedCourse.findOne({
+    const facultySearch = await course.findOne({
       where: {
-        [Op.or]: [
-          { majorID: curriculum.majorID, courseID },
-          { programmeID: curriculum.programmeID, courseID },
-        ],
+        id: courseID,
       },
+      attributes: [],
+      include: [
+        {
+          model: faculty,
+          attributes: ["curriculumType"], // Assuming curriculumType is the field you're looking for
+        },
+      ],
     });
+
+    let existingCourse;
+    if (facultySearch.faculty.curriculumType === "Major") {
+      existingCourse = await sharedCourse.findOne({
+        where: {
+          courseID: courseID,
+          majorID: curriculum.majorID,
+        },
+      });
+    } else {
+      existingCourse = await sharedCourse.findOne({
+        where: {
+          courseID: courseID,
+          programmeID: curriculum.programmeID,
+        },
+      });
+    }
 
     if (existingCourse) {
       return res.status(400).json({

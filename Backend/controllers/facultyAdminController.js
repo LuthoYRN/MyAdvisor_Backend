@@ -330,8 +330,8 @@ const addCurriculum = async (req, res) => {
 
       // Create a new Major
       newCurriculum = await major.create({
-        id:curriculumID, // Major ID
-        majorName:curriculumName,
+        id: curriculumID, // Major ID
+        majorName: curriculumName,
         departmentID,
       });
     }
@@ -373,6 +373,120 @@ const addCurriculum = async (req, res) => {
   }
 };
 
+const deleteAdvisor = async (req, res) => {
+  try {
+    const { advisorID } = req.params;
+
+    // Step 1: Find the advisor
+    const advisorToDelete = await advisor.findOne({
+      where: { uuid: advisorID },
+    });
+    if (!advisorToDelete) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Advisor not found.",
+      });
+    }
+
+    // Step 2: Check if the faculty offers Majors or Programmes
+    const facultySearch = await faculty.findOne({
+      where: { id: advisorToDelete.facultyID },
+      attributes: ["curriculumType"],
+    });
+
+    if (!facultySearch) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Faculty not found.",
+      });
+    }
+
+    // Step 3: Handle the case if the advisor is a senior
+    if (advisorToDelete.advisor_level === "senior") {
+      // 3.1: Delete the advisorCluster record
+      const cluster = await advisorCluster.findOne({
+        where: { seniorAdvisorID: advisorToDelete.id },
+      });
+
+      if (cluster) {
+        // 3.2: Set clusterID = null for all advisors in the cluster
+        await advisor.update(
+          { clusterID: null },
+          { where: { id: { [Op.in]: cluster.advisorIDs } } } // Use Op.in for array matching
+        );
+
+        // 3.3: Delete the advisorCluster record
+        await advisorCluster.destroy({
+          where: { seniorAdvisorID: advisorToDelete.id },
+        });
+      }
+
+      // 3.4: Remove advisorMajor or advisorProgramme records based on curriculumType
+      if (facultySearch.curriculumType === "Major") {
+        await advisorMajor.destroy({
+          where: { advisorID: advisorToDelete.id },
+        });
+      } else if (facultySearch.curriculumType === "Programme") {
+        await advisorProgramme.destroy({
+          where: { advisorID: advisorToDelete.id },
+        });
+      }
+
+      // Step 4: Handle the case if the advisor is a regular advisor
+    } else {
+      if (advisorToDelete.clusterID) {
+        // 4.1: Remove the advisor from the advisorCluster array
+        await advisorCluster.update(
+          {
+            advisorIDs: sequelize.fn(
+              "array_remove",
+              sequelize.col("advisorIDs"),
+              advisorToDelete.id // Remove the advisor from the advisorIDs array
+            ),
+          },
+          { where: { id: advisorToDelete.clusterID } } // Match based on the correct clusterID
+        );
+        // 4.2: Set the advisor's clusterID to null
+        await advisor.update(
+          { clusterID: null },
+          { where: { id: advisorToDelete.id } }
+        );
+      }
+
+      // 4.3: Remove advisorMajor or advisorProgramme records based on curriculumType
+      if (facultySearch.curriculumType === "Major") {
+        await advisorMajor.destroy({
+          where: { advisorID: advisorToDelete.id },
+        });
+      } else if (facultySearch.curriculumType === "Programme") {
+        await advisorProgramme.destroy({
+          where: { advisorID: advisorToDelete.id },
+        });
+      }
+    }
+
+    // Step 5: Handle appointments, advice logs, and uploaded files
+    await appointment.destroy({ where: { advisorID: advisorToDelete.id } });
+    await adviceLog.destroy({ where: { advisorID: advisorToDelete.id } });
+    await uploadedFile.destroy({ where: { advisorID: advisorToDelete.id } });
+    await availability.destroy({ where: { advisorID: advisorToDelete.id } });
+
+    // Step 6: Finally, delete the advisor from the advisor table
+    await advisor.destroy({ where: { id: advisorToDelete.id } });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Advisor deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Error deleting advisor:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   updateProfilePicture,
   getFacultyAdminDashboard,
@@ -381,4 +495,5 @@ module.exports = {
   getAdvisorsByFaculty,
   getDepartments,
   addCurriculum,
+  deleteAdvisor,
 };
