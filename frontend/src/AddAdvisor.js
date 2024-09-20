@@ -20,8 +20,11 @@ const AddAdvisor = () => {
   const [selectedSeniorAdvisor, setSelectedSeniorAdvisor] = React.useState("");
   const [Office, setOffice] = React.useState("");
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+  const [selectedMajors, setSelectedMajors] = React.useState([]);
+  const [majorSearch, setMajorSearch] = React.useState("");
+  const [filteredMajors, setFilteredMajors] = React.useState([]);
+  
   let navigate = useNavigate();
-
 
   React.useEffect(() => {
     const fetchFaculties = async () => {
@@ -32,6 +35,7 @@ const AddAdvisor = () => {
         const data = await response.json();
         if (data.status === "success") {
           setFaculties(data.data);
+          setSelectedFaculty(data.data[0].id);
           console.log("Faculties:", faculties);
         }
       } catch (error) {
@@ -102,23 +106,33 @@ const AddAdvisor = () => {
     }
   }, [Faculty]);
 
-
   const handleAddAdmin = async () => {
-    const advisorData = {
+    let advisorData = {
       name: Name,
       surname: Surname,
       email: Email,
       office: Office,
       advisor_level: advisorType,
       facultyID: Faculty,
-      curriculums: majors.map((major) => major.id),
-      seniorAdvisorID: advisorType === "junior" ? selectedSeniorAdvisor : undefined,
-      cluster: advisorType === "senior" ? selectedJuniorAdvisors.map((advisor) => advisor.id) : undefined,
+      curriculums: selectedMajors.map((major) => major.id),
     };
 
+    if (advisorType === "advisor") {
+      advisorData = {
+        ...advisorData,
+        seniorAdvisorID: parseInt(selectedSeniorAdvisor, 10),
+      };
+    } else if (advisorType === "senior") {
+      advisorData = {
+      ...advisorData,
+      cluster: selectedJuniorAdvisors.map((advisor) => advisor.id),
+      };
+    }
+
+    console.log(advisorData);
     try {
       const response = await fetch(
-        `${config.backendUrl}/api/sysAdmin/users/add/advisor/${Faculty}`,
+        `${config.backendUrl}/api/sysAdmin/users/add/advisor/`,
         {
           method: "POST",
           headers: {
@@ -164,8 +178,25 @@ const AddAdvisor = () => {
     );
   };
 
+  const handleAddMajor = (major) => {
+    setSelectedMajors([...selectedMajors, major]);
+  };
+
+  const handleRemoveMajor = (major) => {
+    setSelectedMajors(
+      selectedMajors.filter((item) => item !== major)
+    );
+  };
+
   return (
-    <Main userType={JSON.parse(localStorage.getItem("userData"))?.facultyID ? "FacultyAdmin" : "SystemAdmin" } activeMenuItem="addAdvisor">
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData"))?.facultyID
+          ? "FacultyAdmin"
+          : "SystemAdmin"
+      }
+      activeMenuItem="addAdvisor"
+    >
       <div className="flex flex-col flex-auto gap-2 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
         <Text type="heading" classNames="mb-4">
           Add Advisor
@@ -223,8 +254,8 @@ const AddAdvisor = () => {
                 </div>
                 <div class="flex flex-row">
                   <Checkbox
-                    checked={advisorType === "junior"}
-                    onValueChange={() => setAdvisorType("junior")}
+                    checked={advisorType === "advisor"}
+                    onValueChange={() => setAdvisorType("advisor")}
                   />
                   <Text type="paragraph" classNames="mb-2">
                     Advisor
@@ -242,31 +273,72 @@ const AddAdvisor = () => {
             </div>
           </div>
           <div className="flex flex-col gap-4 w-5/12">
-            <Select
-              label={"Major Advised"}
-              placeholder={"Select the major advised"}
-              options={majors.map((item) => ({
-                value: item.id,
-                label: item.majorName,
-              }))}
-            />
-            {advisorType === "junior" ? (
-              <Select
-                label={"Senior Advisor"}
-                placeholder={"Select your senior advisor"}
-                options={seniorAdvisors.map((item) => ({
-                  value: item.id,
-                  label: `${item.name} ${item.surname}`,
-                }))}
-                onChange={(value) => setSelectedSeniorAdvisor(value)}
-              />
-            ) : advisorType === "senior" ? (
-              <>
-                <CustomInput
-                  label="Advisor Cluster"
-                  placeholder="Select the advisors in your cluster"
+          <CustomInput
+                  label="Majors Advised"
+                  placeholder="Enter the majors advised"
                   icon={search}
                   onValueChange={(value) => {
+                    setMajorSearch(value);
+                    setFilteredMajors(
+                      majors.filter(
+                        (item) =>
+                          item.majorName
+                            .toLowerCase()
+                            .includes(value.toLowerCase()) 
+                      )
+                    );
+                  }}
+                  value={majorSearch}
+                />
+                <div>
+                  {filteredMajors.length >= 1 &&
+                    majorSearch && (
+                      <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
+                        {filteredMajors.map((major) => (
+                          <Text
+                            onClick={() => {
+                              handleAddMajor(major);
+                              setFilteredMajors(
+                                filteredMajors.filter(
+                                  (item) => item.majorName !== major.majorName
+                                )
+                              );
+                              setMajorSearch("");
+                            }}
+                            >
+                            {major.majorName}
+                            </Text>
+                          ))}
+                          </div>
+                        )}
+                      </div>
+                      <div class="flex flex-row flex-wrap gap-4 ">
+                        {selectedMajors
+                        .filter((major) => major.majorName) // Filter out empty items
+                        .map((major) => (
+                          <Tag
+                          text={major.majorName}
+                          onClick={() => handleRemoveMajor(major)}
+                          />
+                        ))}
+                      </div>
+                    {advisorType === "advisor" ? (
+                      <Select
+                      label={"Senior Advisor"}
+                      placeholder={"Select your senior advisor"}
+                      options={seniorAdvisors.map((item) => ({
+                        value: item.id,
+                        label: `${item.name} ${item.surname}`,
+                      }))}
+                      onChange={(value) => setSelectedSeniorAdvisor(value)}
+                      />
+                    ) : advisorType === "senior" ? (
+                      <>
+                      <CustomInput
+                        label="Advisor Cluster"
+                        placeholder="Select the advisors in your cluster"
+                        icon={search}
+                        onValueChange={(value) => {
                     setJuniorAdvisorsSearch(value);
                     setFilteredJuniorAdvisors(
                       juniorAdvisors.filter(
@@ -307,7 +379,7 @@ const AddAdvisor = () => {
                 <div class="flex flex-row flex-wrap gap-4 ">
                   {selectedJuniorAdvisors.map((juniorAdvisor) => (
                     <Tag
-                      text={juniorAdvisor}
+                      text={juniorAdvisor.name}
                       onClick={() => handleRemoveAdvisor(juniorAdvisor)}
                     />
                   ))}
@@ -317,15 +389,13 @@ const AddAdvisor = () => {
           </div>
         </div>
       </div>
-      {
-        showSuccessModal && (
-          <ConfirmationModal
-            status={"Success"}
-            message={"Advisor added successfully."}
-            close={() => setShowSuccessModal(false)}
-          />
-        )
-      }
+      {showSuccessModal && (
+        <ConfirmationModal
+          status={"Success"}
+          message={"Advisor added successfully."}
+          close={() => setShowSuccessModal(false)}
+        />
+      )}
     </Main>
   );
 };

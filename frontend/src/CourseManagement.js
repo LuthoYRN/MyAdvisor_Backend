@@ -115,17 +115,18 @@ const CurriculumManagement = () => {
 
   
   const handleAddExistingCourse = async () => {
+    console.log("Adding existing course:", selectedCourses[0].id);
     try {
       const response = await fetch(
-        `${config.backendUrl}/api/curriculum/${JSON.parse(localStorage.getItem("curriculum").curriculumID)}/courses/addExisting`,
+        `${config.backendUrl}/api/curriculum/${JSON.parse(localStorage.getItem("curriculum")).curriculumID}/courses/addExisting`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+        "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            courseID: selectedCourses[0].id,
-            prerequisiteFor: selectedPrerequisites.map((course) => course.id),
+        courseID: selectedCourses[0].id,
+        prerequisiteFor: selectedPrerequisites.map((course) => course.id),
           }),
         }
       );
@@ -137,7 +138,7 @@ const CurriculumManagement = () => {
       setShowAddExistingCourseModal(false);
       setSelectedCourses([]);
       setSelectedPrerequisites([]);
-    } catch (error) {
+        } catch (error) {
       console.error("Error adding existing course:", error);
     }
   };
