@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [progress, setProgress] = useState(null);
   const [chatLines, setChatLines] = useState([]);
+  const [isTyping, setIsTyping] = useState(false); // Manage typing state
   const chatContainerRef = useRef(null); // Ref to control the chat scroll behavior
 
   useEffect(() => {
@@ -93,13 +94,17 @@ const Dashboard = () => {
           },
         ]);
         typeEffect(text, index + 1, callback);
-      }, 40); // Adjust the delay to control typing speed
+      }, 50); // Adjust the delay to control typing speed
     } else {
       callback();
     }
   };
 
   const handleOptionClick = (option) => {
+    if (isTyping) return; // Prevent click during typing
+
+    setIsTyping(true); // Set typing state to true when typing starts
+
     setChatLines((prevChatLines) => [
       ...prevChatLines,
       { text: option, type: "user" }, // Display the clicked option on the right
@@ -111,7 +116,7 @@ const Dashboard = () => {
     if (option === "Remaining courses") {
       if (progress && progress.remainingCourses?.length > 0) {
         responseText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses
-          .map((course) => course.courseName)
+          .map((course) => course.courseID)
           .join(", ")}.`;
       } else if (progress && progress.remainingCourses?.length === 0) {
         responseText = "Congratulations! You have completed all your courses.";
@@ -122,11 +127,11 @@ const Dashboard = () => {
 
     if (option === "Completed courses") {
       if (progress && progress.completedCourses?.length > 0) {
-        responseText = `You completed ${progress.completedCourses.length} courses: ${progress.completedCourses
+        responseText = `You have completed ${progress.completedCourses.length} courses: ${progress.completedCourses
           .map((course) => course.courseID)
           .join(", ")}.`;
       } else if (progress && progress.completedCourses?.length === 0) {
-        responseText = "Congratulations! You have completed all your courses.";
+        responseText = "You have not completed any course.";
       } else {
         responseText = "Loading your completed courses, please wait...";
       }
@@ -138,6 +143,7 @@ const Dashboard = () => {
         ...prevChatLines,
         { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
       ]);
+      setIsTyping(false); // Set typing state back to false when typing is complete
     });
   };
 
@@ -225,10 +231,11 @@ const Dashboard = () => {
                   text={option}
                   onClick={() => handleOptionClick(option)}
                   className={`p-2 border rounded-lg ${
-                    chatLines.some((line) => line.text === option)
-                      ? "bg-secondary-500 text-white"
-                      : "bg-gray-100 text-black"
+                    isTyping
+                      ? "bg-gray-300 cursor-not-allowed" // Disable styling when typing
+                      : "bg-gray-100 text-black cursor-pointer" // Enable styling when not typing
                   }`}
+                  disabled={isTyping} // Disable the button while typing
                 />
               ))}
             </div>

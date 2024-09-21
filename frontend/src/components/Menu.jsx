@@ -151,7 +151,7 @@ const Menu = ({ userType, activeMenuItem }) => {
             />
              <MenuItem
               imageSrc={rule}
-              text="Manage Courses"
+              text="Completed courses"
               isActive={activeMenuItem === "manageCourses"}
               onClick={() => {
                 navigate("/studentCourses");
