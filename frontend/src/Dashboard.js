@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Container from "./layout/Container";
+import React, { useEffect, useState, useRef } from "react";
 import robot from "./assets/robot.svg";
 import Text from "./components/Text";
 import Card from "./components/Card";
@@ -12,8 +11,10 @@ import moment from "moment";
 
 const Dashboard = () => {
   const location = useLocation();
-  const [userData, setUserData] = useState(null); // Changed to null to handle loading state
+  const [userData, setUserData] = useState(null);
   const [progress, setProgress] = useState(null);
+  const [chatLines, setChatLines] = useState([]);
+  const chatContainerRef = useRef(null); // Ref to control the chat scroll behavior
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,7 +54,6 @@ const Dashboard = () => {
           }
         );
         const progressData = await response.json();
-        console.log("Progress Data:", progressData);
         setProgress(progressData.data);
       } catch (error) {
         console.error("Error fetching progress data:", error);
@@ -62,8 +62,6 @@ const Dashboard = () => {
 
     fetchProgressData();
   }, []);
-
-  const [chatLines, setChatLines] = useState([]);
 
   useEffect(() => {
     if (userData) {
@@ -76,6 +74,73 @@ const Dashboard = () => {
     }
   }, [userData]);
 
+  // Scroll to the bottom of the chat when a new message is added
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [chatLines]); // Dependency to trigger scrolling when chatLines updates
+
+  const typeEffect = (text, index = 0, callback) => {
+    if (index < text.length) {
+      setTimeout(() => {
+        setChatLines((prevChatLines) => [
+          ...prevChatLines.slice(0, -1), // Remove the last line (typing effect)
+          {
+            text: prevChatLines[prevChatLines.length - 1].text + text[index],
+            type: "chat",
+          },
+        ]);
+        typeEffect(text, index + 1, callback);
+      }, 40); // Adjust the delay to control typing speed
+    } else {
+      callback();
+    }
+  };
+
+  const handleOptionClick = (option) => {
+    setChatLines((prevChatLines) => [
+      ...prevChatLines,
+      { text: option, type: "user" }, // Display the clicked option on the right
+      { text: "", type: "chat" }, // Placeholder for the typing effect
+    ]);
+
+    let responseText = "";
+
+    if (option === "Remaining courses") {
+      if (progress && progress.remainingCourses?.length > 0) {
+        responseText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses
+          .map((course) => course.courseName)
+          .join(", ")}.`;
+      } else if (progress && progress.remainingCourses?.length === 0) {
+        responseText = "Congratulations! You have completed all your courses.";
+      } else {
+        responseText = "Loading your remaining courses, please wait...";
+      }
+    }
+
+    if (option === "Completed courses") {
+      if (progress && progress.completedCourses?.length > 0) {
+        responseText = `You completed ${progress.completedCourses.length} courses: ${progress.completedCourses
+          .map((course) => course.courseID)
+          .join(", ")}.`;
+      } else if (progress && progress.completedCourses?.length === 0) {
+        responseText = "Congratulations! You have completed all your courses.";
+      } else {
+        responseText = "Loading your completed courses, please wait...";
+      }
+    }
+
+    // Trigger typing effect for the system response
+    typeEffect(responseText, 0, () => {
+      setChatLines((prevChatLines) => [
+        ...prevChatLines,
+        { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
+      ]);
+    });
+  };
+
   if (!userData) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -85,79 +150,6 @@ const Dashboard = () => {
   }
 
   const { student, upcomingAppointments, unreadNotifications } = userData;
-  const handleOptionClick = (option) => {
-    if (option === "Remaining courses") {
-      if (
-        progress &&
-        progress.remainingCourses &&
-        progress.remainingCourses.length > 0
-      ) {
-        const remainingCoursesText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses.map((course) => course.courseName).join(", ")}.`;
-        setChatLines((prevChatLines) => [
-          ...prevChatLines,
-          { text: remainingCoursesText, type: "chat" },
-          { text: "Is there anything else I can help you with?", type: "chat" },
-        ]);
-      } else if (
-        progress &&
-        progress.remainingCourses &&
-        progress.remainingCourses.length === 0
-      ) {
-        setChatLines((prevChatLines) => [
-          ...prevChatLines,
-          {
-            text: "Congratulations! You have completed all your courses.",
-            type: "chat",
-          },
-          { text: "Is there anything else I can help you with?", type: "chat" },
-        ]);
-      } else {
-        setChatLines((prevChatLines) => [
-          ...prevChatLines,
-          {
-            text: "Loading your remaining courses, please wait...",
-            type: "chat",
-          },
-        ]);
-      }
-    }
-    if (option === "Completed courses") {
-      if (
-        progress &&
-        progress.completedCourses &&
-        progress.completedCourses.length > 0
-      ) {
-        const remainingCoursesText = `You completed ${progress.completedCourses.length} courses: ${progress.completedCourses.map((course) => course.courseID).join(", ")}.`;
-        setChatLines((prevChatLines) => [
-          ...prevChatLines,
-          { text: remainingCoursesText, type: "chat" },
-          { text: "Is there anything else I can help you with?", type: "chat" },
-        ]);
-      } else if (
-        progress &&
-        progress.completedCourses &&
-        progress.completedCourses.length === 0
-      ) {
-        setChatLines((prevChatLines) => [
-          ...prevChatLines,
-          {
-            text: "Congratulations! You have completed all your courses.",
-            type: "chat",
-          },
-          { text: "Is there anything else I can help you with?", type: "chat" },
-        ]);
-      } else {
-        setChatLines((prevChatLines) => [
-          ...prevChatLines,
-          {
-            text: "Loading your remaining courses, please wait...",
-            type: "chat",
-          },
-        ]);
-      }
-    }
-    // Handle other options similarly
-  };
 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
@@ -183,7 +175,6 @@ const Dashboard = () => {
                   key={index}
                   heading={`Meeting with ${appointment.advisorName}`}
                   info={appointment.office}
-                  //slice appointment to only show hh:mm using moment
                   side={moment(
                     appointment.date + " " + appointment.time
                   ).format("DD-MM-yyyy HH:mm")}
@@ -195,44 +186,51 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* SMART Advisor */}
         <div className="flex flex-col rounded-2xl bg-white shadow-xl h-full">
-          <div className="flex p-4 items-center">
-            <img src={robot} alt="SMART Advisor" className="h-1/2" />
-            <Text classNames="my-auto" type="heading">
-              SMART Advisor
-            </Text>
+          <div className="flex flex-row p-4 items-center">
+            <img src={robot} alt="SMART Advisor" className="h-full mr-4" />
+            <div className="flex flex-col">
+              <Text classNames="my-auto" type="heading">
+                SMART Advisor
+              </Text>
+              <Text classNames="mt-2 text-sm text-gray-500">
+                <span className="text-red-500">Disclaimer: </span>
+                Please note that advice from SMART Advisor might be inaccurate.
+              </Text>
+            </div>
           </div>
 
           <div className="border-b border-gray-500"></div>
 
-          <div className="flex flex-col lg:max-h-[200px] xl:max-h-[500px] overflow-y-auto p-8">
-            {" "}
-            {/* Added a height limit */}
+          {/* Chat container */}
+          <div
+            ref={chatContainerRef}
+            className="flex flex-col lg:max-h-[200px] xl:max-h-[500px] overflow-y-auto p-8"
+          >
+            {/* Display chat lines */}
             {chatLines.map((line, index) => (
               <ChatLine key={index} text={line.text} type={line.type} />
             ))}
+
+            {/* Options */}
             <div className="flex w-4/6 justify-end ml-auto flex-wrap">
-              <ChatLine
-                text="Completed Courses"
-                type="option"
-                onClick={() => handleOptionClick("Completed courses")}
-              />
-              <ChatLine
-                text="Remaining courses"
-                type="option"
-                onClick={() => handleOptionClick("Remaining courses")}
-              />
-              <ChatLine
-                text="Equivalent Courses"
-                type="option"
-                onClick={() => handleOptionClick("Equivalent Courses")}
-              />
-              <ChatLine
-                text="Common Electives"
-                type="option"
-                onClick={() => handleOptionClick("Common Electives")}
-              />
+              {[
+                "Completed courses",
+                "Remaining courses",
+                "Equivalent Courses",
+                "Common Electives",
+              ].map((option) => (
+                <ChatLine
+                  key={option}
+                  text={option}
+                  onClick={() => handleOptionClick(option)}
+                  className={`p-2 border rounded-lg ${
+                    chatLines.some((line) => line.text === option)
+                      ? "bg-secondary-500 text-white"
+                      : "bg-gray-100 text-black"
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
