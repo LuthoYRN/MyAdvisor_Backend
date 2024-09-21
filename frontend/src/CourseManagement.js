@@ -31,6 +31,8 @@ const CurriculumManagement = () => {
   const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
 
   useEffect(() => {
@@ -113,7 +115,13 @@ const CurriculumManagement = () => {
   }, [showAddExistingCourseModal]);
 
   const handleAddExistingCourse = async () => {
-    console.log("Adding existing course:", selectedCourses[0].id);
+
+    if (selectedCourses.length === 0) {
+      setErrorMessage("Please select a course name before proceeding.");
+      setShowErrorModal(true);
+      return;
+    }
+
     try {
       const response = await fetch(
         `${config.backendUrl}/api/curriculum/${JSON.parse(localStorage.getItem("curriculum")).curriculumID}/courses/addExisting`,
@@ -268,7 +276,7 @@ const CurriculumManagement = () => {
       ) : null}
       {showDeleteModal && (
         <DeleteModal
-          message={"Are you sure you want to delete this course?"}
+          message={"Are you sure you want to remove this course?"}
           returnMessage={(status) => {
             if (status === "yes") {
               handleDelete(workingID);
@@ -280,13 +288,16 @@ const CurriculumManagement = () => {
 
       {showAddExistingCourseModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-2xl p-8">
+          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '25%', minWidth: '350px', maxWidth: '400px' }}>
+            {/* Updated Text for course selection */}
             <Text type="sm-heading" classNames="mb-4">
               Add Existing Course
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <Text type="paragraph" classNames="mb-8 text-lg font-bold text-center">
               Select which course you want to add
             </Text>
+
+            {/* CustomInput for Course Search */}
             <CustomInput
               label="Course Name"
               placeholder="Enter Course Name"
@@ -301,17 +312,19 @@ const CurriculumManagement = () => {
                 );
               }}
             />
+
             <div>
+              {/* Display the filtered courses */}
               {courseSearch && filteredCourses.length >= 1 && (
-                <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
+                <div className="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48 max-h-60">
                   {filteredCourses.map((course, index) => (
                     <p
+                      key={index}
                       onClick={() => {
                         setSelectedCourses([course]);
                         setFilteredCourses([]);
                         setCourseSearch("");
                       }}
-                      key={index}
                     >
                       {course.id}
                     </p>
@@ -319,14 +332,18 @@ const CurriculumManagement = () => {
                 </div>
               )}
             </div>
+
+            {/* Selected Course Tag */}
             {selectedCourses.length > 0 && (
-              <div class="flex flex-row gap-4 my-4">
+              <div className="flex flex-row gap-4 my-4">
                 <Tag
                   text={selectedCourses[0].id}
                   onClick={() => setSelectedCourses([])}
                 />
               </div>
             )}
+
+            {/* Prerequisite Input */}
             <CustomInput
               label="Prerequisite for:"
               placeholder="Prerequisite for"
@@ -341,17 +358,18 @@ const CurriculumManagement = () => {
                 );
               }}
             />
+
+            {/* Display Prerequisites */}
             <div>
               {prerequisiteSearch && filteredPrerequisites.length >= 1 && (
-                <div class="absolute z-20 bg-gray-200 rounded-2xl p-4 overflow-y-auto max-w-48">
+                <div className="absolute z-20 bg-gray-200 rounded-2xl p-4 overflow-y-auto max-w-48">
                   {filteredPrerequisites.map((course) => (
                     <p
+                      key={course.id}
                       onClick={() => {
                         handleAddPrerequisites(course);
                         setFilteredPrerequisites(
-                          filteredPrerequisites.filter(
-                            (item) => item !== course
-                          )
+                          filteredPrerequisites.filter((item) => item !== course)
                         );
                         setPrerequisiteSearch("");
                       }}
@@ -362,10 +380,13 @@ const CurriculumManagement = () => {
                 </div>
               )}
             </div>
-            {selectedPrerequisites && (
-              <div class="flex flex-row gap-4 my-4">
+
+            {/* Selected Prerequisites */}
+            {selectedPrerequisites.length > 0 && (
+              <div className="flex flex-row gap-4 my-4">
                 {selectedPrerequisites.map((course) => (
                   <Tag
+                    key={course.id}
                     text={course.id}
                     onClick={() => handleRemovePrerequisite(course)}
                   />
@@ -373,7 +394,8 @@ const CurriculumManagement = () => {
               </div>
             )}
 
-            <div class="flex flex-row gap-4 mt-8">
+            {/* Buttons for adding or canceling the course */}
+            <div className="flex flex-row gap-4 mt-8">
               <Button text="Add" onClick={() => handleAddExistingCourse()} />
               <Button
                 text="Cancel"
@@ -389,6 +411,7 @@ const CurriculumManagement = () => {
           </div>
         </div>
       )}
+
       {showCourseDependencyModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div className="bg-white rounded-2xl p-8 relative" style={{ width: '40%', height: 'auto', padding: '2rem' }}>
@@ -448,6 +471,31 @@ const CurriculumManagement = () => {
                 }}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {showErrorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <div className="bg-white rounded-2xl p-8" style={{ width: "30%", maxWidth: "400px", minWidth: "300px" }}>
+            <div className="flex flex-row items-center gap-2 mb-4 justify-center">
+              <FaExclamationCircle className="text-red-500 text-3xl" />
+              <Text type="sm-heading" classNames="text-center">
+                Error
+              </Text>
+            </div>
+
+            <Text type="paragraph" classNames="mb-8 text-center">
+              {errorMessage}
+            </Text>
+
+            <Button
+              text="Continue"
+              onClick={() => {
+                setShowErrorModal(false);
+                setShowAddExistingCourseModal(true); // Return to the add existing course modal
+              }}
+            />
           </div>
         </div>
       )}
