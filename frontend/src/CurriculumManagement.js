@@ -11,6 +11,7 @@ const CurriculumManagement = () => {
   const [curriculums, setCurriculums] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [workingID, setWorkingID] = useState(null);
+  const [loading, setLoading] = useState(true);
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const CurriculumManagement = () => {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
+        setLoading(false);
         setCurriculums(data.data);
         console.log("Curriculums:", data.data);
       } catch (error) {
@@ -56,9 +58,11 @@ const CurriculumManagement = () => {
   };
 
   const handleEdit = (curriculumID) => {
-    const curriculum = curriculums.find(c => c.curriculumID === curriculumID);
+    const curriculum = curriculums.find((c) => c.curriculumID === curriculumID);
     if (curriculum) {
-      navigate(`/courseManagement`, { state: { curriculumID: curriculumID, facultyID: curriculum.facultyID } });
+      navigate(`/courseManagement`, {
+        state: { curriculumID: curriculumID, facultyID: curriculum.facultyID },
+      });
       localStorage.setItem("curriculum", JSON.stringify(curriculum));
       console.log("Curriculum:", curriculum);
     }
@@ -82,6 +86,21 @@ const CurriculumManagement = () => {
       accessorKey: "type",
     },
   ];
+
+  if (loading) {
+    return (
+      <Main
+        userType={
+          JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        }
+        activeMenuItem={"manageMajors"}
+      >
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div>
+        </div>
+      </Main>
+    );
+  }
 
   return (
     <Main
@@ -108,8 +127,7 @@ const CurriculumManagement = () => {
       ) : null}
       {showDeleteModal && (
         <DeleteModal
-        message={`Are you sure you want to delete ${curriculums.find(c => c.curriculumID === workingID).curriculumName}`}
-        
+          message={`Are you sure you want to stop being an advisor for ${curriculums.find((c) => c.curriculumID === workingID).curriculumName}?`}
           returnMessage={(status) => {
             if (status === "yes") {
               handleDelete(workingID);

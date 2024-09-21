@@ -2,6 +2,7 @@ import React from "react";
 import Main from "./layout/Main";
 import Text from "./components/Text";
 import Button from "./components/Button";
+import SuccessModal from "./components/successModal";
 import Table from "./components/Table";
 import admin from "./assets/admin.svg";
 import advisor from "./assets/advisor.svg";
@@ -18,11 +19,15 @@ const UserManagement = () => {
   const [workingID, setWorkingID] = React.useState(null);
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [showEditAdvisorModal, setShowEditAdvisorModal] = React.useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
-  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = React.useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] =
+    React.useState(false);
+  const [showReassignModal, setShowReassignModal] = React.useState(false);
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
+    React.useState(false);
   const [advisorSearch, setAdvisorSearch] = React.useState("");
   const [filteredAdvisors, setFilteredAdvisors] = React.useState([]);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   const handleAddUser = () => {
     setShowAddUserModal(true);
@@ -41,7 +46,7 @@ const UserManagement = () => {
         );
         const result = await response.json();
         if (result.status === "success") {
-          
+          setLoading(false);
           setUsers(result.data);
           console.log("Users:", result.data);
           setFilteredUsers(result.data);
@@ -116,7 +121,6 @@ const UserManagement = () => {
         setUsers(updatedUsers);
         setFilteredUsers(updatedUsers);
         setShowDeleteConfirmationModal(true);
-
       } else {
         console.error("Error removing user:", result.message);
       }
@@ -149,7 +153,7 @@ const UserManagement = () => {
         setShowEditAdvisorModal(false);
         setSelectedCourses([]);
         setCurriculumSearch("");
-        setShowConfirmationModal(true);
+        setShowReassignModal(true);
       } else {
         console.error("Error adding course:", result.message);
       }
@@ -253,6 +257,16 @@ const UserManagement = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Main userType="senior" activeMenuItem="manageCluster">
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div>
+        </div>
+      </Main>
+    );
+  }
+
   return (
     <Main userType="senior" activeMenuItem="manageCluster">
       <Text type="heading" classNames="mb-8">
@@ -289,11 +303,9 @@ const UserManagement = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl p-8">
             <Text type="sm-heading" classNames="mb-4">
-              Add User
+              Add Advisor
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
-              Select which type of user you want to add
-            </Text>
+            <Text classNames="mb-8">Search the advisor you wish to add</Text>
 
             <CustomInput
               label="Advisor Name"
@@ -335,91 +347,92 @@ const UserManagement = () => {
               </div>
             )}
             <div class="flex flex-row gap-4 mt-8">
-            
-              
-            <Button
-              text="Add"
-              onClick={() => {
-                handleAddAdvisorToCluster();
-                setShowAddUserModal(false);
+              <Button
+                text="Add"
+                onClick={() => {
+                  handleAddAdvisorToCluster();
+                  setShowAddUserModal(false);
                 }}
-                />
-                <Button text="Cancel" onClick={()=> setShowAddUserModal(false)} />
-                </div>
-                </div>
-              </div>
-              )}
-              {showDeleteModal && (
-              <DeleteModal
-                message={`Are you sure you want to remove: ${users.find(user => user.uuid === workingID)?.name || 'this advisor'}`}
-                returnMessage={(message) =>
-                message === "yes"
-                ? handleRemoveUser(workingID)
-                : setShowDeleteModal(false)
-                }
               />
-              )}
-              {showEditAdvisorModal && (
-              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="bg-white rounded-2xl p-8">
-                <Text type="sm-heading" classNames="mb-4">
-                Add or Remove Curriculums Advised
-                </Text>
-                <Text type="sm-subheading" classNames="mb-8">
-                Select which curriculums you want to add or remove
-                </Text>
-                <CustomInput
-                label="Curriculums Name"
-                placeholder="Enter Curriculums Name"
-                icon={search}
-                value={curriculumSearch}
-                onValueChange={(value) => {
+              <Button
+                text="Cancel"
+                onClick={() => setShowAddUserModal(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <DeleteModal
+          message={`Are you sure you want to remove ${users.find((user) => user.uuid === workingID)?.name || "this advisor"} from your advisor cluster.`}
+          returnMessage={(message) =>
+            message === "yes"
+              ? handleRemoveUser(workingID)
+              : setShowDeleteModal(false)
+          }
+        />
+      )}
+      {showEditAdvisorModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl p-8">
+            <Text type="sm-heading" classNames="mb-4">
+              Add or Remove Curriculums Advised
+            </Text>
+            <Text classNames="mb-8">
+              Select which curriculums you want to add or remove
+            </Text>
+            <CustomInput
+              label="Curriculums Name"
+              placeholder="Enter Curriculums Name"
+              icon={search}
+              value={curriculumSearch}
+              onValueChange={(value) => {
                 setCurriculumSearch(value);
                 setFilteredCourses(
                   courses.filter((course) =>
-                  course.majorName.toLowerCase().includes(value.toLowerCase())
+                    course.majorName.toLowerCase().includes(value.toLowerCase())
                   )
                 );
-                }}
-              />
-              <div>
-                {curriculumSearch && filteredCourses.length >= 1 && (
+              }}
+            />
+            <div>
+              {curriculumSearch && filteredCourses.length >= 1 && (
                 <div class="absolute z-20 bg-gray-200 overflow-y-auto rounded-2xl p-4 max-w-48">
                   {filteredCourses.map((course) => (
-                  <p
-                    onClick={() => {
-                    if (!selectedCourses.some((c) => c.id === course.id)) {
-                      setSelectedCourses([...selectedCourses, course]);
-                    }
-                    setFilteredCourses([]);
-                    setCurriculumSearch("");
-                    }}
-                  >
-                    {course.majorName}
-                  </p>
+                    <p
+                      onClick={() => {
+                        if (!selectedCourses.some((c) => c.id === course.id)) {
+                          setSelectedCourses([...selectedCourses, course]);
+                        }
+                        setFilteredCourses([]);
+                        setCurriculumSearch("");
+                      }}
+                    >
+                      {course.majorName}
+                    </p>
                   ))}
                 </div>
-                )}
-              </div>
-              {selectedCourses.length > 0 && (
-                <div class="flex flex-row gap-4 my-4 flex-wrap">
+              )}
+            </div>
+            {selectedCourses.length > 0 && (
+              <div class="flex flex-row gap-4 my-4 flex-wrap">
                 {selectedCourses.map((course) => (
                   <Tag
-                  key={course.id}
-                  text={course.majorName}
-                  onClick={() =>
-                    setSelectedCourses(
-                    selectedCourses.filter((c) => c.id !== course.id)
-                    )
-                  }
+                    key={course.id}
+                    text={course.majorName}
+                    onClick={() =>
+                      setSelectedCourses(
+                        selectedCourses.filter((c) => c.id !== course.id)
+                      )
+                    }
                   />
                 ))}
-                </div>
-              )}
+              </div>
+            )}
 
-              <div class="flex flex-row gap-4 mt-8">
-                <Button text="Add" onClick={() => handleEditAdivsor()} />
-                <Button
+            <div class="flex flex-row gap-4 mt-8">
+              <Button text="Add" onClick={() => handleEditAdivsor()} />
+              <Button
                 text="Cancel"
                 onClick={() => {
                   setShowEditAdvisorModal(false);
@@ -431,24 +444,32 @@ const UserManagement = () => {
           </div>
         </div>
       )}
-      {
-        showConfirmationModal && (
-          <ConfirmationModal
-            status={"Success"}
-            message="Advisor added to the cluster successfully."
-            close={()=>{setShowConfirmationModal(false)}}
-          />
-        )
-      }
-      {
-        showDeleteConfirmationModal && (
-          <ConfirmationModal
-            status={"Success"}
-            message="Advisor removed from the cluster successfully."
-            close={()=>{setShowDeleteConfirmationModal(false)}}
-          />
-        )
-      }
+      <SuccessModal
+        isOpen={showReassignModal}
+        title={"Success"}
+        message="Advisor reassigned successfully."
+        onClose={() => {
+          setShowReassignModal(false);
+          window.location.reload();
+        }}
+      />
+
+      <SuccessModal
+        isOpen={showConfirmationModal}
+        title={"Success"}
+        message="Advisor added to the cluster successfully."
+        onClose={() => {
+          setShowConfirmationModal(false);
+        }}
+      />
+      <SuccessModal
+        isOpen={showDeleteConfirmationModal}
+        title={"Success"}
+        message="Advisor removed from the cluster successfully."
+        onClose={() => {
+          setShowDeleteConfirmationModal(false);
+        }}
+      />
     </Main>
   );
 };

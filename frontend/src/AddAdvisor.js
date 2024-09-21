@@ -9,7 +9,7 @@ import Tag from "./components/Tag.jsx";
 import search from "./assets/search.svg";
 import config from "./config.js";
 import { useNavigate } from "react-router-dom";
-import ConfirmationModal from "./components/ConfirmationModal";
+import SuccessModal from "./components/successModal.jsx";
 
 const AddAdvisor = () => {
   const [faculties, setFaculties] = React.useState([]);
@@ -23,7 +23,7 @@ const AddAdvisor = () => {
   const [selectedMajors, setSelectedMajors] = React.useState([]);
   const [majorSearch, setMajorSearch] = React.useState("");
   const [filteredMajors, setFilteredMajors] = React.useState([]);
-  
+
   let navigate = useNavigate();
 
   React.useEffect(() => {
@@ -106,7 +106,7 @@ const AddAdvisor = () => {
     }
   }, [Faculty]);
 
-  const handleAddAdmin = async () => {
+  const handleAddAdvisorPost = async () => {
     let advisorData = {
       name: Name,
       surname: Surname,
@@ -124,8 +124,8 @@ const AddAdvisor = () => {
       };
     } else if (advisorType === "senior") {
       advisorData = {
-      ...advisorData,
-      cluster: selectedJuniorAdvisors.map((advisor) => advisor.id),
+        ...advisorData,
+        cluster: selectedJuniorAdvisors.map((advisor) => advisor.id),
       };
     }
 
@@ -159,7 +159,6 @@ const AddAdvisor = () => {
   const [Email, setEmail] = React.useState("");
 
   const [advisorType, setAdvisorType] = React.useState("");
-  const [equivalents, setEquivalents] = React.useState("");
   const [juniorAdvisors, setJuniorAdvisors] = React.useState([]);
   const [filteredJuniorAdvisors, setFilteredJuniorAdvisors] = React.useState(
     []
@@ -183,9 +182,7 @@ const AddAdvisor = () => {
   };
 
   const handleRemoveMajor = (major) => {
-    setSelectedMajors(
-      selectedMajors.filter((item) => item !== major)
-    );
+    setSelectedMajors(selectedMajors.filter((item) => item !== major));
   };
 
   return (
@@ -264,7 +261,7 @@ const AddAdvisor = () => {
               </div>
             </div>
             <div className="flex flex-row gap-8 max-w-md">
-              <Button text="Save" onClick={handleAddAdmin} />
+              <Button text="Save" onClick={handleAddAdvisorPost} />
               <Button
                 text="Back"
                 onClick={() => navigate(-1)}
@@ -273,72 +270,68 @@ const AddAdvisor = () => {
             </div>
           </div>
           <div className="flex flex-col gap-4 w-5/12">
-          <CustomInput
-                  label="Majors Advised"
-                  placeholder="Enter the majors advised"
+            <CustomInput
+              label="Majors Advised"
+              placeholder="Enter the majors advised"
+              icon={search}
+              onValueChange={(value) => {
+                setMajorSearch(value);
+                setFilteredMajors(
+                  majors.filter((item) =>
+                    item.majorName.toLowerCase().includes(value.toLowerCase())
+                  )
+                );
+              }}
+              value={majorSearch}
+            />
+            <div>
+              {filteredMajors.length >= 1 && majorSearch && (
+                <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
+                  {filteredMajors.map((major) => (
+                    <Text
+                      onClick={() => {
+                        handleAddMajor(major);
+                        setFilteredMajors(
+                          filteredMajors.filter(
+                            (item) => item.majorName !== major.majorName
+                          )
+                        );
+                        setMajorSearch("");
+                      }}
+                    >
+                      {major.majorName}
+                    </Text>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div class="flex flex-row flex-wrap gap-4 ">
+              {selectedMajors
+                .filter((major) => major.majorName) // Filter out empty items
+                .map((major) => (
+                  <Tag
+                    text={major.majorName}
+                    onClick={() => handleRemoveMajor(major)}
+                  />
+                ))}
+            </div>
+            {advisorType === "advisor" ? (
+              <Select
+                label={"Senior Advisor"}
+                placeholder={"Select your senior advisor"}
+                options={seniorAdvisors.map((item) => ({
+                  value: item.id,
+                  label: `${item.name} ${item.surname}`,
+                }))}
+                onChange={(value) => setSelectedSeniorAdvisor(value)}
+              />
+            ) : advisorType === "senior" ? (
+              <>
+                <CustomInput
+                  label="Advisor Cluster"
+                  placeholder="Select the advisors in your cluster"
                   icon={search}
                   onValueChange={(value) => {
-                    setMajorSearch(value);
-                    setFilteredMajors(
-                      majors.filter(
-                        (item) =>
-                          item.majorName
-                            .toLowerCase()
-                            .includes(value.toLowerCase()) 
-                      )
-                    );
-                  }}
-                  value={majorSearch}
-                />
-                <div>
-                  {filteredMajors.length >= 1 &&
-                    majorSearch && (
-                      <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
-                        {filteredMajors.map((major) => (
-                          <Text
-                            onClick={() => {
-                              handleAddMajor(major);
-                              setFilteredMajors(
-                                filteredMajors.filter(
-                                  (item) => item.majorName !== major.majorName
-                                )
-                              );
-                              setMajorSearch("");
-                            }}
-                            >
-                            {major.majorName}
-                            </Text>
-                          ))}
-                          </div>
-                        )}
-                      </div>
-                      <div class="flex flex-row flex-wrap gap-4 ">
-                        {selectedMajors
-                        .filter((major) => major.majorName) // Filter out empty items
-                        .map((major) => (
-                          <Tag
-                          text={major.majorName}
-                          onClick={() => handleRemoveMajor(major)}
-                          />
-                        ))}
-                      </div>
-                    {advisorType === "advisor" ? (
-                      <Select
-                      label={"Senior Advisor"}
-                      placeholder={"Select your senior advisor"}
-                      options={seniorAdvisors.map((item) => ({
-                        value: item.id,
-                        label: `${item.name} ${item.surname}`,
-                      }))}
-                      onChange={(value) => setSelectedSeniorAdvisor(value)}
-                      />
-                    ) : advisorType === "senior" ? (
-                      <>
-                      <CustomInput
-                        label="Advisor Cluster"
-                        placeholder="Select the advisors in your cluster"
-                        icon={search}
-                        onValueChange={(value) => {
                     setJuniorAdvisorsSearch(value);
                     setFilteredJuniorAdvisors(
                       juniorAdvisors.filter(
@@ -389,14 +382,15 @@ const AddAdvisor = () => {
           </div>
         </div>
       </div>
-      {showSuccessModal && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Advisor added successfully."}
-          close={() => setShowSuccessModal(false)}
-          onConfirm={-1}
-        />
-      )}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title={"Success"}
+        message={"Advisor added successfully."}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate(-1);
+        }}
+      />
     </Main>
   );
 };

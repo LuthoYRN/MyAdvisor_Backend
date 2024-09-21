@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FaCheckCircle, FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
+import {
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import search from "./assets/search.svg";
 import Button from "./components/Button";
@@ -9,7 +13,6 @@ import Tag from "./components/Tag";
 import Text from "./components/Text";
 import config from "./config";
 import Main from "./layout/Main";
-
 
 const CurriculumManagement = () => {
   const [courses, setCourses] = useState(null);
@@ -29,11 +32,11 @@ const CurriculumManagement = () => {
   const [prerequisiteSearch, setPrerequisiteSearch] = useState("");
   const [filteredPrerequisites, setFilteredPrerequisites] = useState([]);
   const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -45,6 +48,7 @@ const CurriculumManagement = () => {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
+        setLoading(false);
         setCourses(data.data);
       } catch (error) {
         console.error("Error fetching curriculums:", error);
@@ -115,7 +119,6 @@ const CurriculumManagement = () => {
   }, [showAddExistingCourseModal]);
 
   const handleAddExistingCourse = async () => {
-
     if (selectedCourses.length === 0) {
       setErrorMessage("Please select a course name before proceeding.");
       setShowErrorModal(true);
@@ -182,7 +185,7 @@ const CurriculumManagement = () => {
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
         <div
           className="bg-white rounded-2xl p-6 relative"
-          style={{ width: '30%', minWidth: '350px', maxWidth: '400px' }}
+          style={{ width: "30%", minWidth: "350px", maxWidth: "400px" }}
         >
           <div className="flex flex-row items-center justify-center mb-4">
             <FaExclamationTriangle className="text-yellow-500 text-3xl mr-2" />
@@ -198,7 +201,7 @@ const CurriculumManagement = () => {
               text="Yes"
               onClick={() => {
                 setShowDeleteModal(false); // Close modal immediately when clicked
-                returnMessage('yes');      // Then proceed with action
+                returnMessage("yes"); // Then proceed with action
               }}
               className="bg-red-500 text-white"
             />
@@ -206,7 +209,7 @@ const CurriculumManagement = () => {
               text="No"
               onClick={() => {
                 setShowDeleteModal(false); // Close modal immediately when clicked
-                returnMessage('no');
+                returnMessage("no");
               }}
               className="bg-blue-500 text-white"
             />
@@ -215,7 +218,6 @@ const CurriculumManagement = () => {
       </div>
     );
   };
-
 
   const handleAddPrerequisites = (course) => {
     setSelectedPrerequisites([...selectedPrerequisites, course]);
@@ -228,6 +230,21 @@ const CurriculumManagement = () => {
       )
     );
   };
+  if (loading) {
+    return (
+      <Main
+        userType={
+          JSON.parse(localStorage.getItem("userData"))?.advisor
+            ?.advisor_level || "FacultyAdmin"
+        }
+        activeMenuItem={"manageMajors"}
+      >
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div>
+        </div>
+      </Main>
+    );
+  }
   return (
     <Main
       userType={
@@ -288,12 +305,18 @@ const CurriculumManagement = () => {
 
       {showAddExistingCourseModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '25%', minWidth: '350px', maxWidth: '400px' }}>
+          <div
+            className="bg-white rounded-2xl p-8 relative"
+            style={{ width: "25%", minWidth: "350px", maxWidth: "400px" }}
+          >
             {/* Updated Text for course selection */}
             <Text type="sm-heading" classNames="mb-4">
               Add Existing Course
             </Text>
-            <Text type="paragraph" classNames="mb-8 text-lg font-bold text-center">
+            <Text
+              type="paragraph"
+              classNames="mb-8 text-lg font-bold text-center"
+            >
               Select which course you want to add
             </Text>
 
@@ -369,7 +392,9 @@ const CurriculumManagement = () => {
                       onClick={() => {
                         handleAddPrerequisites(course);
                         setFilteredPrerequisites(
-                          filteredPrerequisites.filter((item) => item !== course)
+                          filteredPrerequisites.filter(
+                            (item) => item !== course
+                          )
                         );
                         setPrerequisiteSearch("");
                       }}
@@ -414,7 +439,10 @@ const CurriculumManagement = () => {
 
       {showCourseDependencyModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '40%', height: 'auto', padding: '2rem' }}>
+          <div
+            className="bg-white rounded-2xl p-8 relative"
+            style={{ width: "40%", height: "auto", padding: "2rem" }}
+          >
             <div className="flex flex-row items-center gap-2 mb-4 justify-center">
               <FaExclamationCircle className="text-yellow-500 text-3xl" />
               <Text type="sm-heading" classNames="text-center">
@@ -422,20 +450,27 @@ const CurriculumManagement = () => {
               </Text>
             </div>
             <Text type="sm-subheading" classNames="mb-8 text-xl text-center">
-              The course is a prerequisite or special requirement for {courseDependencies.join(", ")}.
-              Remove the dependencies first.
+              The course is a prerequisite or special requirement for{" "}
+              {courseDependencies.join(", ")}. Remove the dependencies first.
             </Text>
             <div className="flex justify-center">
-              <Button text="Close" onClick={() => setShowCourseDependencyModal(false)} />
+              <Button
+                text="Close"
+                onClick={() => setShowCourseDependencyModal(false)}
+              />
             </div>
           </div>
         </div>
       )}
       {showDeleteConfirmation && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '30%', minWidth: '300px', maxWidth: '350px' }}>
+          <div
+            className="bg-white rounded-2xl p-8 relative"
+            style={{ width: "30%", minWidth: "300px", maxWidth: "350px" }}
+          >
             <div className="flex flex-row items-center gap-2 mb-4 justify-center">
-              <FaCheckCircle className="text-green-500 text-3xl" /> {/* Success Icon */}
+              <FaCheckCircle className="text-green-500 text-3xl" />{" "}
+              {/* Success Icon */}
               <Text type="sm-heading" classNames="text-center">
                 Success
               </Text>
@@ -444,7 +479,13 @@ const CurriculumManagement = () => {
               Course deleted successfully.
             </Text>
             <div className="flex justify-center">
-              <Button text="Close" onClick={() => setShowDeleteConfirmation(false)} />
+              <Button
+                text="Close"
+                onClick={() => {
+                  setShowDeleteConfirmation(false);
+                  window.location.reload();
+                }}
+              />
             </div>
           </div>
         </div>
@@ -452,7 +493,10 @@ const CurriculumManagement = () => {
 
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8 relative" style={{ width: '30%', minWidth: '320px', maxWidth: '380px' }}>
+          <div
+            className="bg-white rounded-2xl p-8 relative"
+            style={{ width: "30%", minWidth: "320px", maxWidth: "380px" }}
+          >
             <div className="flex flex-row items-center justify-center mb-4">
               <FaCheckCircle className="text-green-500 text-3xl mr-2" />
               <Text type="sm-heading" classNames="text-center">
@@ -467,7 +511,7 @@ const CurriculumManagement = () => {
                 text="Close"
                 onClick={() => {
                   setShowSuccessModal(false); // Close the modal
-                  navigate("/courseManagement"); // Navigate back to the CourseManagement page
+                  window.location.reload();
                 }}
               />
             </div>
@@ -477,7 +521,10 @@ const CurriculumManagement = () => {
 
       {showErrorModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-          <div className="bg-white rounded-2xl p-8" style={{ width: "30%", maxWidth: "400px", minWidth: "300px" }}>
+          <div
+            className="bg-white rounded-2xl p-8"
+            style={{ width: "30%", maxWidth: "400px", minWidth: "300px" }}
+          >
             <div className="flex flex-row items-center gap-2 mb-4 justify-center">
               <FaExclamationCircle className="text-red-500 text-3xl" />
               <Text type="sm-heading" classNames="text-center">
