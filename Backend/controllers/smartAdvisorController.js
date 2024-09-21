@@ -25,11 +25,19 @@ const getCourseProgress = async (req, res) => {
       });
     }
 
-    // 2. Fetch completed courses for the student
+    //find all completed course sof a student and the courses details
     const completedCourses = await completedCourse.findAll({
       where: { studentID: theStudent.id },
       attributes: ["courseID"],
+      include: [
+        {
+          model: course,
+          attributes: ["id", "courseName", "credits", "nqf_level"],
+        },
+      ],
     });
+
+    // 2. Fetch completed courses for the student
     const completedCourseIDs = completedCourses.map((cc) => cc.courseID);
 
     let allCurriculumCourses;
@@ -87,6 +95,9 @@ const getCourseProgress = async (req, res) => {
       data: {
         completedCourses: completedCourses.map((cc) => ({
           courseID: cc.courseID,
+          courseName: cc.course.courseName,
+          credits: cc.course.credits,
+          nqf_level: cc.course.nqf_level,
         })),
         remainingCourses: remainingCourses.map((rc) => ({
           courseID: rc.courseID,
