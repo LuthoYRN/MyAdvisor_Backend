@@ -6,6 +6,7 @@ import Main from "./layout/Main.jsx";
 import TextArea from "./components/TextArea.jsx";
 import config from "./config.js";
 import Select from "./components/Select.jsx";
+import { useLocation } from "react-router-dom";
 
 const AdviceLog = () => {
   const [logType, setLogType] = React.useState("recording");
@@ -14,6 +15,7 @@ const AdviceLog = () => {
   const [content, setContent] = React.useState(null);
   const [logs, setLogs] = React.useState([]);
   const [loading, setLoading] = React.useState(true); // State to track loading status
+  let location = useLocation();
 
   useEffect(() => {
     setContent(logs[activeIndex]?.text || logs[activeIndex]?.src);
@@ -24,13 +26,16 @@ const AdviceLog = () => {
     setLogType(log.type);
     setContent(log.text || log.src);
   };
-  
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
+        const userId = JSON.parse(localStorage.getItem("userData"))?.advisor
+          ?.advisor_level
+          ? localStorage.getItem("user_id")
+          : location.state.advisorID;
         const response = await fetch(
-          `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/log`
+          `${config.backendUrl}/api/advisor/${userId}/log`
         );
         const result = await response.json();
         if (result.status === "success") {
@@ -64,7 +69,8 @@ const AdviceLog = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level ||
+        "FacultyAdmin"
       }
       activeMenuItem={"adviceLog"}
     >

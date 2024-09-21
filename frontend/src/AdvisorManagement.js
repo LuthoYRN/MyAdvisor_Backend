@@ -196,6 +196,8 @@ const AdvisorManagement = () => {
           handleRowEdit={(id) => {setWorkingID(id); setShowEditAdvisorModal(true);}}
           idRow={"uuid"}  
           canDelete={false}
+          hasLog={true}
+          handleLog={(id) => navigate("/adviceLog", { state: { advisorID: id } })}
         />
       )}
       {showAddUserModal && (

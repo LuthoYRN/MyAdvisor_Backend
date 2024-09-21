@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit, canDelete = true , canEdit = true}) => {
+const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit, handleLog, canDelete = true , canEdit = true, hasLog =false}) => {
   const [data, setData] = React.useState([...Tabledata]);
   const [columns, setColumns] = React.useState([...column]);
 
@@ -88,6 +88,10 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
                     type={"danger"}
                     text="Delete"
                     onClick={() => handleDelete(row.getValue(idRow))}
+                  />}
+                  {hasLog &&<Button
+                    text="Logs"
+                    onClick={() => handleLog(row.getValue(idRow))}
                   />}
                 </td>
               </tr>

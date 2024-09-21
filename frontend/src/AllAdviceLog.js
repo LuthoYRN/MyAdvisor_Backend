@@ -65,9 +65,10 @@ const AllAdviceLog = () => {
 
   return (
     <Main
-      userType={
-        JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
-      }
+    userType={
+      JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level ||
+      "FacultyAdmin"
+    }
       activeMenuItem={"viewAllAdviceLogs"}
     >
       <div className="flex jus flex-auto gap-8 col-span-2 p-8 rounded-2xl bg-white shadow-xl">
