@@ -332,7 +332,7 @@ const AddCourse = () => {
         isOpen={showSuccessModal}
         title="Success"
         message="Course added successfully"
-        onClose={navigate(-1)}
+        onClose={()=>navigate(-1)}
       />
 
     </Main>

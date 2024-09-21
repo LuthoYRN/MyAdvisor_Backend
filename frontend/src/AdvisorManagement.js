@@ -155,15 +155,12 @@ const AdvisorManagement = () => {
         users.filter(
           (user) =>
             user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (selectedPermission ? user.permission === selectedPermission : true)
+            (selectedPermission ? user.advisor_level === selectedPermission : true)
         )
       );
     }
   }, [users, searchTerm, selectedPermission]);
 
-  const handleEditAdvisor = () => {
-    // Implement the function to handle editing advisor
-  };
 
   if (loading) {
     return (
