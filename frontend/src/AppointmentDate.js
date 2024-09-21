@@ -28,6 +28,7 @@ const AppointmentDate = () => {
   const [availableTime, setAvailableSlots] = React.useState([]);
   const [loadingTimes, setLoadingTimes] = React.useState(false); // State to track loading status of time slots
   const [alreadyMadeBooking, setAlreadyMadeBooking] = React.useState(false);
+  const [proccessing, setProccessing] = React.useState(false);
 
   let navigate = useNavigate();
   let location = useLocation();
@@ -40,6 +41,7 @@ const AppointmentDate = () => {
     setShowConfirmationModal(false);
     setShowSuccessModal(false);
     setAlreadyMadeBooking(false);
+    setProccessing(true);
 
     const handleConfirmationModal = async () => {
       try {
@@ -66,10 +68,18 @@ const AppointmentDate = () => {
 
         if (response.ok) {
           setShowSuccessModal(true); // Show success modal
+          setProccessing(false);
         } else {
-          if (response.message === "You already have a confirmed appointment.") {
+          if (
+            response.message === "You already have a confirmed appointment."
+          ) {
             setAlreadyMadeBooking(true);
-            <ConfirmationModal status={"Error"} message={response.status} onConfirm={"/appointmentDate"} />
+            setProccessing(false);
+            <ConfirmationModal
+              status={"Error"}
+              message={response.status}
+              onConfirm={"/appointmentDate"}
+            />;
           }
         }
       } catch (error) {
@@ -138,6 +148,8 @@ const AppointmentDate = () => {
             <div className="mb-6">
               <Button
                 text="Book appointment"
+                loading={proccessing}
+                disabled={proccessing}
                 onClick={handleConfirmationModal}
               />
               <Button

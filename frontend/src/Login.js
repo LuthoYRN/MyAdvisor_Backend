@@ -16,7 +16,7 @@ function Login() {
   const [usernameError, setUsernameError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
   const [usernamePasswordError, setUsernamePasswordError] = React.useState("");
-
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleUsernameChange = (value) => {
     setUsername(value);
@@ -44,7 +44,7 @@ function Login() {
       email: username,
       password: password,
     };
-
+    setIsLoading(true); // Start loading
     fetch(`${config.backendUrl}/api/auth/login`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -60,6 +60,7 @@ function Login() {
         // Handle the response from the API
         if (result.status === "fail") {
           // Display a specific error based on the failure reason
+          setIsLoading(false); // Start loading
           if (result.message === "Incorrect email or password") {
             setPasswordError("Incorrect password");
           } else if (result.message === "User not found") {
@@ -70,7 +71,7 @@ function Login() {
         }
         if (result.status === "success") {
           // Redirect the user to the appropriate page
-
+          setIsLoading(false); // Start loading
           localStorage.setItem("user_id", result.user_id);
           if (result.user_type === "student") {
             navigate("/dashboard");
@@ -78,15 +79,14 @@ function Login() {
             navigate("/advisorDashboard", { state: result.user_id });
           } else if (result.user_type === "systemAdmin") {
             navigate("/userManagement");
-          }
-          else if (result.user_type === "facultyAdmin") {
+          } else if (result.user_type === "facultyAdmin") {
             navigate("/facultyAdminDashboard");
           }
-          //add facultyAdmin later
         }
       })
       .catch((error) => {
         // Handle any errors that occur during the request
+        setIsLoading(false); // Start loading
         alert(error);
       });
   };
@@ -103,7 +103,9 @@ function Login() {
           placeholder="Enter your username"
           onValueChange={handleUsernameChange}
         />
-        {usernameError && <Text classNames="text-red-500">{usernameError}</Text>}
+        {usernameError && (
+          <Text classNames="text-red-500">{usernameError}</Text>
+        )}
         <CustomInput
           classNames="mb-1"
           label={"Password"}
@@ -111,14 +113,19 @@ function Login() {
           onValueChange={handlePasswordChange}
           type="password" // This ensures the password is masked
         />
-        {passwordError && <Text classNames="text-red-500">{passwordError}</Text>}
+        {passwordError && (
+          <Text classNames="text-red-500">{passwordError}</Text>
+        )}
 
-        <Button text={"Login"} onClick={handleLogin} />
+        <Button
+          text={"Login"}
+          loading={isLoading} // If true, show the spinner
+          disabled={isLoading}
+          onClick={handleLogin}
+        />
 
-        {(usernameError && passwordError) && (
-          <Text classNames="text-red-500">
-            {usernamePasswordError}
-          </Text>
+        {usernameError && passwordError && (
+          <Text classNames="text-red-500">{usernamePasswordError}</Text>
         )}
 
         <Text classNames="mt-2" type={"paragraph"}>

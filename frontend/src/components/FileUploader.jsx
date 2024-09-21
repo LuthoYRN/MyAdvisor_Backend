@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Text from "./Text";
-
-const FileUploader = ({handleFile}) => {
+import attachment from "./../assets/attachment.svg";
+const FileUploader = ({ handleFile }) => {
   const [files, setFiles] = useState(null);
   const [status, setStatus] = useState("initial");
 
@@ -48,7 +48,7 @@ const FileUploader = ({handleFile}) => {
             className="hidden"
           />
           <p className="text-xs font-medium text-gray-400 mt-2">
-            PNG, JPG SVG, WEBP, and GIF are Allowed.
+            PDF, DOCX , DOC, and JPEG are Allowed.
           </p>
         </label>
       </div>
@@ -57,20 +57,31 @@ const FileUploader = ({handleFile}) => {
         Array.from(files).map((file, index) => (
           <section
             key={file.name}
-            className="mb-4 p-4 bg-gray-100 rounded shadow"
+            className="flex items-center justify-between mb-4 p-4 border border-gray-300 bg-white rounded-lg border-like-shadow"
           >
-            <Text type="sm-heading">File details:</Text>
-            <ul className="list-disc list-inside">
-              <Text>Name: {file.name}</Text>
-            </ul>
+            <div className="flex items-center gap-3">
+              {/* File Icon */}
+              <img
+                src={attachment} // Use your attachment SVG or path here
+                alt="Attachment Icon"
+                className="h-10 w-10"
+              />
+
+              {/* File Name */}
+              <div>
+                <Text>{file.name}</Text>
+              </div>
+            </div>
+            {/* Remove Button */}
             <button
               onClick={() => handleRemoveFile(index)}
-              className="mt-2 text-red-600 hover:text-red-800"
+              className="text-red-600 hover:text-red-800 text-sm underline"
             >
               Remove
             </button>
           </section>
         ))}
+
       <Result status={status} />
     </div>
   );
