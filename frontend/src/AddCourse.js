@@ -7,6 +7,7 @@ import CustomInput from "./components/CustomInput.jsx";
 import SuccessModal from "./components/successModal.jsx";
 import Tag from "./components/Tag.jsx";
 import Text from "./components/Text.jsx";
+import ErrorModal from "./components/errorModal.jsx";
 import config from "./config.js";
 import Main from "./layout/Main.jsx";
 
@@ -28,6 +29,8 @@ const AddCourse = () => {
     React.useState(null);
   const [courses, setCourses] = React.useState([]);
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+  const [showRequiredFieldsModal, setShowRequiredFieldsModal] =
+    React.useState(false);
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -95,7 +98,7 @@ const AddCourse = () => {
 
   const handleSaveCourse = () => {
     if (!courseCode || !courseName || !courseCredits || !nqfLevel) {
-      alert("Please fill in all required fields.");
+      setShowRequiredFieldsModal(true); // Show required fields modal if any field is empty
       return;
     }
     console.log(JSON.parse(localStorage.getItem("curriculum")).curriculumID);
@@ -108,9 +111,9 @@ const AddCourse = () => {
       specialRequirement:
         specialRequirements && specialRequirementsChoice
           ? {
-            condition: specialRequirementsChoice.toUpperCase(),
-            requirement: specialRequirements,
-          }
+              condition: specialRequirementsChoice.toUpperCase(),
+              requirement: specialRequirements,
+            }
           : null,
       bothSemesters: availableBoth,
       prerequisites:
@@ -119,7 +122,10 @@ const AddCourse = () => {
           : null,
       equivalents: selectedEquivalents,
       currID: JSON.parse(localStorage.getItem("curriculum")).curriculumID,
-      facultyID: parseInt(JSON.parse(localStorage.getItem("curriculum")).facultyID, 10),
+      facultyID: parseInt(
+        JSON.parse(localStorage.getItem("curriculum")).facultyID,
+        10
+      ),
     };
 
     fetch(`${config.backendUrl}/api/courses/add`, {
@@ -147,7 +153,8 @@ const AddCourse = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level ||
+        "FacultyAdmin"
       }
       activeMenuItem={"manageMajors"}
     >
@@ -327,14 +334,18 @@ const AddCourse = () => {
           <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
-
+      <ErrorModal
+        isOpen={showRequiredFieldsModal}
+        title={"Error"}
+        message={"Please fill in all required fileds."}
+        onContinue={() => setShowRequiredFieldsModal(false)}
+      />
       <SuccessModal
         isOpen={showSuccessModal}
         title="Success"
         message="Course added successfully"
-        onClose={navigate(-1)}
+        onClose={() => navigate(-1)}
       />
-
     </Main>
   );
 };

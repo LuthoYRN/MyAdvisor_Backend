@@ -10,6 +10,8 @@ import search from "./assets/search.svg";
 import config from "./config.js";
 import ConfirmationModal from "./components/ConfirmationModal";
 import { useNavigate } from "react-router-dom";
+import ErrorModal from "./components/errorModal.jsx";
+import SuccessModal from "./components/successModal.jsx";
 
 const AddFacultyAdmin = () => {
   // Mock data Need to give list of faculties and departments
@@ -20,6 +22,9 @@ const AddFacultyAdmin = () => {
   const [faculties, setFaculties] = React.useState([]);
   const [selectedFaculty, setSelectedFaculty] = React.useState("");
   const [successModal, setSuccessModal] = React.useState(false);
+  const [showRequiredFieldsModal, setShowRequiredFieldsModal] =
+    React.useState(false);
+
   let navigate = useNavigate();
 
   React.useEffect(() => {
@@ -33,6 +38,10 @@ const AddFacultyAdmin = () => {
   }, []);
 
   const handleAddAdmin = () => {
+    if (!Name || !Surname || !Email || !selectedFaculty) {
+      setShowRequiredFieldsModal(true); // Show required fields modal if any field is empty
+      return;
+    }
     const adminData = {
       name: Name,
       surname: Surname,
@@ -106,17 +115,25 @@ const AddFacultyAdmin = () => {
           </div>
           <div className="flex flex-row gap-8 max-w-md">
             <Button text="Save" onClick={handleAddAdmin} />
-            <Button text="Back" type="secondary" onClick={()=>navigate(-1)}/>
+            <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
           </div>
         </div>
       </div>
-      {successModal && (
-        <ConfirmationModal
-          status={"Success"}
-          message={"Admin added successfully."}
-          close={() => setSuccessModal(false)}
-        />
-      )}
+      <ErrorModal
+        isOpen={showRequiredFieldsModal}
+        title={"Error"}
+        message={"Please fill in all required fileds."}
+        onContinue={() => setShowRequiredFieldsModal(false)}
+      />
+      <SuccessModal
+        isOpen={successModal}
+        title={"Success"}
+        message={"Admin added successfully."}
+        onClose={() => {
+          setSuccessModal(false);
+          navigate(-1);
+        }}
+      />
     </Main>
   );
 };

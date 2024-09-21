@@ -10,6 +10,7 @@ import search from "./assets/search.svg";
 import config from "./config.js";
 import { useNavigate } from "react-router-dom";
 import SuccessModal from "./components/successModal.jsx";
+import ErrorModal from "./components/errorModal.jsx";
 
 const AddAdvisor = () => {
   const [faculties, setFaculties] = React.useState([]);
@@ -17,12 +18,15 @@ const AddAdvisor = () => {
   const [Faculty, setSelectedFaculty] = React.useState("");
   const [majors, setMajors] = React.useState([]);
   const [juniorAdvisorsSearch, setJuniorAdvisorsSearch] = React.useState("");
-  const [selectedSeniorAdvisor, setSelectedSeniorAdvisor] = React.useState("");
+  const [selectedSeniorAdvisor, setSelectedSeniorAdvisor] =
+    React.useState(null);
   const [Office, setOffice] = React.useState("");
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
   const [selectedMajors, setSelectedMajors] = React.useState([]);
   const [majorSearch, setMajorSearch] = React.useState("");
   const [filteredMajors, setFilteredMajors] = React.useState([]);
+  const [showRequiredFieldsModal, setShowRequiredFieldsModal] =
+    React.useState(false);
 
   let navigate = useNavigate();
 
@@ -34,9 +38,21 @@ const AddAdvisor = () => {
         );
         const data = await response.json();
         if (data.status === "success") {
-          setFaculties(data.data);
-          setSelectedFaculty(data.data[0].id);
-          console.log("Faculties:", faculties);
+          if (JSON.parse(localStorage.getItem("userData"))) {
+            const userData = JSON.parse(localStorage.getItem("userData"));
+
+            // Set the faculties to only include the user's faculty
+            setFaculties([
+              {
+                facultyID: userData.facultyID,
+                facultyName: userData.facultyName,
+              },
+            ]);
+            setSelectedFaculty(userData.facultyID);
+          } else {
+            setFaculties(data.data);
+            setSelectedFaculty(data.data[0].id);
+          }
         }
       } catch (error) {
         console.error("Error fetching faculties:", error);
@@ -261,7 +277,51 @@ const AddAdvisor = () => {
               </div>
             </div>
             <div className="flex flex-row gap-8 max-w-md">
-              <Button text="Save" onClick={handleAddAdvisorPost} />
+              <Button
+                text="Save"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!advisorType) {
+                    setShowRequiredFieldsModal(true);
+                    return;
+                  }
+
+                  // Define the required fields based on advisorType
+                  if (advisorType === "senior") {
+                    // Senior advisor type checks
+                    if (
+                      !Name ||
+                      !Surname ||
+                      !Email ||
+                      !Faculty ||
+                      !selectedMajors.length
+                    ) {
+                      // Show a modal or alert that required fields are missing
+                      setShowRequiredFieldsModal(true);
+                      return;
+                    }
+                  } else if (advisorType === "advisor") {
+                    // Regular advisor type checks
+                    if (
+                      !Name ||
+                      !Surname ||
+                      !Email ||
+                      !Faculty ||
+                      !Office ||
+                      !selectedSeniorAdvisor ||
+                      !selectedMajors.length
+                    ) {
+                      // Show a modal or alert that required fields are missing
+                      setShowRequiredFieldsModal(true);
+                      return;
+                    }
+                  }
+
+                  // If all required fields are present, call the function to save the advisor
+                  handleAddAdvisorPost();
+                }}
+              />
+
               <Button
                 text="Back"
                 onClick={() => navigate(-1)}
@@ -269,7 +329,7 @@ const AddAdvisor = () => {
               />
             </div>
           </div>
-          <div className="flex flex-col gap-4 w-5/12">
+          <div className="flex flex-col gap-4 w-5/12 relative">
             <CustomInput
               label="Majors Advised"
               placeholder="Enter the majors advised"
@@ -286,9 +346,12 @@ const AddAdvisor = () => {
             />
             <div>
               {filteredMajors.length >= 1 && majorSearch && (
-                <div class="absolute bg-gray-400 rounded-2xl p-4 max-w-80">
+                <div className="absolute bg-gray-400 rounded-2xl p-4">
+                  {" "}
                   {filteredMajors.map((major) => (
                     <Text
+                      key={major.majorName}
+                      className="cursor-pointer hover:bg-gray-300 p-2 rounded-lg"
                       onClick={() => {
                         handleAddMajor(major);
                         setFilteredMajors(
@@ -310,6 +373,7 @@ const AddAdvisor = () => {
                 .filter((major) => major.majorName) // Filter out empty items
                 .map((major) => (
                   <Tag
+                    key={major.majorName}
                     text={major.majorName}
                     onClick={() => handleRemoveMajor(major)}
                   />
@@ -319,11 +383,15 @@ const AddAdvisor = () => {
               <Select
                 label={"Senior Advisor"}
                 placeholder={"Select your senior advisor"}
-                options={seniorAdvisors.map((item) => ({
-                  value: item.id,
-                  label: `${item.name} ${item.surname}`,
-                }))}
-                onChange={(value) => setSelectedSeniorAdvisor(value)}
+                value={selectedSeniorAdvisor || ""}
+                options={[
+                  { value: "", label: "Select your senior advisor" },
+                  ...seniorAdvisors.map((item) => ({
+                    value: item.id,
+                    label: `${item.name} ${item.surname}`,
+                  })),
+                ]}
+                onChange={(value) => setSelectedSeniorAdvisor(value)} // Set the selected value when an option is chosen
               />
             ) : advisorType === "senior" ? (
               <>
@@ -382,6 +450,14 @@ const AddAdvisor = () => {
           </div>
         </div>
       </div>
+      <ErrorModal
+        isOpen={showRequiredFieldsModal}
+        title={"Error"}
+        message={"Please fill in all required fields."}
+        onContinue={() => {
+          setShowRequiredFieldsModal(false);
+        }}
+      />
       <SuccessModal
         isOpen={showSuccessModal}
         title={"Success"}
