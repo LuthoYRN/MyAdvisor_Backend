@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button.jsx";
 import CustomInput from "./components/CustomInput.jsx";
+import ErrorModal from "./components/errorModal.jsx";
 import Select from "./components/Select.jsx";
 import SuccessModal from "./components/successModal.jsx";
 import Text from "./components/Text.jsx";
@@ -20,12 +21,15 @@ const AddCourse = () => {
   const [curriculumID, setCurriculumID] = React.useState("");
   const [electiveCreditCount, setElectiveCreditCount] = React.useState("");
   const [prefix, setPrefix] = React.useState("");
+  const [showRequiredFieldsModal, setShowRequiredFieldsModal] =
+    React.useState(false);
   let location = useLocation();
   let navigate = useNavigate();
 
   const handleSaveCourse = () => {
     if (!courseCode || !courseName || !courseCredits || !nqfLevel) {
-      alert("Please fill in all required fields.");
+      setShowRequiredFieldsModal(true);
+      //alert("Please fill in all required fields.");
       return;
     }
     // Add logic to save the course here
@@ -56,7 +60,7 @@ const AddCourse = () => {
   const handleSaveCurriculum = async () => {
     console.log(curriculumID, curriculumName, department);
     if (!curriculumID || !curriculumName || !department) {
-      alert("Please fill in all required fields.");
+      setShowRequiredFieldsModal(true);
       return;
     }
 
@@ -162,7 +166,16 @@ const AddCourse = () => {
         message="Course added successfully"
         onClose={() => navigate(-1)}
       />
+      <ErrorModal
+        isOpen={showRequiredFieldsModal}
+        title={"Error"}
+        message={"Please fill in all required fields."}
+        onContinue={() => {
+          setShowRequiredFieldsModal(false);
+        }}
+      />
     </Main>
+
   );
 };
 
