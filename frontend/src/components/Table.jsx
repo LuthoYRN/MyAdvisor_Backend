@@ -73,8 +73,8 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
             {table.getRowModel().rows.map((row) => (
               <tr class="border-b border-gray-300" key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    <Text type="paragraph">
+                  <td key={cell.id} classNames={"min-h-14 my-auto"} >
+                    <Text classNames={!canEdit && !canDelete &&"py-4"} type="paragraph">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -82,7 +82,7 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
                     </Text>
                   </td>
                 ))}
-                <td class="flex gap-4">
+                <td class="flex gap-4 align-middle">
                  {canEdit && <Button text="Edit" onClick={()=>handleRowEdit(row.getValue(idRow))}/>}
                   {canDelete &&<Button
                     type={"danger"}
