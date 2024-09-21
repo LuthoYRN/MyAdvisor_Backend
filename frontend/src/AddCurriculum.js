@@ -8,6 +8,7 @@ import config from "./config.js";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import ConfirmationModal from "./components/ConfirmationModal.jsx";
+import { set } from "date-fns";
 
 const AddCourse = () => {
   const [courseName, setCourseName] = React.useState("");
@@ -45,6 +46,7 @@ const AddCourse = () => {
         );
         const data = await response.json();
         setDepartments(data.data || []);
+        setDepartment(data.data[0].id);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
