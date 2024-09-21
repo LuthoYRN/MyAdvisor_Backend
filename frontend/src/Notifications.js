@@ -122,7 +122,9 @@ const Notifications = () => {
               {notificationDetails ? (
                 <>
                   <Text type="sm-heading" classNames="mb-8">
-                    {"Appointment " + notificationDetails.type || ""}
+                    {notificationDetails.type
+                      ? "Appointment " + notificationDetails.type
+                      : ""}
                   </Text>
                   <Text type="paragraph" classNames="mb-8">
                     {notificationDetails.type === "Approval" ? (
