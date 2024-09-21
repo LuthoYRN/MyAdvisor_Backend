@@ -1,16 +1,14 @@
 import React from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
-import Button from "./components/Button.jsx";
-import CustomInput from "./components/CustomInput.jsx";
+import { useLocation, useNavigate } from "react-router-dom";
 import search from "./assets/search.svg";
-import Tag from "./components/Tag.jsx";
-import Select from "./components/Select.jsx";
-import config from "./config.js";
-import { useLocation } from "react-router-dom";
+import Button from "./components/Button.jsx";
 import Checkbox from "./components/Checkbox.jsx";
-import { useNavigate } from "react-router-dom";
-import ConfirmationModal from "./components/ConfirmationModal.jsx";
+import CustomInput from "./components/CustomInput.jsx";
+import SuccessModal from "./components/successModal.jsx";
+import Tag from "./components/Tag.jsx";
+import Text from "./components/Text.jsx";
+import config from "./config.js";
+import Main from "./layout/Main.jsx";
 
 const AddCourse = () => {
   const [prerequisite, setPrerequisite] = React.useState("");
@@ -108,17 +106,17 @@ const AddCourse = () => {
       courseCredits: parseInt(courseCredits),
       nqfLevel: parseInt(nqfLevel, 10),
       specialRequirement:
-      specialRequirements && specialRequirementsChoice
-        ? {
-        condition: specialRequirementsChoice.toUpperCase(),
-        requirement: specialRequirements,
-        }
-        : null,
+        specialRequirements && specialRequirementsChoice
+          ? {
+            condition: specialRequirementsChoice.toUpperCase(),
+            requirement: specialRequirements,
+          }
+          : null,
       bothSemesters: availableBoth,
       prerequisites:
-      specialRequirementsChoice !== "complex" && selectedPrerequisites
-        ? selectedPrerequisites
-        : null,
+        specialRequirementsChoice !== "complex" && selectedPrerequisites
+          ? selectedPrerequisites
+          : null,
       equivalents: selectedEquivalents,
       currID: JSON.parse(localStorage.getItem("curriculum")).curriculumID,
       facultyID: parseInt(JSON.parse(localStorage.getItem("curriculum")).facultyID, 10),
@@ -184,7 +182,7 @@ const AddCourse = () => {
               onValueChange={setNqfLevel}
               numeric={true}
             />
-           
+
             <div class="flex flex-row">
               <Checkbox
                 checked={availableBoth}
@@ -329,13 +327,14 @@ const AddCourse = () => {
           <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
-      {showSuccessModal && (
-        <ConfirmationModal
-          status="Success"
-          message="Course added successfully"
-          onConfirm={-1}
-        />
-      )}
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title="Success"
+        message="Course added successfully"
+        onClose={navigate(-1)}
+      />
+
     </Main>
   );
 };
