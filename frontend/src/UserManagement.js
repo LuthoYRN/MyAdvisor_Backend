@@ -92,6 +92,7 @@ const UserManagement = () => {
 
   React.useEffect(() => {
     if (users) {
+      selectedPermission === "all" ? setFilteredUsers(users) :
       setFilteredUsers(
         users.filter(
           (user) =>
@@ -127,7 +128,7 @@ const UserManagement = () => {
         />
         <Select
           options={[
-            { value: "", label: "All" },
+            { value: "all", label: "All" },
             { value: "student", label: "Student" },
             { value: "advisor", label: "Advisor" },
             { value: "facultyadmin", label: "Faculty Admin" },
