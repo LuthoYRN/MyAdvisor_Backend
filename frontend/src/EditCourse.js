@@ -222,7 +222,7 @@ const EditCourse = () => {
                     onValueChange={() => setAvailableBoth(!availableBoth)}
                   />
                   <Text type="paragraph" classNames="mb-2">
-                    Available both semesers
+                    Available both semesters
                   </Text>
                 </div>
               </div>

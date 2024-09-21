@@ -13,6 +13,7 @@ import config from "./config";
 
 const UserManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
   const handleAddUser = () => {
     setShowAddUserModal(true);
   };
@@ -29,8 +30,9 @@ const UserManagement = () => {
       try {
         const response = await fetch(`${config.backendUrl}/api/sysAdmin/users`);
         const result = await response.json();
-        if (result.status === 'success') {
-          const formattedData = result.data.map(user => ({
+        if (result.status === "success") {
+          setLoading(false);
+          const formattedData = result.data.map((user) => ({
             id: user.id,
             name: user.name,
             email: user.email,
@@ -40,7 +42,7 @@ const UserManagement = () => {
           setFilteredUsers(formattedData);
         }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -70,8 +72,6 @@ const UserManagement = () => {
 
   const [searchTerm, setSearchTerm] = React.useState("");
 
-
-
   const [filteredUsers, setFilteredUsers] = React.useState([]);
 
   React.useEffect(() => {
@@ -93,13 +93,24 @@ const UserManagement = () => {
   React.useEffect(() => {
     if (users) {
       setFilteredUsers(
-        users.filter((user) =>
-          user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          (selectedPermission ? user.permission === selectedPermission : true)
+        users.filter(
+          (user) =>
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (selectedPermission ? user.permission === selectedPermission : true)
         )
       );
     }
   }, [users, searchTerm, selectedPermission]);
+
+  if (loading) {
+    return (
+      <Main userType="SystemAdmin" activeMenuItem="home">
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div>
+        </div>
+      </Main>
+    );
+  }
 
   return (
     <Main userType="SystemAdmin" activeMenuItem="home">
@@ -126,7 +137,15 @@ const UserManagement = () => {
         />
         <Button text="Add User" onClick={handleAddUser} />
       </div>
-      {filteredUsers.length > 0 && filteredUsers && <Table classNames="" Tabledata={filteredUsers} column={defaultColumns} canDelete={false} canEdit={false}/>}
+      {filteredUsers.length > 0 && filteredUsers && (
+        <Table
+          classNames=""
+          Tabledata={filteredUsers}
+          column={defaultColumns}
+          canDelete={false}
+          canEdit={false}
+        />
+      )}
       {showAddUserModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl p-8">

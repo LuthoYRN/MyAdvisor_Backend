@@ -59,10 +59,10 @@ const AdvisorDashboard = () => {
           }
         );
         const data = await response.json();
+        setLoading(false);
         setUserData(data.data);
         localStorage.setItem("userData", JSON.stringify(data.data));
         setAppointments(data.data.appointments);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
@@ -73,7 +73,14 @@ const AdvisorDashboard = () => {
 
   if (loading) {
     return (
-      <Main userType="Loading..." activeMenuItem="home">
+      <Main
+        userType={
+          JSON.parse(localStorage.getItem("userData"))
+            ? JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+            : userData?.advisor?.advisor_level
+        }
+        activeMenuItem="home"
+      >
         <div className="flex justify-center items-center h-screen">
           <div className="loader"></div>
         </div>
