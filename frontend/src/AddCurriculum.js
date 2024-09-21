@@ -1,13 +1,12 @@
 import React from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
+import { useLocation, useNavigate } from "react-router-dom";
 import Button from "./components/Button.jsx";
 import CustomInput from "./components/CustomInput.jsx";
 import Select from "./components/Select.jsx";
+import SuccessModal from "./components/successModal.jsx";
+import Text from "./components/Text.jsx";
 import config from "./config.js";
-import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import ConfirmationModal from "./components/ConfirmationModal.jsx";
+import Main from "./layout/Main.jsx";
 
 const AddCourse = () => {
   const [courseName, setCourseName] = React.useState("");
@@ -128,20 +127,20 @@ const AddCourse = () => {
                   label="Elective Credit Count"
                   placeholder="Enter Elective Credit Count"
                   value={electiveCreditCount}
-                  onValueChange={(value)=>setElectiveCreditCount(value)}
+                  onValueChange={(value) => setElectiveCreditCount(value)}
                   numeric={true}
                 />
                 <CustomInput
                   label="Prefix"
                   placeholder="Enter Prefix"
-                  onValueChange={(value)=>setPrefix(value)}
+                  onValueChange={(value) => setPrefix(value)}
                   numeric={true}
                 />
               </>
             )}
             <Select
               label="Department"
-              options={ departments.map((department) => ({
+              options={departments.map((department) => ({
                 value: department.id,
                 label: department.name,
               }))}
@@ -156,14 +155,12 @@ const AddCourse = () => {
           <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
-      {showSuccessModal && (
-        <ConfirmationModal
-          status="Success"
-          message="Curriculum added successfully"
-          onConfirm={-1}
-          close={() => setShowSuccessModal(false)}
-        />
-      )}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title="Success"
+        message="Course added successfully"
+        onClose={() => navigate(-1)}
+      />
     </Main>
   );
 };
