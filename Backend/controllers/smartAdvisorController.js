@@ -149,6 +149,61 @@ const getCourseProgress = async (req, res) => {
   }
 };
 
+const getEquivalents = async (req, res) => {
+  try {
+    const { courseID } = req.params;
+
+    // Find the course by ID
+    const theCourse = await course.findOne({
+      where: { id: courseID },
+      attributes: ["id", "courseName", "equivalents"],
+    });
+
+    if (!theCourse) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Course not found.",
+      });
+    }
+
+    // Check if the course has any equivalents
+    if (!theCourse.equivalents || theCourse.equivalents.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No equivalent courses found for this course.",
+      });
+    }
+
+    // Fetch all equivalent courses by their IDs
+    const equivalentCourses = await course.findAll({
+      where: {
+        id: theCourse.equivalents, // Match the course IDs in the equivalents array
+      },
+      attributes: ["id", "courseName", "credits", "nqf_level"], // Include relevant fields
+    });
+
+    if (!equivalentCourses || equivalentCourses.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No equivalent courses found.",
+      });
+    }
+
+    // Return the equivalent courses
+    return res.status(200).json({
+      status: "success",
+      data: equivalentCourses,
+    });
+  } catch (error) {
+    console.error("Error fetching equivalents:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   getCourseProgress,
+  getEquivalents,
 };
