@@ -20,30 +20,7 @@ const StudentCourses = () => {
   const [showAddCourses, setShowAddCourses] = useState(false);
   const [userData, setUserData] = useState(null); // Changed to null to handle loading state
   const [progress, setProgress] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "69420",
-            },
-          }
-        );
-        const data = await response.json();
-        setUserData(data.data);
-        localStorage.setItem("userData", JSON.stringify(data.data));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true); // New state for course loading
 
   useEffect(() => {
     const fetchProgressData = async () => {
@@ -62,6 +39,8 @@ const StudentCourses = () => {
         setProgress(progressData.data);
       } catch (error) {
         console.error("Error fetching progress data:", error);
+      } finally {
+        setIsLoadingCourses(false); // Ensure loading is set to false after fetching
       }
     };
 
@@ -96,25 +75,16 @@ const StudentCourses = () => {
       console.error("Error adding courses:", error);
     }
   };
-
-  if (!userData) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="loader"></div>
-      </div>
-    );
-  }
-
-  const { student, unreadNotifications } = userData;
-
   return (
     <Main userType={"student"} activeMenuItem={"manageCourses"}>
       <div className="mb-10 max-h-36">
         <Header
-          profile_url={student.profile_url}
-          user={`${student.name} ${student.surname}`}
-          info={student.majorOrProgramme}
-          unreadCount={unreadNotifications}
+          profile_url={`${JSON.parse(localStorage.getItem("userData")).student.profile_url}`}
+          user={`${JSON.parse(localStorage.getItem("userData"))?.student?.name || ""} ${JSON.parse(localStorage.getItem("userData"))?.student?.surname || ""}`}
+          info={
+            JSON.parse(localStorage.getItem("userData"))?.student
+              ?.majorOrProgramme || ""
+          }
         />
       </div>
 
@@ -125,20 +95,28 @@ const StudentCourses = () => {
             My Courses
           </Text>
 
-          <div className="flex flex-col gap-4 mb-6 lg:max-h-[460px] overflow-y-auto">
-            {progress.completedCourses.map((course, index) => (
-              <div
-                key={index}
-                className="w-full border rounded-2xl shadow-lg p-4 bg-white-200 text-black"
-              >
-                <div className="flex flex-row justify-between w-full transition-transform transform hover:scale-105">
-                  <Text className="text-lg">{`${course.courseID}`}</Text>
-                  <Text className="text-lg">{`${course.courseName}`}</Text>
-                  <Text className="text-lg">{`${course.credits} credits`}</Text>
+          {/* Add a loader spinner here while courses are loading */}
+          {isLoadingCourses ? (
+            <div className="flex justify-center items-center">
+              <div className="loader"></div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 mb-6 lg:max-h-[460px] overflow-y-auto">
+              {progress.completedCourses.map((course, index) => (
+                <div
+                  key={index}
+                  className="w-full border rounded-2xl shadow-lg p-4 bg-white-200 text-black"
+                >
+                  <div className="flex flex-row justify-between w-full transition-transform transform hover:scale-105">
+                    <Text className="text-lg">{`${course.courseID}`}</Text>
+                    <Text className="text-lg">{`${course.courseName}`}</Text>
+                    <Text className="text-lg">{`${course.credits} credits`}</Text>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
           <div className="w-48 transition-transform transform hover:scale-105">
             <Button text="Add Course" onClick={() => setShowAddCourses(true)} />
           </div>
@@ -155,16 +133,16 @@ const StudentCourses = () => {
             {/* Handbook 1 */}
             <div className="p-4 border-4 border-purple-500 rounded-lg relative transition-transform transform hover:scale-105">
               <div className="border-2 border-purple-500 rounded-lg p-6 bg-purple-100">
-                <img
-                  src={science}
-                  alt="Science Handbook"
-                  className="h-full w-16 mx-auto mb-4"
-                />
                 <a
                   href="https://www.uct.ac.za/sites/default/files/media/documents/uct_ac_za/49/SCI_Handbook_2024.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <img
+                    src={science}
+                    alt="Science Handbook"
+                    className="h-full w-16 mx-auto mb-4"
+                  />
                   <div className="flex flex-col items-center justify-center">
                     <Text className="text-center text-lg text-purple-700 font-bold hover:underline">
                       Science
@@ -177,16 +155,16 @@ const StudentCourses = () => {
             {/* Handbook 2 */}
             <div className="p-4 border-4 border-orange-500 rounded-lg relative transition-transform transform hover:scale-105">
               <div className="border-2 border-orange-500 rounded-lg p-6 bg-orange-100">
-                <img
-                  src={commerce}
-                  alt="Commerce Handbook"
-                  className="h-16 w-16 mx-auto mb-4"
-                />
                 <a
                   href="https://www.uct.ac.za/sites/default/files/media/documents/uct_ac_za/49/COM_UG_Handbook_2024.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <img
+                    src={commerce}
+                    alt="Commerce Handbook"
+                    className="h-16 w-16 mx-auto mb-4"
+                  />
                   <div className="flex flex-col items-center justify-center">
                     <Text className="text-center text-orange-700 font-bold hover:underline">
                       Commerce
@@ -199,16 +177,16 @@ const StudentCourses = () => {
             {/* Handbook 3 */}
             <div className="p-4 border-4 border-blue-500 rounded-lg relative transition-transform transform hover:scale-105">
               <div className="border-2 border-blue-500 rounded-lg p-6 bg-blue-100">
-                <img
-                  src={engineering}
-                  alt="Engineering Handbook"
-                  className="h-16 w-16 mx-auto mb-4"
-                />
                 <a
                   href="https://www.uct.ac.za/sites/default/files/media/documents/uct_ac_za/49/EBE_UG_Handbook_2024.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <img
+                    src={engineering}
+                    alt="Engineering Handbook"
+                    className="h-16 w-16 mx-auto mb-4"
+                  />
                   <div className="flex flex-col items-center justify-center">
                     <Text className="text-center text-blue-700 font-bold hover:underline w-full">
                       Engineering

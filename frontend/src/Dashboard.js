@@ -149,9 +149,11 @@ const Dashboard = () => {
 
   if (!userData) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="loader"></div>
-      </div>
+      <Main userType={"student"} activeMenuItem={"home"}>
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div>
+        </div>
+      </Main>
     );
   }
 
