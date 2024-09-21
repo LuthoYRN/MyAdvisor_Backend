@@ -67,6 +67,7 @@ const AddAdvisor = () => {
   }, [Faculty]);
 
   React.useEffect(() => {
+    setSelectedMajors([]);
     if (Faculty) {
       const fetchJuniorAdvisors = async () => {
         try {
@@ -185,6 +186,20 @@ const AddAdvisor = () => {
     setSelectedMajors(selectedMajors.filter((item) => item !== major));
   };
 
+  React.useEffect(() => {
+    setFilteredMajors(
+      majors.filter(
+        (item) =>
+          item.majorName
+            ?.toLowerCase()
+            .includes(majorSearch.toLowerCase()) ||
+          item.programmeName
+            ?.toLowerCase()
+            .includes(majorSearch.toLowerCase())
+      )
+    );
+  }, [majorSearch, majors, Faculty]);
+
   return (
     <Main
       userType={
@@ -276,11 +291,7 @@ const AddAdvisor = () => {
               icon={search}
               onValueChange={(value) => {
                 setMajorSearch(value);
-                setFilteredMajors(
-                  majors.filter((item) =>
-                    item.majorName.toLowerCase().includes(value.toLowerCase())
-                  )
-                );
+                
               }}
               value={majorSearch}
             />
@@ -299,7 +310,7 @@ const AddAdvisor = () => {
                         setMajorSearch("");
                       }}
                     >
-                      {major.majorName}
+                      {major.majorName  || major.programmeName}
                     </Text>
                   ))}
                 </div>
@@ -307,10 +318,10 @@ const AddAdvisor = () => {
             </div>
             <div class="flex flex-row flex-wrap gap-4 ">
               {selectedMajors
-                .filter((major) => major.majorName) // Filter out empty items
+                .filter((major) => major.majorName || major.programmeName) // Filter out empty items
                 .map((major) => (
                   <Tag
-                    text={major.majorName}
+                    text={major.majorName || major.programmeName}
                     onClick={() => handleRemoveMajor(major)}
                   />
                 ))}
