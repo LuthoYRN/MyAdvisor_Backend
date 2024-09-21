@@ -92,14 +92,17 @@ const UserManagement = () => {
 
   React.useEffect(() => {
     if (users) {
-      selectedPermission === "all" ? setFilteredUsers(users) :
-      setFilteredUsers(
-        users.filter(
-          (user) =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (selectedPermission ? user.permission === selectedPermission : true)
-        )
-      );
+      selectedPermission === "all"
+        ? setFilteredUsers(users)
+        : setFilteredUsers(
+            users.filter(
+              (user) =>
+                user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                (selectedPermission
+                  ? user.permission === selectedPermission
+                  : true)
+            )
+          );
     }
   }, [users, searchTerm, selectedPermission]);
 
@@ -153,7 +156,7 @@ const UserManagement = () => {
             <Text type="sm-heading" classNames="mb-4">
               Add User
             </Text>
-            <Text type="sm-subheading" classNames="mb-8">
+            <Text classNames="mb-8">
               Select which type of user you want to add
             </Text>
             <div className="flex gap-8 mb-4">

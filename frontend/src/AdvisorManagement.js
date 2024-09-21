@@ -8,14 +8,14 @@ import advisor from "./assets/advisor.svg";
 import CustomInput from "./components/CustomInput";
 import Select from "./components/Select";
 import search from "./assets/search.svg";
+import SuccessModal from "./components/successModal";
 import Tag from "./components/Tag"; // Import the Tag component
 import { useNavigate } from "react-router-dom";
 import config from "./config";
 
 const AdvisorManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] =
-    React.useState(false);
+  const [showReassignModal, setShowReassignModal] = React.useState(false);
   const [workingID, setWorkingID] = React.useState(null);
   const [courses, setCourses] = React.useState([]);
   const [showEditAdvisorModal, setShowEditAdvisorModal] = React.useState(false);
@@ -70,7 +70,7 @@ const AdvisorManagement = () => {
         setShowEditAdvisorModal(false);
         setSelectedCourses([]);
         setCurriculumSearch("");
-        setShowConfirmationModal(true);
+        setShowReassignModal(true);
       } else {
         console.error("Error adding course:", result.message);
       }
@@ -208,7 +208,9 @@ const AdvisorManagement = () => {
           idRow={"uuid"}
           canDelete={false}
           hasLog={true}
-          handleLog={(id) => navigate("/adviceLog", { state: { advisorID: id } })}
+          handleLog={(id) =>
+            navigate("/adviceLog", { state: { advisorID: id } })
+          }
         />
       )}
       {showAddUserModal && (
@@ -312,6 +314,15 @@ const AdvisorManagement = () => {
           </div>
         </div>
       )}
+      <SuccessModal
+        isOpen={showReassignModal}
+        title={"Success"}
+        message="Advisor reassigned successfully."
+        onClose={() => {
+          setShowReassignModal(false);
+          window.location.reload();
+        }}
+      />
     </Main>
   );
 };
