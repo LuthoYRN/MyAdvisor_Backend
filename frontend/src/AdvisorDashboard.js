@@ -89,7 +89,14 @@ const AdvisorDashboard = () => {
   }
 
   return (
-    <Main userType={userData?.advisor?.advisor_level} activeMenuItem="home">
+    <Main
+      userType={
+        JSON.parse(localStorage.getItem("userData"))
+          ? JSON.parse(localStorage.getItem("userData")).advisor.advisor_level
+          : userData?.advisor?.advisor_level
+      }
+      activeMenuItem="home"
+    >
       <div className="mb-10 max-h-36">
         <Header
           profile_url={userData?.advisor?.profile_url}
