@@ -1,18 +1,17 @@
 import React from "react";
-import Main from "./layout/Main";
-import Text from "./components/Text";
+import { useNavigate } from "react-router-dom";
+import advisor from "./assets/advisor.svg";
+import search from "./assets/search.svg";
 import Button from "./components/Button";
+import CustomInput from "./components/CustomInput";
+import DeleteModal from "./components/DeleteModal";
+import ErrorModal from "./components/errorModal";
 import SuccessModal from "./components/successModal";
 import Table from "./components/Table";
-import admin from "./assets/admin.svg";
-import advisor from "./assets/advisor.svg";
-import CustomInput from "./components/CustomInput";
-import search from "./assets/search.svg";
-import { useNavigate } from "react-router-dom";
-import config from "./config";
-import DeleteModal from "./components/DeleteModal";
 import Tag from "./components/Tag";
-import ConfirmationModal from "./components/ConfirmationModal";
+import Text from "./components/Text";
+import config from "./config";
+import Main from "./layout/Main";
 
 const UserManagement = () => {
   const [showAddUserModal, setShowAddUserModal] = React.useState(false);
@@ -28,6 +27,7 @@ const UserManagement = () => {
   const [filteredAdvisors, setFilteredAdvisors] = React.useState([]);
   const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
 
   const handleAddUser = () => {
     setShowAddUserModal(true);
@@ -225,7 +225,10 @@ const UserManagement = () => {
   }, [showAddUserModal]);
 
   const handleAddAdvisorToCluster = async () => {
-    if (!selectedAdvisor) return;
+    if (!selectedAdvisor) {
+      setShowErrorModal(true);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -460,6 +463,15 @@ const UserManagement = () => {
         message="Advisor added to the cluster successfully."
         onClose={() => {
           setShowConfirmationModal(false);
+        }}
+      />
+      <ErrorModal
+        isOpen={showErrorModal}
+        title="Error"
+        message="Please select an advisor before proceeding."
+        onContinue={() => {
+          setShowErrorModal(false);
+          setShowAddUserModal(true);
         }}
       />
       <SuccessModal
