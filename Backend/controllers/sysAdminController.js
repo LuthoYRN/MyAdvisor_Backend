@@ -293,8 +293,6 @@ const addAdvisor = async (req, res) => {
 
       // Update the new senior advisor with the new cluster ID
       await newAdvisor.update({ clusterID: newCluster.id });
-
-      // Add all IDs in the `cluster` array to the new senior advisor's cluster
       // Add all IDs in the `cluster` array to the new senior advisor's cluster
       if (cluster.length > 0) {
         for (const juniorAdvisorID of cluster) {
