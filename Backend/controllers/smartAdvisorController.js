@@ -25,7 +25,7 @@ const getCourseProgress = async (req, res) => {
       });
     }
 
-    //find all completed course sof a student and the courses details
+    // 2. Find all completed courses of the student and their details
     const completedCourses = await completedCourse.findAll({
       where: { studentID: theStudent.id },
       attributes: ["courseID"],
@@ -37,10 +37,9 @@ const getCourseProgress = async (req, res) => {
       ],
     });
 
-    // 2. Fetch completed courses for the student
     const completedCourseIDs = completedCourses.map((cc) => cc.courseID);
 
-    let allCurriculumCourses;
+    let allCurriculumCourses = [];
 
     // 3. Check if the student has a programme
     if (theStudent.programmeID) {
@@ -84,31 +83,65 @@ const getCourseProgress = async (req, res) => {
       });
     }
 
-    // 4. Calculate remaining courses by removing completed ones
-    const remainingCourses = allCurriculumCourses.filter(
-      (course) => !completedCourseIDs.includes(course.courseID)
+    // 4. Remove duplicates from the curriculum courses
+    const uniqueCurriculumCourses = {};
+    allCurriculumCourses.forEach((curriculum) => {
+      if (!uniqueCurriculumCourses[curriculum.courseID]) {
+        uniqueCurriculumCourses[curriculum.courseID] = curriculum.course;
+      }
+    });
+
+    // 5. Calculate remaining courses by removing completed ones
+    const remainingCourses = Object.values(uniqueCurriculumCourses).filter(
+      (course) => !completedCourseIDs.includes(course.id)
     );
 
-    // 5. Return completed and remaining courses
+    // 6. Custom sorting logic by courseID and semester
+    const customSort = (a, b) => {
+      const aNum = parseInt(a.courseID.match(/\d+/)[0], 10); // Extract the first number from courseID
+      const bNum = parseInt(b.courseID.match(/\d+/)[0], 10);
+
+      // Compare course numbers
+      if (aNum !== bNum) {
+        return aNum - bNum;
+      }
+
+      // If the course numbers are the same, sort by semester (F before S)
+      const aSemester = a.courseID.slice(-1); // Last character of courseID (F or S)
+      const bSemester = b.courseID.slice(-1);
+
+      return aSemester.localeCompare(bSemester);
+    };
+
+    // 7. Sort completed and remaining courses using the custom sort function
+    const sortedCompletedCourses = completedCourses
+      .map((cc) => ({
+        courseID: cc.courseID,
+        courseName: cc.course.courseName,
+        credits: cc.course.credits,
+        nqf_level: cc.course.nqf_level,
+      }))
+      .sort(customSort);
+
+    const sortedRemainingCourses = remainingCourses
+      .map((rc) => ({
+        courseID: rc.id,
+        courseName: rc.courseName,
+        credits: rc.credits,
+        nqfLevel: rc.nqf_level,
+      }))
+      .sort(customSort);
+
+    // 8. Return completed and remaining courses
     return res.status(200).json({
       status: "success",
       data: {
-        completedCourses: completedCourses.map((cc) => ({
-          courseID: cc.courseID,
-          courseName: cc.course.courseName,
-          credits: cc.course.credits,
-          nqf_level: cc.course.nqf_level,
-        })),
-        remainingCourses: remainingCourses.map((rc) => ({
-          courseID: rc.courseID,
-          courseName: rc.course.courseName,
-          credits: rc.course.credits,
-          nqfLevel: rc.course.nqf_level,
-        })),
+        completedCourses: sortedCompletedCourses,
+        remainingCourses: sortedRemainingCourses,
       },
     });
   } catch (error) {
-    console.error("Error fetching course information:", error.message);
+    console.error("Error fetching course progress:", error.message);
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",
