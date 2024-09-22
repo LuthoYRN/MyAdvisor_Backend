@@ -151,6 +151,7 @@ const addAdmin = async (req, res) => {
           "Please provide all required fields (name, surname, email, faculty).",
       });
     }
+
     // Check if an admin already exists with the provided email
     const existingAdmin = await facultyAdmin.findOne({ where: { email } });
     if (existingAdmin) {
@@ -159,8 +160,10 @@ const addAdmin = async (req, res) => {
         message: "Email is already in use by another admin.",
       });
     }
+
     // Hash the password before storing it
     const hashedPassword = await bcrypt.hash("hashedpassword", 10);
+
     // Create a new admin
     const newAdmin = await facultyAdmin.create({
       name,
@@ -179,6 +182,15 @@ const addAdmin = async (req, res) => {
       data: newAdmin,
     });
   } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      // Handle validation errors
+      const validationErrors = error.errors.map((err) => err.message);
+      return res.status(400).json({
+        status: "fail",
+        message: validationErrors,
+      });
+    }
+
     console.error("Error adding admin:", error.message);
     return res.status(500).json({
       status: "fail",
@@ -186,6 +198,7 @@ const addAdmin = async (req, res) => {
     });
   }
 };
+
 const addAdvisor = async (req, res) => {
   try {
     const {
@@ -349,6 +362,15 @@ const addAdvisor = async (req, res) => {
       data: newAdvisor,
     });
   } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      // Handle validation errors from the model
+      const validationErrors = error.errors.map((err) => err.message);
+      return res.status(400).json({
+        status: "fail",
+        message: validationErrors,
+      });
+    }
+
     console.error("Error adding advisor:", error.message);
     return res.status(500).json({
       status: "fail",
