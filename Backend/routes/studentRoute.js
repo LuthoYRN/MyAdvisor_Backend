@@ -12,10 +12,6 @@ router.post(
   uploadImage.single("profilePicture"),
   studentController.updateProfilePicture
 );
-//course information
-router
-  .route("/:studentID/smartAdvisor/progress")
-  .get(smartAdvisorController.getCourseProgress);
 //notifications
 router
   .route("/:studentID/notifications")

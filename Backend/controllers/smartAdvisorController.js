@@ -329,9 +329,89 @@ const getCoursePrerequisitesAndRequirements = async (req, res) => {
     });
   }
 };
+const getStudentCredits = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+
+    // Find the student by UUID
+    const studentRecord = await student.findOne({
+      where: { uuid: studentID },
+      attributes: ["id"],
+    });
+
+    if (!studentRecord) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Student not found.",
+      });
+    }
+
+    // Fetch completed courses for the student
+    const completedCourses = await completedCourse.findAll({
+      where: { studentID: studentRecord.id },
+      include: [
+        {
+          model: course,
+          attributes: ["credits", "nqf_level"],
+        },
+      ],
+    });
+
+    // Calculate total accumulated credits
+    const totalCredits = completedCourses.reduce((sum, course) => {
+      return sum + (course.course.credits || 0); // Ensure credits is a number
+    }, 0);
+
+    // Count NQF level distribution
+    const nqfLevels = {
+      5: 0,
+      6: 0,
+      7: 0,
+    };
+
+    completedCourses.forEach((course) => {
+      const nqfLevel = course.course.nqf_level;
+      if (nqfLevel === 5 || nqfLevel === 6 || nqfLevel === 7) {
+        nqfLevels[nqfLevel]++;
+      }
+    });
+
+    // Construct the message
+    let message = `You have accumulated a total of ${totalCredits} credits.`;
+
+    if (totalCredits > 0) {
+      let details = [];
+      if (nqfLevels[5] > 0) {
+        details.push(`${nqfLevels[5]} NQF level 5 course(s)`);
+      }
+      if (nqfLevels[6] > 0) {
+        details.push(`${nqfLevels[6]} NQF level 6 course(s)`);
+      }
+      if (nqfLevels[7] > 0) {
+        details.push(`${nqfLevels[7]} NQF level 7 course(s)`);
+      }
+      if (details.length > 0) {
+        message += `, with ${details.join(", ")}.`;
+      }
+    }
+
+    // Return success response with the total credits and breakdown
+    return res.status(200).json({
+      status: "success",
+      message: message,
+    });
+  } catch (error) {
+    console.error("Error fetching student credits:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
   getCourseProgress,
   getCoursePrerequisitesAndRequirements,
   getEquivalents,
+  getStudentCredits,
 };
