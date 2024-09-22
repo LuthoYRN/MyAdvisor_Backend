@@ -1,4 +1,5 @@
 const { sequelize } = require("../db/models");
+const { Op } = require("sequelize");
 
 const {
   student,
@@ -153,46 +154,66 @@ const getEquivalents = async (req, res) => {
   try {
     const { courseID } = req.params;
 
-    // Find the course by ID
+    // Convert courseID to uppercase
+    const formattedCourseID = courseID.toUpperCase();
+
+    // Find the course by ID and check if it has equivalents
     const theCourse = await course.findOne({
-      where: { id: courseID },
+      where: { id: formattedCourseID },
       attributes: ["id", "courseName", "equivalents"],
     });
 
     if (!theCourse) {
       return res.status(404).json({
         status: "fail",
-        message: "Course not found.",
+        message: `Course ${formattedCourseID} not found.`,
       });
     }
 
     // Check if the course has any equivalents
     if (!theCourse.equivalents || theCourse.equivalents.length === 0) {
-      return res.status(404).json({
-        status: "fail",
-        message: "No equivalent courses found for this course.",
+      return res.status(200).json({
+        status: "success",
+        data: [],
+        message: `No equivalent courses found for ${formattedCourseID}.`,
       });
     }
 
     // Fetch all equivalent courses by their IDs
     const equivalentCourses = await course.findAll({
       where: {
-        id: theCourse.equivalents, // Match the course IDs in the equivalents array
+        id: {
+          [Op.in]: theCourse.equivalents,
+        },
       },
-      attributes: ["id", "courseName", "credits", "nqf_level"], // Include relevant fields
+      attributes: ["id", "courseName", "credits", "nqf_level"],
     });
 
-    if (!equivalentCourses || equivalentCourses.length === 0) {
-      return res.status(404).json({
-        status: "fail",
-        message: "No equivalent courses found.",
+    if (equivalentCourses.length === 0) {
+      return res.status(200).json({
+        status: "success",
+        data: [],
+        message: `No equivalent courses found for ${formattedCourseID}.`,
       });
     }
+
+    // Format equivalent course details
+    const equivalentsList = equivalentCourses.map((course) => `${course.id}`);
+
+    // Check the length of equivalentsList and format the message accordingly
+    const equivalentMessage =
+      equivalentsList.length > 1
+        ? `The equivalents for ${formattedCourseID} are ${equivalentsList.join(
+            ", "
+          )}.`
+        : `The equivalent for ${formattedCourseID} is ${equivalentsList.join(
+            ", "
+          )}.`;
 
     // Return the equivalent courses
     return res.status(200).json({
       status: "success",
-      data: equivalentCourses,
+      message: equivalentMessage,
     });
   } catch (error) {
     console.error("Error fetching equivalents:", error.message);
@@ -203,7 +224,114 @@ const getEquivalents = async (req, res) => {
   }
 };
 
+const getCoursePrerequisitesAndRequirements = async (req, res) => {
+  try {
+    let { courseID } = req.params;
+
+    // Find the course by ID
+    const theCourse = await course.findOne({
+      where: { id: courseID.toUpperCase() },
+      attributes: ["id", "courseName", "prerequisites", "specialRequirements"],
+    });
+
+    if (!theCourse) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Course not found.",
+      });
+    }
+    courseID = theCourse.id;
+    const { prerequisites, specialRequirements } = theCourse;
+    // Helper function to format prerequisite list
+    const formatPrerequisites = (prereqs) => prereqs.join(", ");
+
+    // Helper function to decide whether to use "is" or "are"
+    const prerequisiteVerb = (prereqs) => (prereqs.length === 1 ? "is" : "are");
+
+    // Case 1: No prerequisites but special requirements with [CX]
+    if (
+      !prerequisites &&
+      specialRequirements &&
+      specialRequirements.startsWith("[CX]")
+    ) {
+      return res.status(200).json({
+        status: "success",
+        message: `The prerequisite of ${courseID} is ${specialRequirements
+          .replace("[CX]", "")
+          .trim()}.`,
+      });
+    }
+
+    // Case 2: No prerequisites and no special requirements
+    if (!prerequisites && !specialRequirements) {
+      return res.status(200).json({
+        status: "success",
+        message: `The course ${courseID} has no prerequisites.`,
+      });
+    }
+
+    // Case 3: Has prerequisites but no special requirements
+    if (prerequisites && !specialRequirements) {
+      return res.status(200).json({
+        status: "success",
+        message: `The prerequisite${
+          prerequisites.length === 1 ? "" : "s"
+        } of ${courseID} ${prerequisiteVerb(
+          prerequisites
+        )} ${formatPrerequisites(prerequisites)}.`,
+      });
+    }
+
+    // Case 4: Has both prerequisites and special requirements
+    if (prerequisites && specialRequirements) {
+      if (specialRequirements.startsWith("[AND]")) {
+        return res.status(200).json({
+          status: "success",
+          message: `The prerequisite${
+            prerequisites.length === 1 ? "" : "s"
+          } of ${courseID} ${prerequisiteVerb(
+            prerequisites
+          )} ${formatPrerequisites(prerequisites)} and ${specialRequirements
+            .replace("[AND]", "")
+            .trim()}.`,
+        });
+      } else if (specialRequirements.startsWith("[OR]")) {
+        return res.status(200).json({
+          status: "success",
+          message: `The prerequisite${
+            prerequisites.length === 1 ? "" : "s"
+          } of ${courseID} ${prerequisiteVerb(
+            prerequisites
+          )} ${formatPrerequisites(prerequisites)} or ${specialRequirements
+            .replace("[OR]", "")
+            .trim()}.`,
+        });
+      }
+    }
+
+    // Default fallback (if no specific conditions match)
+    return res.status(200).json({
+      status: "success",
+      message: `The prerequisite${
+        prerequisites.length === 1 ? "" : "s"
+      } of ${courseID} ${prerequisiteVerb(prerequisites)} ${formatPrerequisites(
+        prerequisites
+      )}.`,
+    });
+  } catch (error) {
+    console.error(
+      "Error fetching course prerequisites and requirements:",
+      error.message
+    );
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   getCourseProgress,
+  getCoursePrerequisitesAndRequirements,
   getEquivalents,
 };
