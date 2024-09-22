@@ -491,7 +491,7 @@ const AddAdvisor = () => {
       < ErrorModal
         isOpen={showNameSurname}
         title={"Error"}
-        message={"Please enter a valid name and surname."}
+        message={"Name and Surname must only contain letters and spaces (no numbers)."}
         onContinue={() => { setNameSurname(false) }}
       />
       < ErrorModal
