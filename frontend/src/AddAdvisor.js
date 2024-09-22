@@ -365,8 +365,8 @@ const AddAdvisor = () => {
           </div>
           <div className="flex flex-col gap-4 w-5/12 relative">
             <CustomInput
-              label="Majors Advised"
-              placeholder="Enter the majors advised"
+              label="Curriculum Advised"
+              placeholder="Enter the curriculums advised"
               icon={search}
               onValueChange={(value) => {
                 setMajorSearch(value);
