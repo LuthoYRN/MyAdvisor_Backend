@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [chatLines, setChatLines] = useState([]);
   const [isTyping, setIsTyping] = useState(false); // Manage typing state
   const [showTextInput, setShowTextInput] = useState(false); // Toggle input visibility
+  const [showOptions, setShowOptions] = useState(true); // Toggle input visibility
   const [inputPrompt, setInputPrompt] = useState(""); // Store the current prompt
   const [courseCode, setCourseCode] = useState(""); // For storing user input
   const chatContainerRef = useRef(null); // Ref to control the chat scroll behavior
@@ -123,7 +124,6 @@ const Dashboard = () => {
     } else {
       // Handle regular options like "Remaining courses"
       let responseText = "";
-
       if (option === "Remaining courses") {
         if (progress && progress.remainingCourses?.length > 0) {
           responseText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses
@@ -136,7 +136,6 @@ const Dashboard = () => {
           responseText = "Loading your remaining courses, please wait...";
         }
       }
-
       if (option === "Completed courses") {
         if (progress && progress.completedCourses?.length > 0) {
           responseText = `You have completed ${progress.completedCourses.length} courses: ${progress.completedCourses
@@ -147,6 +146,27 @@ const Dashboard = () => {
         } else {
           responseText = "Loading your completed courses, please wait...";
         }
+      }
+      if (option === "Credit summary") {
+        // Fetch the credit summary from the API
+        fetch(
+          `${config.backendUrl}/api/smartAdvisor/credits/${localStorage.getItem("user_id")}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            responseText = data.message; // Extract message from the API response
+          })
+          .catch((error) => {
+            console.error("Error fetching credit summary:", error);
+            responseText = "Error retrieving credit summary. Please try again.";
+          });
       }
 
       // Trigger typing effect for the system response
@@ -160,20 +180,55 @@ const Dashboard = () => {
     }
   };
 
-  const handleTextInputSubmit = () => {
+  const handleTextInputSubmit = async () => {
+    setShowTextInput(false);
+    setShowOptions(false);
     if (courseCode.trim() === "") return; // Prevent empty input
 
-    const responseText = `You asked for ${inputPrompt} for course: ${courseCode}`;
+    // Set the typing state to true
+    setIsTyping(true);
 
-    // Update chat with the course code
+    // Display the user's input (course code)
     setChatLines((prevChatLines) => [
       ...prevChatLines,
-      { text: responseText, type: "chat" }, // Respond with course information
-      { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
+      {
+        text: `What are the ${inputPrompt} for ${courseCode}?`,
+        type: "user",
+      },
+      { text: "", type: "chat" }, // Placeholder for typing effect
     ]);
 
+    // Make the API call depending on the input prompt (Equivalents or Prerequisites)
+    let responseText = "";
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/smartAdvisor/${inputPrompt.toLowerCase()}/${courseCode}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+        }
+      );
+      const data = await response.json();
+      responseText = data.message; // Extract message from response
+    } catch (error) {
+      responseText = "Error retrieving data. Please try again.";
+      console.error(error);
+    }
+
+    // Trigger typing effect for the API response
+    typeEffect(responseText, 0, () => {
+      setChatLines((prevChatLines) => [
+        ...prevChatLines,
+        { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
+      ]);
+      setIsTyping(false); // Reset typing state
+    });
+
     // Reset input field
-    setShowTextInput(false);
+    setShowOptions(true);
     setCourseCode("");
   };
 
@@ -274,7 +329,7 @@ const Dashboard = () => {
               </div>
             )}
 
-            {!showTextInput && (
+            {!showTextInput && showOptions && (
               <div className="flex flex-row w-4/6 justify-end ml-auto flex-wrap">
                 {[
                   "Completed courses",
