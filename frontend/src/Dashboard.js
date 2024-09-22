@@ -8,6 +8,7 @@ import Main from "./layout/Main";
 import { useLocation } from "react-router-dom";
 import config from "./config";
 import moment from "moment";
+import send from "./assets/send.svg";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -15,6 +16,9 @@ const Dashboard = () => {
   const [progress, setProgress] = useState(null);
   const [chatLines, setChatLines] = useState([]);
   const [isTyping, setIsTyping] = useState(false); // Manage typing state
+  const [showTextInput, setShowTextInput] = useState(false); // Toggle input visibility
+  const [inputPrompt, setInputPrompt] = useState(""); // Store the current prompt
+  const [courseCode, setCourseCode] = useState(""); // For storing user input
   const chatContainerRef = useRef(null); // Ref to control the chat scroll behavior
 
   useEffect(() => {
@@ -45,7 +49,7 @@ const Dashboard = () => {
     const fetchProgressData = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/smartAdvisor/progress`,
+          `${config.backendUrl}/api/smartAdvisor/progress/${localStorage.getItem("user_id")}`,
           {
             method: "GET",
             headers: {
@@ -111,40 +115,66 @@ const Dashboard = () => {
       { text: "", type: "chat" }, // Placeholder for the typing effect
     ]);
 
-    let responseText = "";
+    if (option === "Equivalents" || option === "Prerequisites") {
+      // Show input for specific options
+      setShowTextInput(true);
+      setInputPrompt(option); // Set input prompt type
+      setIsTyping(false); // Set typing state back to false
+    } else {
+      // Handle regular options like "Remaining courses"
+      let responseText = "";
 
-    if (option === "Remaining courses") {
-      if (progress && progress.remainingCourses?.length > 0) {
-        responseText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses
-          .map((course) => course.courseID)
-          .join(", ")}.`;
-      } else if (progress && progress.remainingCourses?.length === 0) {
-        responseText = "Congratulations! You have completed all your courses.";
-      } else {
-        responseText = "Loading your remaining courses, please wait...";
+      if (option === "Remaining courses") {
+        if (progress && progress.remainingCourses?.length > 0) {
+          responseText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses
+            .map((course) => course.courseID)
+            .join(", ")}.`;
+        } else if (progress && progress.remainingCourses?.length === 0) {
+          responseText =
+            "Congratulations! You have completed all your courses.";
+        } else {
+          responseText = "Loading your remaining courses, please wait...";
+        }
       }
-    }
 
-    if (option === "Completed courses") {
-      if (progress && progress.completedCourses?.length > 0) {
-        responseText = `You have completed ${progress.completedCourses.length} courses: ${progress.completedCourses
-          .map((course) => course.courseID)
-          .join(", ")}.`;
-      } else if (progress && progress.completedCourses?.length === 0) {
-        responseText = "You have not completed any course.";
-      } else {
-        responseText = "Loading your completed courses, please wait...";
+      if (option === "Completed courses") {
+        if (progress && progress.completedCourses?.length > 0) {
+          responseText = `You have completed ${progress.completedCourses.length} courses: ${progress.completedCourses
+            .map((course) => course.courseID)
+            .join(", ")}.`;
+        } else if (progress && progress.completedCourses?.length === 0) {
+          responseText = "You have not completed any course.";
+        } else {
+          responseText = "Loading your completed courses, please wait...";
+        }
       }
-    }
 
-    // Trigger typing effect for the system response
-    typeEffect(responseText, 0, () => {
-      setChatLines((prevChatLines) => [
-        ...prevChatLines,
-        { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
-      ]);
-      setIsTyping(false); // Set typing state back to false when typing is complete
-    });
+      // Trigger typing effect for the system response
+      typeEffect(responseText, 0, () => {
+        setChatLines((prevChatLines) => [
+          ...prevChatLines,
+          { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
+        ]);
+        setIsTyping(false); // Set typing state back to false when typing is complete
+      });
+    }
+  };
+
+  const handleTextInputSubmit = () => {
+    if (courseCode.trim() === "") return; // Prevent empty input
+
+    const responseText = `You asked for ${inputPrompt} for course: ${courseCode}`;
+
+    // Update chat with the course code
+    setChatLines((prevChatLines) => [
+      ...prevChatLines,
+      { text: responseText, type: "chat" }, // Respond with course information
+      { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
+    ]);
+
+    // Reset input field
+    setShowTextInput(false);
+    setCourseCode("");
   };
 
   if (!userData) {
@@ -221,27 +251,53 @@ const Dashboard = () => {
               <ChatLine key={index} text={line.text} type={line.type} />
             ))}
 
-            {/* Options */}
-            <div className="flex w-4/6 justify-end ml-auto flex-wrap">
-              {[
-                "Completed courses",
-                "Remaining courses",
-                "Equivalent Courses",
-                "Common Electives",
-              ].map((option) => (
-                <ChatLine
-                  key={option}
-                  text={option}
-                  onClick={() => handleOptionClick(option)}
-                  className={`p-2 border rounded-lg ${
-                    isTyping
-                      ? "bg-gray-300 cursor-not-allowed" // Disable styling when typing
-                      : "bg-gray-100 text-black cursor-pointer" // Enable styling when not typing
-                  }`}
-                  disabled={isTyping} // Disable the button while typing
+            {/* Show text input for equivalents/prerequisites */}
+            {showTextInput && (
+              <div className="flex flex-row w-full mt-4">
+                <input
+                  type="text"
+                  placeholder={`Enter course code for ${inputPrompt}`}
+                  value={courseCode}
+                  onChange={(e) => setCourseCode(e.target.value)}
+                  className="border border-like-shadow p-2 rounded-lg w-full outline-none"
                 />
-              ))}
-            </div>
+                <button
+                  onClick={handleTextInputSubmit}
+                  className="ml-4 p-2 bg-primary rounded-full cursor-pointer flex justify-center items-center transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white ease-in-out duration-300"
+                >
+                  <img
+                    src={send} // Path to your send icon
+                    alt="Send Icon"
+                    className="h-8 w-8"
+                  />
+                </button>
+              </div>
+            )}
+
+            {!showTextInput && (
+              <div className="flex flex-row w-4/6 justify-end ml-auto flex-wrap">
+                {[
+                  "Completed courses",
+                  "Remaining courses",
+                  "Equivalents",
+                  "Prerequisites",
+                  "Credit summary",
+                  "Electives",
+                ].map((option) => (
+                  <ChatLine
+                    key={option}
+                    text={option}
+                    onClick={() => handleOptionClick(option)}
+                    className={`p-2 border rounded-lg ${
+                      isTyping
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-gray-100 text-black cursor-pointer"
+                    }`}
+                    disabled={isTyping}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
