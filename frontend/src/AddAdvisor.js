@@ -1,16 +1,16 @@
 import React from "react";
-import Text from "./components/Text.jsx";
-import Main from "./layout/Main.jsx";
-import Button from "./components/Button.jsx";
-import CustomInput from "./components/CustomInput.jsx";
-import Select from "./components/Select.jsx";
-import Checkbox from "./components/Checkbox.jsx";
-import Tag from "./components/Tag.jsx";
-import search from "./assets/search.svg";
-import config from "./config.js";
 import { useNavigate } from "react-router-dom";
-import SuccessModal from "./components/successModal.jsx";
+import search from "./assets/search.svg";
+import Button from "./components/Button.jsx";
+import Checkbox from "./components/Checkbox.jsx";
+import CustomInput from "./components/CustomInput.jsx";
 import ErrorModal from "./components/errorModal.jsx";
+import Select from "./components/Select.jsx";
+import SuccessModal from "./components/successModal.jsx";
+import Tag from "./components/Tag.jsx";
+import Text from "./components/Text.jsx";
+import config from "./config.js";
+import Main from "./layout/Main.jsx";
 
 const AddAdvisor = () => {
   const [faculties, setFaculties] = React.useState([]);
@@ -27,6 +27,10 @@ const AddAdvisor = () => {
   const [filteredMajors, setFilteredMajors] = React.useState([]);
   const [showRequiredFieldsModal, setShowRequiredFieldsModal] =
     React.useState(false);
+  const [showEmailMismatchModal, setEmailMismatchModal] = React.useState(false);
+  const [showEmailInUse, setEmailInUse] = React.useState(false);
+  const [showNameSurname, setNameSurname] = React.useState(false);
+
 
   let navigate = useNavigate();
 
@@ -124,6 +128,7 @@ const AddAdvisor = () => {
   }, [Faculty]);
 
   const handleAddAdvisorPost = async () => {
+
     let advisorData = {
       name: Name,
       surname: Surname,
@@ -163,7 +168,21 @@ const AddAdvisor = () => {
       if (data.status === "success") {
         setShowSuccessModal(true);
         // Optionally, reset form or give feedback to the user
-      } else {
+      } else if (data.status === "fail") {
+        for (let i = 0; i < data.message.length; i++) {
+          if (data.message[i] === "Invalid email address") {
+            setEmailMismatchModal(true);
+            return;
+          }
+          if (data.message[i] === "Email is already in use") {
+            setEmailInUse(true);
+            return;
+          }
+          if (data.message[i] === "Name must only contain letters and spaces (no numbers)." || data.message[i] === "Surname must only contain letters and spaces (no numbers).") {
+            setNameSurname(true);
+            return;
+          }
+        }
         console.error("Error adding advisor:", data.message);
       }
     } catch (error) {
@@ -346,18 +365,18 @@ const AddAdvisor = () => {
           </div>
           <div className="flex flex-col gap-4 w-5/12 relative">
             <CustomInput
-              label="Majors Advised"
-              placeholder="Enter the majors advised"
+              label="Curriculum Advised"
+              placeholder="Enter the curriculums advised"
               icon={search}
               onValueChange={(value) => {
                 setMajorSearch(value);
-                
+
               }}
               value={majorSearch}
             />
             <div>
               {filteredMajors.length >= 1 && majorSearch && (
-                <div className="absolute bg-gray-400 rounded-2xl p-4">
+                <div className="absolute z-20 bg-gray-400 rounded-2xl p-4">
                   {" "}
                   {filteredMajors.map((major) => (
                     <Text
@@ -373,7 +392,7 @@ const AddAdvisor = () => {
                         setMajorSearch("");
                       }}
                     >
-                      {major.majorName  || major.programmeName}
+                      {major.majorName || major.programmeName}
                     </Text>
                   ))}
                 </div>
@@ -468,6 +487,24 @@ const AddAdvisor = () => {
         onContinue={() => {
           setShowRequiredFieldsModal(false);
         }}
+      />
+      < ErrorModal
+        isOpen={showNameSurname}
+        title={"Error"}
+        message={"Name and Surname must only contain letters and spaces (no numbers)."}
+        onContinue={() => { setNameSurname(false) }}
+      />
+      < ErrorModal
+        isOpen={showEmailInUse}
+        title={"Error"}
+        message={"Email is already in use."}
+        onContinue={() => { setEmailInUse(false) }}
+      />
+      <ErrorModal
+        isOpen={showEmailMismatchModal}
+        title={"Error"}
+        message={"Invalid email address"}
+        onContinue={() => { setEmailMismatchModal(false) }}
       />
       <SuccessModal
         isOpen={showSuccessModal}

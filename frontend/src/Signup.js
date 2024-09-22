@@ -83,9 +83,15 @@ function App() {
       .then((data) => {
 
         if (data.status === "fail") {
-          if (data.message[0] === "Invalid email format.") {
-            setEmailMismatchModal(true);
-            return;
+          for (let i = 0; i < data.message.length; i++) {
+            if (data.message[i] === "Invalid email format.") {
+              setEmailMismatchModal(true);
+              return;
+            }
+            if (data.message[i] === "Name must only contain letters." || data.message[i] === "Surname must only contain letters.") {
+              setNameSurname(true);
+              return;
+            }
           }
           if (data.message === "Password should be between 6 and 255 characters long.") {
             setPasswordLengthModal(true);
@@ -93,10 +99,6 @@ function App() {
           }
           if (data.message === "Email is already in use") {
             setEmailInUse(true);
-            return;
-          }
-          if (data.message[0] === "Name must only contain letters." || data.message[1] === "Surname must only contain letters.") {
-            setNameSurname(true);
             return;
           }
         } else {
