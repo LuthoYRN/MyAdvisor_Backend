@@ -46,7 +46,7 @@ const FacultyAdminDashboard = () => {
           profile_url={userData?.profile_url}
           user={`${userData?.name}`}
           info={`${userData?.facultyName} Faculty`}
-          user_type="FacultyAdmin"
+          user_type="facultyAdmin"
         />
       </div>
       <div className="flex flex-auto justify-center items-center bg-white rounded-2xl shadow-xl">

@@ -167,6 +167,7 @@ const Dashboard = () => {
           user={`${student.name} ${student.surname}`}
           info={student.majorOrProgramme}
           unreadCount={unreadNotifications}
+          user_type={"student"}
         />
       </div>
 

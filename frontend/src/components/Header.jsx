@@ -4,7 +4,8 @@ import notification from "../assets/notification.svg";
 import Text from "./Text";
 import { useNavigate } from "react-router-dom";
 import config from "../config";
-import ConfirmationModal from "./ConfirmationModal";
+import SuccessModal from "./successModal.jsx";
+import ErrorModal from "./errorModal.jsx";
 
 const Header = ({
   user,
@@ -16,9 +17,12 @@ const Header = ({
   unreadCount,
 }) => {
   let navigate = useNavigate();
-  const [successModal, setSuccessModal] = React.useState(false);
+  const [showSuccessModal, setShowSuccessModal] = React.useState(false);
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
+  const [loading, setLoading] = React.useState(false); // Loading state
 
   const changeProfile = () => {
+    setLoading(true); // Start the loader
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*"; // Optional: Limit file types to images
@@ -31,7 +35,7 @@ const Header = ({
 
         try {
           const response = await fetch(
-            `${config.backendUrl}/api/${localStorage.getItem("userData")?.advisor ? "advisor" : JSON.parse(localStorage.getItem("userData")).facultyID ? "facultyAdmin" : "student"}/${localStorage.getItem("user_id")}/uploadProfilePicture`,
+            `${config.backendUrl}/api/${user_type}/${localStorage.getItem("user_id")}/uploadProfilePicture`,
             {
               method: "POST",
               body: formData,
@@ -40,12 +44,14 @@ const Header = ({
 
           if (response.ok) {
             const data = await response.json();
-            setSuccessModal(true);
+            setShowSuccessModal(true);
+            setLoading(false); // Stop the loader
           } else {
-            console.error("File upload failed:", response.statusText);
+            setShowErrorModal(true);
+            setLoading(false);
           }
         } catch (error) {
-          console.error("Error uploading file:", error);
+          setLoading(false); // Stop the loader in case of an error
         }
       }
     };
@@ -54,16 +60,24 @@ const Header = ({
   };
 
   return (
-    <div class="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
-      <img
-        src={profile_url}
-        alt="account"
-        class="ml-4 rounded-full cursor-pointer"
-        width={80}
-        height={80}
-        onClick={changeProfile}
-      />
-      <div class="flex flex-col justify-center  p-4 ml-4 my-4 w-full h-5/6">
+    <div className="flex items-center h-full bg-white rounded-2xl shadow-xl mb-10">
+      <div className="relative">
+        {loading && (
+          <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-70 rounded-full">
+            <div className="loader"></div> {/* Show the loader */}
+          </div>
+        )}
+        <img
+          src={profile_url}
+          alt="account"
+          className={`ml-4 rounded-full cursor-pointer ${loading ? "invisible" : "visible"}`} // Hide image while loading
+          width={80}
+          height={80}
+          onClick={changeProfile}
+        />
+      </div>
+
+      <div className="flex flex-col justify-center  p-4 ml-4 my-4 w-full h-5/6">
         <Text type="heading">{user}</Text>
         <Text type="m-subheading" classNames="mt-2 ">
           {info}
@@ -78,27 +92,39 @@ const Header = ({
             : navigate("/notifications");
         }}
       >
-        {localStorage.getItem("userData") && !JSON.parse(localStorage.getItem("userData")).facultyID && (
-          <>
-            <img src={notification} alt="notification" className="w-10 h-10" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                {unreadCount}
-              </span>
-            )}
-          </>
-        )}
+        {localStorage.getItem("userData") &&
+          !JSON.parse(localStorage.getItem("userData")).facultyID && (
+            <>
+              <img
+                src={notification}
+                alt="notification"
+                className="w-10 h-10"
+              />
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                  {unreadCount}
+                </span>
+              )}
+            </>
+          )}
       </div>
-      {successModal && (
-        <ConfirmationModal
-          setModal={setSuccessModal}
-          message="Profile picture updated successfully"
-          close={() => {
-            setSuccessModal(false);
-            window.location.reload(); // Refresh the page
-          }}
-        />
-      )}
+      <ErrorModal
+        isOpen={showErrorModal}
+        title={"Error"}
+        message="Error uploading profile picture"
+        onContinue={() => {
+          setShowErrorModal(false);
+        }}
+      />
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title={"Success"}
+        message="Profile picture updated successfully"
+        onClose={() => {
+          setShowSuccessModal(false);
+          window.location.reload(); // Refresh the page
+        }}
+      />
     </div>
   );
 };

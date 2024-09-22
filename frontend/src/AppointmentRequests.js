@@ -180,9 +180,7 @@ const AppointmentRequests = () => {
                   <Text type="paragraph" classNames="mb-8">
                     You have received a new appointment request from{" "}
                     {notificationDetails.studentName}. Please review the details
-                    and confirm or reject the appointment. To approve or decline
-                    this request, please log into the advisor portal or respond
-                    directly to this email. Thank you!
+                    and confirm or reject the appointment. Thank you!
                   </Text>
                 </div>
                 <div
