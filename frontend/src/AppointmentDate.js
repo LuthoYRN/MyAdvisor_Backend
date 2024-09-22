@@ -66,20 +66,17 @@ const AppointmentDate = () => {
           }
         );
 
+        const responseMessage = await response.json();
         if (response.ok) {
           setShowSuccessModal(true); // Show success modal
           setProccessing(false);
         } else {
+          setProccessing(false);
           if (
-            response.message === "You already have a confirmed appointment."
+            responseMessage.message ===
+            "You already have a confirmed appointment."
           ) {
             setAlreadyMadeBooking(true);
-            setProccessing(false);
-            <ConfirmationModal
-              status={"Error"}
-              message={response.status}
-              onConfirm={"/appointmentDate"}
-            />;
           }
         }
       } catch (error) {
