@@ -16,7 +16,10 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Middleware exports
-const uploadImage = multer({ storage: imageStorage });
+const uploadImage = multer({ 
+  storage: imageStorage,
+  fileFilter: fileFilter // Add the fileFilter here
+});
 const uploadDocument = multer({ storage: documentStorage });
 const uploadVideo = multer({ storage: videoStorage });
 
