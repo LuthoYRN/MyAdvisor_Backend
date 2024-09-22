@@ -15,7 +15,7 @@ import config from "./config";
 import Main from "./layout/Main";
 
 const CurriculumManagement = () => {
-  const [courses, setCourses] = useState(null);
+  const [courses, setCourses] = useState([]);
   const [allCourses, setAllCourses] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [workingID, setWorkingID] = useState(null);
@@ -144,8 +144,6 @@ const CurriculumManagement = () => {
       );
 
       if (response.ok) {
-        const responseData = await response.json();
-        setCourses([...courses, responseData.data]); // Update the course list
         setShowAddExistingCourseModal(false); // Close the "Add Existing Course" modal
         setSelectedCourses([]); // Clear selected courses
         setSelectedPrerequisites([]); // Clear selected prerequisites
@@ -277,7 +275,7 @@ const CurriculumManagement = () => {
       {courses ? (
         <Table
           classNames=""
-          Tabledata={courses}
+          Tabledata={courses || []}
           column={defaultColumns}
           idRow={"id"}
           handleRowDelete={(id) => {
