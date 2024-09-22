@@ -335,6 +335,11 @@ const Dashboard = () => {
                   placeholder={`Enter course code for ${inputPrompt}`}
                   value={courseCode}
                   onChange={(e) => setCourseCode(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleTextInputSubmit();
+                    }
+                  }}
                   className="border border-like-shadow p-2 rounded-lg w-full outline-none"
                 />
                 <button
