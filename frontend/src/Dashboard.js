@@ -99,10 +99,43 @@ const Dashboard = () => {
           },
         ]);
         typeEffect(text, index + 1, callback);
-      }, 50); // Adjust the delay to control typing speed
+      }, 30); // Adjust the delay to control typing speed
     } else {
       callback();
     }
+  };
+
+  // Separate function for fetching credit summary
+  const fetchCreditSummary = async () => {
+    setIsTyping(true); // Start typing effect
+    let responseText = "";
+
+    try {
+      const response = await fetch(
+        `${config.backendUrl}/api/smartAdvisor/credits/${localStorage.getItem("user_id")}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
+          },
+        }
+      );
+      const data = await response.json();
+      responseText = data.message; // Extract message from the API response
+    } catch (error) {
+      console.error("Error fetching credit summary:", error);
+      responseText = "Error retrieving credit summary. Please try again.";
+    }
+
+    // Trigger typing effect for the system response
+    typeEffect(responseText, 0, () => {
+      setChatLines((prevChatLines) => [
+        ...prevChatLines,
+        { text: "Is there anything else I can help you with?", type: "chat" }, // Follow-up message
+      ]);
+      setIsTyping(false); // Set typing state back to false when typing is complete
+    });
   };
 
   const handleOptionClick = (option) => {
@@ -121,12 +154,16 @@ const Dashboard = () => {
       setShowTextInput(true);
       setInputPrompt(option); // Set input prompt type
       setIsTyping(false); // Set typing state back to false
+    } else if (option === "Credit summary") {
+      // Call the separate function for credit summary
+      fetchCreditSummary();
     } else {
       // Handle regular options like "Remaining courses"
       let responseText = "";
+
       if (option === "Remaining courses") {
         if (progress && progress.remainingCourses?.length > 0) {
-          responseText = `You have ${progress.remainingCourses.length} remaining courses: ${progress.remainingCourses
+          responseText = `You have ${progress.remainingCourses.length} remaining course(s): ${progress.remainingCourses
             .map((course) => course.courseID)
             .join(", ")}.`;
         } else if (progress && progress.remainingCourses?.length === 0) {
@@ -136,9 +173,10 @@ const Dashboard = () => {
           responseText = "Loading your remaining courses, please wait...";
         }
       }
+
       if (option === "Completed courses") {
         if (progress && progress.completedCourses?.length > 0) {
-          responseText = `You have completed ${progress.completedCourses.length} courses: ${progress.completedCourses
+          responseText = `You have completed ${progress.completedCourses.length} course(s): ${progress.completedCourses
             .map((course) => course.courseID)
             .join(", ")}.`;
         } else if (progress && progress.completedCourses?.length === 0) {
@@ -146,27 +184,6 @@ const Dashboard = () => {
         } else {
           responseText = "Loading your completed courses, please wait...";
         }
-      }
-      if (option === "Credit summary") {
-        // Fetch the credit summary from the API
-        fetch(
-          `${config.backendUrl}/api/smartAdvisor/credits/${localStorage.getItem("user_id")}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "69420",
-            },
-          }
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            responseText = data.message; // Extract message from the API response
-          })
-          .catch((error) => {
-            console.error("Error fetching credit summary:", error);
-            responseText = "Error retrieving credit summary. Please try again.";
-          });
       }
 
       // Trigger typing effect for the system response
@@ -183,7 +200,11 @@ const Dashboard = () => {
   const handleTextInputSubmit = async () => {
     setShowTextInput(false);
     setShowOptions(false);
-    if (courseCode.trim() === "") return; // Prevent empty input
+    if (courseCode.trim() === "") {
+      setShowOptions(true);
+      setCourseCode("");
+      return;
+    } // Prevent empty input
 
     // Set the typing state to true
     setIsTyping(true);
@@ -337,7 +358,6 @@ const Dashboard = () => {
                   "Equivalents",
                   "Prerequisites",
                   "Credit summary",
-                  "Electives",
                 ].map((option) => (
                   <ChatLine
                     key={option}
