@@ -686,23 +686,23 @@ const bookAppointment = async (req, res) => {
     }
 
     // Get the current date in the format "YYYY-MM-DD"
-    //   const currentDate = moment().format("YYYY-MM-DD");
+    const currentDate = moment().format("YYYY-MM-DD");
 
     // Check if the student has a confirmed appointment on or after the current date
-    // const existingStudentAppointment = await appointment.findOne({
-    //  where: {
-    //   studentID: theStudent.id,
-    //  date: { [Op.gte]: currentDate }, // On or after the current date
-    // status: "Confirmed", // Only confirmed appointments
-    //},
-    //});
+    const existingStudentAppointment = await appointment.findOne({
+      where: {
+        studentID: theStudent.id,
+        date: { [Op.gte]: currentDate }, // On or after the current date
+        status: "Confirmed", // Only confirmed appointments
+      },
+    });
 
-    //if (existingStudentAppointment) {
-    // return res.status(400).json({
-    //  status: "fail",
-    // message: "You already have a confirmed appointment.",
-    //});
-    // }
+    if (existingStudentAppointment) {
+      return res.status(400).json({
+        status: "fail",
+        message: "You already have a confirmed appointment.",
+      });
+    }
     // Check if there's an existing appointment at the same date and time
     const existingAppointment = await appointment.findOne({
       where: {
