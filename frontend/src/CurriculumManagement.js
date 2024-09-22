@@ -51,6 +51,8 @@ const CurriculumManagement = () => {
           (curriculum) => curriculum.curriculumID !== curriculumID
         )
       );
+      setShowDeleteModal(false);
+      setWorkingID(null);
       console.log(`Deleted curriculum with ID: ${curriculumID}`);
     } catch (error) {
       console.error("Error deleting curriculum:", error);
@@ -127,7 +129,7 @@ const CurriculumManagement = () => {
       ) : null}
       {showDeleteModal && (
         <DeleteModal
-          message={`Are you sure you want to stop being an advisor for ${curriculums.find((c) => c.curriculumID === workingID).curriculumName}?`}
+          message={`Are you sure you want to stop being an advisor for ${curriculums.find((c) => c.curriculumID === workingID)?.curriculumName}?`}
           returnMessage={(status) => {
             if (status === "yes") {
               handleDelete(workingID);

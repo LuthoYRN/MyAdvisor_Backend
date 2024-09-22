@@ -155,12 +155,13 @@ const AdvisorManagement = () => {
         users.filter(
           (user) =>
             user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (selectedPermission ? user.advisor_level === selectedPermission : true)
+            (selectedPermission
+              ? user.advisor_level === selectedPermission
+              : true)
         )
       );
     }
   }, [users, searchTerm, selectedPermission]);
-
 
   if (loading) {
     return (
@@ -301,7 +302,13 @@ const AdvisorManagement = () => {
             )}
 
             <div class="flex flex-row gap-4 mt-8">
-              <Button text="Add" onClick={() => handleEditAdivsor()} />
+              <Button
+                text="Add"
+                onClick={() => {
+                  setShowEditAdvisorModal(false);
+                  handleEditAdivsor();
+                }}
+              />
               <Button
                 text="Cancel"
                 onClick={() => {

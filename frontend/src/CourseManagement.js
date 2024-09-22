@@ -375,7 +375,7 @@ const CurriculumManagement = () => {
               onValueChange={(value) => {
                 setPrerequisiteSearch(value);
                 setFilteredPrerequisites(
-                  allCourses.filter((course) =>
+                  courses.filter((course) =>
                     course.id.toLowerCase().includes(value.toLowerCase())
                   )
                 );

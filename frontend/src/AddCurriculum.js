@@ -10,10 +10,6 @@ import config from "./config.js";
 import Main from "./layout/Main.jsx";
 
 const AddCourse = () => {
-  const [courseName, setCourseName] = React.useState("");
-  const [courseCode, setCourseCode] = React.useState("");
-  const [courseCredits, setCourseCredits] = React.useState("");
-  const [nqfLevel, setNqfLevel] = React.useState("");
   const [departments, setDepartments] = React.useState([]);
   const [department, setDepartment] = React.useState("");
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
@@ -26,18 +22,7 @@ const AddCourse = () => {
   let location = useLocation();
   let navigate = useNavigate();
 
-  const handleSaveCourse = () => {
-    if (!courseCode || !courseName || !courseCredits || !nqfLevel) {
-      setShowRequiredFieldsModal(true);
-      //alert("Please fill in all required fields.");
-      return;
-    }
-    // Add logic to save the course here
-    setShowSuccessModal(true);
-  };
-
   React.useEffect(() => {
-    console.log("Location state:", location.state);
     const fetchCourses = async () => {
       try {
         const facultyID = JSON.parse(
@@ -48,7 +33,6 @@ const AddCourse = () => {
         );
         const data = await response.json();
         setDepartments(data.data || []);
-        setDepartment(data.data[0].id);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
@@ -145,12 +129,16 @@ const AddCourse = () => {
             )}
             <Select
               label="Department"
-              options={departments.map((department) => ({
-                value: department.id,
-                label: department.name,
-              }))}
+              options={[
+                { value: "", label: "Select a Department" }, // Default empty option
+                ...departments.map((department) => ({
+                  value: department.id,
+                  label: department.name,
+                })),
+              ]}
+              value={department} // Keep this bound to state
               onChange={(value) => {
-                setDepartment(value);
+                setDepartment(value); // Update state when selected
               }}
             />
           </div>
@@ -175,7 +163,6 @@ const AddCourse = () => {
         }}
       />
     </Main>
-
   );
 };
 

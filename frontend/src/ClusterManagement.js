@@ -434,7 +434,13 @@ const UserManagement = () => {
             )}
 
             <div class="flex flex-row gap-4 mt-8">
-              <Button text="Add" onClick={() => handleEditAdivsor()} />
+              <Button
+                text="Add"
+                onClick={() => {
+                  handleEditAdivsor();
+                  setShowEditAdvisorModal(false);
+                }}
+              />
               <Button
                 text="Cancel"
                 onClick={() => {

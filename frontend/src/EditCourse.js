@@ -149,9 +149,9 @@ const EditCourse = () => {
       specialRequirement:
         specialRequirements && specialRequirementsChoice !== ""
           ? {
-            condition: specialRequirementsChoice,
-            requirement: specialRequirements,
-          }
+              condition: specialRequirementsChoice.toUpperCase(),
+              requirement: specialRequirements,
+            }
           : null,
     };
 
@@ -174,7 +174,8 @@ const EditCourse = () => {
   return (
     <Main
       userType={
-        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level || "FacultyAdmin"
+        JSON.parse(localStorage.getItem("userData"))?.advisor?.advisor_level ||
+        "FacultyAdmin"
       }
     >
       <div class="flex flex-col flex-auto gap-4 p-8 rounded-2xl bg-white shadow-xl">
@@ -372,10 +373,16 @@ const EditCourse = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
           <div
             className="bg-white rounded-2xl p-8 relative"
-            style={{ width: '30%', minWidth: '320px', maxWidth: '600px', padding: '2rem' }}
+            style={{
+              width: "30%",
+              minWidth: "320px",
+              maxWidth: "600px",
+              padding: "2rem",
+            }}
           >
             <div className="flex flex-row items-center gap-2 mb-4 justify-center">
-              <FaCheckCircle className="text-green-500 text-3xl" /> {/* Success Icon */}
+              <FaCheckCircle className="text-green-500 text-3xl" />{" "}
+              {/* Success Icon */}
               <Text type="sm-heading" classNames="text-center">
                 Success
               </Text>
@@ -388,7 +395,7 @@ const EditCourse = () => {
                 text="Close"
                 onClick={() => {
                   setShowConfirmationModal(false);
-                  navigate(-1);  // Assuming you want to navigate back after closing
+                  navigate(-1); // Assuming you want to navigate back after closing
                 }}
               />
             </div>
