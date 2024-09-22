@@ -26,7 +26,7 @@ const StudentCourses = () => {
     const fetchProgressData = async () => {
       try {
         const response = await fetch(
-          `${config.backendUrl}/api/student/${localStorage.getItem("user_id")}/smartAdvisor/progress`,
+          `${config.backendUrl}/api/smartAdvisor/progress/${localStorage.getItem("user_id")}`,
           {
             method: "GET",
             headers: {
