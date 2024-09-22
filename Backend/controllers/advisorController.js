@@ -540,9 +540,14 @@ const getAppointmentDetails = async (req, res) => {
     }
 
     // Check if the appointment is in the future
-    const appointmentDate = moment(appointmentDetails.date).startOf("day");
-    const today = moment().startOf("day");
-    const isFutureAppointment = appointmentDate.isAfter(today);
+    const appointmentDateTime = moment(
+      `${appointmentDetails.date} ${appointmentDetails.time}`,
+      "YYYY-MM-DD HH:mm:ss"
+    );
+    const currentDateTime = moment();
+
+    // Check if the appointment is in the future
+    const isFutureAppointment = appointmentDateTime.isAfter(currentDateTime);
 
     // Check if there's already a log in the adviceLog
     const adviceLogExists = await adviceLog.findOne({
