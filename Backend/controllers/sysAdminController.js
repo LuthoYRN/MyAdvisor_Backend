@@ -209,7 +209,7 @@ const addAdvisor = async (req, res) => {
       advisor_level, // "senior" or "advisor"
       facultyID,
       curriculums, // Array of major or programme IDs
-      seniorAdvisorID, // Passed when adding a junior advisor
+      seniorAdvisorID = null, // Optional, Passed when adding a junior advisor
       cluster = [], // Passed when adding a senior advisor with a list of advisor IDs
     } = req.body;
 
@@ -259,54 +259,50 @@ const addAdvisor = async (req, res) => {
 
     // If adding a junior advisor (advisor_level === "advisor")
     if (advisor_level === "advisor") {
-      // Validate that seniorAdvisorID is provided
-      if (!seniorAdvisorID) {
-        return res.status(400).json({
-          status: "fail",
-          message: "Senior advisor ID must be provided for advisors.",
+      // If seniorAdvisorID is provided, assign the junior advisor to the senior's cluster
+      if (seniorAdvisorID) {
+        // Find the senior advisor to retrieve the clusterID
+        const seniorAdvisor = await advisor.findOne({
+          where: { id: seniorAdvisorID },
         });
+
+        if (!seniorAdvisor) {
+          return res.status(404).json({
+            status: "fail",
+            message: "Senior advisor not found.",
+          });
+        }
+
+        clusterID = seniorAdvisor.clusterID; // Assign the junior advisor to this cluster
+
+        // Add the junior advisor to the existing cluster
+        await advisorCluster.update(
+          {
+            advisorIDs: sequelize.fn(
+              "array_append",
+              sequelize.col("advisorIDs"),
+              newAdvisor.id
+            ),
+          },
+          { where: { seniorAdvisorID: seniorAdvisorID } }
+        );
+
+        // Update the new junior advisor with the clusterID
+        await newAdvisor.update({ clusterID: clusterID });
       }
-
-      // Find the senior advisor to retrieve the clusterID
-      const seniorAdvisor = await advisor.findOne({
-        where: { id: seniorAdvisorID },
-      });
-
-      if (!seniorAdvisor) {
-        return res.status(404).json({
-          status: "fail",
-          message: "Senior advisor not found.",
-        });
-      }
-
-      clusterID = seniorAdvisor.clusterID; // Assign the junior advisor to this cluster
-
-      // Add the junior advisor to the existing cluster
-      await advisorCluster.update(
-        {
-          advisorIDs: sequelize.fn(
-            "array_append",
-            sequelize.col("advisorIDs"),
-            newAdvisor.id
-          ),
-        },
-        { where: { seniorAdvisorID: seniorAdvisorID } }
-      );
-
-      // Update the new junior advisor with the clusterID
-      await newAdvisor.update({ clusterID: clusterID });
     }
 
-    // If adding a senior advisor (advisor_level === "senior"), create a new cluster
+    // If adding a senior advisor (advisor_level === "senior"), create a new cluster with an empty array
     if (advisor_level === "senior") {
       const newCluster = await advisorCluster.create({
         seniorAdvisorID: newAdvisor.id,
-        advisorIDs: [], // Initially empty, can be updated later
+        advisorIDs: [], // Start with an empty advisorIDs array
       });
 
       // Update the new senior advisor with the new cluster ID
       await newAdvisor.update({ clusterID: newCluster.id });
-      // Add all IDs in the `cluster` array to the new senior advisor's cluster
+
+      // If the cluster array is provided, assign the junior advisors to the cluster
       if (cluster.length > 0) {
         for (const juniorAdvisorID of cluster) {
           await advisorCluster.update(
