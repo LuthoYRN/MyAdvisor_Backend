@@ -376,7 +376,7 @@ const AddAdvisor = () => {
             />
             <div>
               {filteredMajors.length >= 1 && majorSearch && (
-                <div className="absolute bg-gray-400 rounded-2xl p-4">
+                <div className="absolute z-20 bg-gray-400 rounded-2xl p-4">
                   {" "}
                   {filteredMajors.map((major) => (
                     <Text
