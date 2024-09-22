@@ -87,7 +87,7 @@ const Header = ({
       <div
         className="relative mr-12 cursor-pointer"
         onClick={() => {
-          user_type
+          user_type === "advisor"
             ? navigate("/appointmentRequests")
             : navigate("/notifications");
         }}
