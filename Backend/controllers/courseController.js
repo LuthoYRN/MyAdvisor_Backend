@@ -208,43 +208,43 @@ const addExisting = async (req, res) => {
     const { courseID, prerequisiteFor } = req.body; // Expecting course ID and an array of prerequisite IDs
 
     // 1. Check if the curriculum exists (major or programme)
-    const curriculum = await sharedCourse.findOne({
-      where: { [Op.or]: [{ majorID: currID }, { programmeID: currID }] },
-    });
+    let curriculum = await major.findOne({ where: { id: currID } });
 
     if (!curriculum) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Curriculum not found.",
-      });
+      curriculum = await programme.findOne({ where: { id: currID } });
+      if (!curriculum) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Curriculum not found.",
+        });
+      }
     }
+
     // 2. Check if the course is already in the curriculum
     const facultySearch = await course.findOne({
-      where: {
-        id: courseID,
-      },
-      attributes: [],
+      where: { id: courseID },
       include: [
         {
           model: faculty,
-          attributes: ["curriculumType"], // Assuming curriculumType is the field you're looking for
+          attributes: ["curriculumType"], // Assuming curriculumType is part of faculty
         },
       ],
     });
+    const curriculumType = facultySearch.faculty.curriculumType;
 
     let existingCourse;
-    if (facultySearch.faculty.curriculumType === "Major") {
+    if (curriculumType === "Major") {
       existingCourse = await sharedCourse.findOne({
         where: {
           courseID: courseID,
-          majorID: curriculum.majorID,
+          majorID: curriculum.id,
         },
       });
-    } else {
+    } else if (curriculumType === "Programme") {
       existingCourse = await sharedCourse.findOne({
         where: {
           courseID: courseID,
-          programmeID: curriculum.programmeID,
+          programmeID: curriculum.id,
         },
       });
     }
@@ -258,13 +258,13 @@ const addExisting = async (req, res) => {
 
     // 3. Add the course to sharedCourse
     await sharedCourse.create({
-      majorID: curriculum.majorID || null, // Based on whether it's a major or programme
-      programmeID: curriculum.programmeID || null,
+      majorID: curriculumType === "Major" ? curriculum.id : null, // Based on whether it's a major or programme
+      programmeID: curriculumType === "Programme" ? curriculum.id : null,
       courseID: courseID,
     });
 
-    // 4. Update prerequisites for each course in prerequisiteCourseIDs
-    if (prerequisiteFor) {
+    // 4. Update prerequisites for each course in prerequisiteFor
+    if (prerequisiteFor && prerequisiteFor.length > 0) {
       for (const updateID of prerequisiteFor) {
         const courseToUpdate = await course.findOne({
           where: { id: updateID },
