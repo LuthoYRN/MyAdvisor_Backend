@@ -43,7 +43,9 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={list}
               text="View All Advice Logs"
               isActive={activeMenuItem === "viewAllAdviceLogs"}
-              onClick={() => {navigate("/allAdviceLogs")}}
+              onClick={() => {
+                navigate("/allAdviceLogs");
+              }}
             />
             <MenuItem
               imageSrc={clock}
@@ -149,7 +151,7 @@ const Menu = ({ userType, activeMenuItem }) => {
                 navigate("/notifications");
               }}
             />
-             <MenuItem
+            <MenuItem
               imageSrc={rule}
               text="Completed courses"
               isActive={activeMenuItem === "manageCourses"}
@@ -165,25 +167,25 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
-              onClick={() => {navigate("/FacultyAdminDashboard")}}
+              onClick={() => {
+                navigate("/FacultyAdminDashboard");
+              }}
             />
             <MenuItem
               imageSrc={group}
               text="Student Advisors"
               isActive={activeMenuItem === "studentAdvisors"}
-              onClick={() => {navigate("/advisorManagement")}}
+              onClick={() => {
+                navigate("/advisorManagement");
+              }}
             />
             <MenuItem
               imageSrc={badge}
               text="Manage Curriculums"
               isActive={activeMenuItem === "manageMajors"}
-              onClick={() => {navigate("/facultyCurriculumManagement")}}
-            />
-            <MenuItem
-              imageSrc={rule}
-              text="Faculty Rules"
-              isActive={activeMenuItem === "facultyRules"}
-              onClick={() => {navigate("/facultyRules")}}
+              onClick={() => {
+                navigate("/facultyCurriculumManagement");
+              }}
             />
           </>
         )}
@@ -193,7 +195,9 @@ const Menu = ({ userType, activeMenuItem }) => {
               imageSrc={home}
               text="Home"
               isActive={activeMenuItem === "home"}
-              onClick={() => {navigate("/userManagement")}}
+              onClick={() => {
+                navigate("/userManagement");
+              }}
             />
             <MenuItem
               imageSrc={group}
