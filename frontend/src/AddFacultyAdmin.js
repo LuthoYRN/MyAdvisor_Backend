@@ -24,7 +24,6 @@ const AddFacultyAdmin = () => {
   const [showEmailInUse, setEmailInUse] = React.useState(false);
   const [showNameSurname, setNameSurname] = React.useState(false);
 
-
   let navigate = useNavigate();
 
   React.useEffect(() => {
@@ -51,13 +50,16 @@ const AddFacultyAdmin = () => {
     };
 
     try {
-      const response = await fetch(`${config.backendUrl}/api/sysAdmin/users/add/admin`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(adminData),
-      });
+      const response = await fetch(
+        `${config.backendUrl}/api/sysAdmin/users/add/admin`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(adminData),
+        }
+      );
 
       // Parse response into JSON
       const data = await response.json();
@@ -69,8 +71,12 @@ const AddFacultyAdmin = () => {
         } else if (data.message.includes("Email is already in use")) {
           setEmailInUse(true);
         } else if (
-          data.message.includes("Name must only contain letters and spaces (no numbers).") ||
-          data.message.includes("Surname must only contain letters and spaces (no numbers).")
+          data.message.includes(
+            "Name must only contain letters and spaces (no numbers)."
+          ) ||
+          data.message.includes(
+            "Surname must only contain letters and spaces (no numbers)."
+          )
         ) {
           setNameSurname(true);
         } else {
@@ -149,23 +155,31 @@ const AddFacultyAdmin = () => {
           navigate(-1);
         }}
       />
-      < ErrorModal
+      <ErrorModal
         isOpen={showNameSurname}
         title={"Error"}
-        message={"Name and Surname must only contain letters and spaces (no numbers)."}
-        onContinue={() => { setNameSurname(false) }}
+        message={
+          "Name and Surname must only contain letters and spaces (no numbers)."
+        }
+        onContinue={() => {
+          setNameSurname(false);
+        }}
       />
-      < ErrorModal
+      <ErrorModal
         isOpen={showEmailInUse}
         title={"Error"}
         message={"Email is already in use."}
-        onContinue={() => { setEmailInUse(false) }}
+        onContinue={() => {
+          setEmailInUse(false);
+        }}
       />
       <ErrorModal
         isOpen={showEmailMismatchModal}
         title={"Error"}
         message={"Invalid email address"}
-        onContinue={() => { setEmailMismatchModal(false) }}
+        onContinue={() => {
+          setEmailMismatchModal(false);
+        }}
       />
     </Main>
   );

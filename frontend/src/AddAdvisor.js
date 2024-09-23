@@ -31,7 +31,6 @@ const AddAdvisor = () => {
   const [showEmailInUse, setEmailInUse] = React.useState(false);
   const [showNameSurname, setNameSurname] = React.useState(false);
 
-
   let navigate = useNavigate();
 
   React.useEffect(() => {
@@ -128,7 +127,6 @@ const AddAdvisor = () => {
   }, [Faculty]);
 
   const handleAddAdvisorPost = async () => {
-
     let advisorData = {
       name: Name,
       surname: Surname,
@@ -139,12 +137,12 @@ const AddAdvisor = () => {
       curriculums: selectedMajors.map((major) => major.id),
     };
 
-    if (advisorType === "advisor") {
+    if (advisorType === "advisor" && selectedSeniorAdvisor) {
       advisorData = {
         ...advisorData,
         seniorAdvisorID: parseInt(selectedSeniorAdvisor, 10),
       };
-    } else if (advisorType === "senior") {
+    } else if (advisorType === "senior" && selectedJuniorAdvisors.length > 0) {
       advisorData = {
         ...advisorData,
         cluster: selectedJuniorAdvisors.map((advisor) => advisor.id),
@@ -174,11 +172,16 @@ const AddAdvisor = () => {
             setEmailMismatchModal(true);
             return;
           }
-          if (data.message[i] === "Email is already in use") {
+          if (data.message === "Email is already in use by another advisor.") {
             setEmailInUse(true);
             return;
           }
-          if (data.message[i] === "Name must only contain letters and spaces (no numbers)." || data.message[i] === "Surname must only contain letters and spaces (no numbers).") {
+          if (
+            data.message[i] ===
+              "Name must only contain letters and spaces (no numbers)." ||
+            data.message[i] ===
+              "Surname must only contain letters and spaces (no numbers)."
+          ) {
             setNameSurname(true);
             return;
           }
@@ -225,12 +228,8 @@ const AddAdvisor = () => {
     setFilteredMajors(
       majors.filter(
         (item) =>
-          item.majorName
-            ?.toLowerCase()
-            .includes(majorSearch.toLowerCase()) ||
-          item.programmeName
-            ?.toLowerCase()
-            .includes(majorSearch.toLowerCase())
+          item.majorName?.toLowerCase().includes(majorSearch.toLowerCase()) ||
+          item.programmeName?.toLowerCase().includes(majorSearch.toLowerCase())
       )
     );
   }, [majorSearch, majors, Faculty]);
@@ -319,38 +318,19 @@ const AddAdvisor = () => {
                     setShowRequiredFieldsModal(true);
                     return;
                   }
-
-                  // Define the required fields based on advisorType
-                  if (advisorType === "senior") {
-                    // Senior advisor type checks
-                    if (
-                      !Name ||
-                      !Surname ||
-                      !Email ||
-                      !Faculty ||
-                      !selectedMajors.length
-                    ) {
-                      // Show a modal or alert that required fields are missing
-                      setShowRequiredFieldsModal(true);
-                      return;
-                    }
-                  } else if (advisorType === "advisor") {
-                    // Regular advisor type checks
-                    if (
-                      !Name ||
-                      !Surname ||
-                      !Email ||
-                      !Faculty ||
-                      !Office ||
-                      !selectedSeniorAdvisor ||
-                      !selectedMajors.length
-                    ) {
-                      // Show a modal or alert that required fields are missing
-                      setShowRequiredFieldsModal(true);
-                      return;
-                    }
+                  // Regular advisor type checks
+                  if (
+                    !Name ||
+                    !Surname ||
+                    !Email ||
+                    !Faculty ||
+                    !Office ||
+                    !selectedMajors.length
+                  ) {
+                    // Show a modal or alert that required fields are missing
+                    setShowRequiredFieldsModal(true);
+                    return;
                   }
-
                   // If all required fields are present, call the function to save the advisor
                   handleAddAdvisorPost();
                 }}
@@ -370,7 +350,6 @@ const AddAdvisor = () => {
               icon={search}
               onValueChange={(value) => {
                 setMajorSearch(value);
-
               }}
               value={majorSearch}
             />
@@ -488,23 +467,31 @@ const AddAdvisor = () => {
           setShowRequiredFieldsModal(false);
         }}
       />
-      < ErrorModal
+      <ErrorModal
         isOpen={showNameSurname}
         title={"Error"}
-        message={"Name and Surname must only contain letters and spaces (no numbers)."}
-        onContinue={() => { setNameSurname(false) }}
+        message={
+          "Name and Surname must only contain letters and spaces (no numbers)."
+        }
+        onContinue={() => {
+          setNameSurname(false);
+        }}
       />
-      < ErrorModal
+      <ErrorModal
         isOpen={showEmailInUse}
         title={"Error"}
         message={"Email is already in use."}
-        onContinue={() => { setEmailInUse(false) }}
+        onContinue={() => {
+          setEmailInUse(false);
+        }}
       />
       <ErrorModal
         isOpen={showEmailMismatchModal}
         title={"Error"}
         message={"Invalid email address"}
-        onContinue={() => { setEmailMismatchModal(false) }}
+        onContinue={() => {
+          setEmailMismatchModal(false);
+        }}
       />
       <SuccessModal
         isOpen={showSuccessModal}
