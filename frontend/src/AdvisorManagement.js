@@ -106,6 +106,7 @@ const AdvisorManagement = () => {
     {
       header: "ID",
       accessorKey: "uuid",
+      isHidden: true,
     },
     {
       header: "Name",

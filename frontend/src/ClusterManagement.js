@@ -65,6 +65,7 @@ const UserManagement = () => {
     {
       header: "ID",
       accessorKey: "uuid",
+      isHidden: true,
     },
     {
       header: "Name",

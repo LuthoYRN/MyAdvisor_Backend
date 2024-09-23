@@ -13,7 +13,17 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit, handleLog, canDelete = true , canEdit = true, hasLog =false}) => {
+const Table = ({
+  Tabledata,
+  column,
+  idRow = "id",
+  handleRowDelete,
+  handleRowEdit,
+  handleLog,
+  canDelete = true,
+  canEdit = true,
+  hasLog = false,
+}) => {
   const [data, setData] = React.useState([...Tabledata]);
   const [columns, setColumns] = React.useState([...column]);
 
@@ -28,7 +38,6 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
   const table = useReactTable({
     data,
     columns,
-    
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     manualFiltering: true,
@@ -48,51 +57,68 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
   };
 
   return (
-    <div class="flex-auto flex flex-col">
+    <div className="flex-auto flex flex-col">
       <div className="px-8 py-2 flex flex-col bg-gray-200 rounded-2xl flex-auto">
         <table className="w-full">
-          <thead class="border-b border-gray-600">
+          <thead className="border-b border-gray-600">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr className="text-left" key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} colSpan={header.colSpan}>
-                    <Text type="sm-heading" classNames="mb-4">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </Text>
-                  </th>
-                ))}
+                {headerGroup.headers
+                  .filter((header) => !header.column.columnDef.isHidden) // Filter out hidden columns
+                  .map((header) => (
+                    <th key={header.id} colSpan={header.colSpan}>
+                      <Text type="sm-heading" classNames="mb-4">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </Text>
+                    </th>
+                  ))}
               </tr>
             ))}
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr class="border-b border-gray-300" key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} classNames={"min-h-14 my-auto"} >
-                    <Text classNames={!canEdit && !canDelete &&"py-4"} type="paragraph">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Text>
-                  </td>
-                ))}
-                <td class="flex gap-4 align-middle">
-                 {canEdit && <Button text="Edit" onClick={()=>handleRowEdit(row.getValue(idRow))}/>}
-                  {canDelete &&<Button
-                    type={"danger"}
-                    text="Delete"
-                    onClick={() => handleDelete(row.getValue(idRow))}
-                  />}
-                  {hasLog &&<Button
-                    text="Logs"
-                    onClick={() => handleLog(row.getValue(idRow))}
-                  />}
+              <tr className="border-b border-gray-300" key={row.id}>
+                {row
+                  .getVisibleCells()
+                  .filter((cell) => !cell.column.columnDef.isHidden) // Filter out hidden columns
+                  .map((cell) => (
+                    <td key={cell.id} className="min-h-14 my-auto">
+                      <Text
+                        classNames={!canEdit && !canDelete && "py-4"}
+                        type="paragraph"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </Text>
+                    </td>
+                  ))}
+                <td className="flex gap-4 align-middle">
+                  {canEdit && (
+                    <Button
+                      text="Edit"
+                      onClick={() => handleRowEdit(row.getValue(idRow))}
+                    />
+                  )}
+                  {canDelete && (
+                    <Button
+                      type={"danger"}
+                      text="Delete"
+                      onClick={() => handleDelete(row.getValue(idRow))}
+                    />
+                  )}
+                  {hasLog && (
+                    <Button
+                      text="Logs"
+                      onClick={() => handleLog(row.getValue(idRow))}
+                    />
+                  )}
                 </td>
               </tr>
             ))}
@@ -149,7 +175,6 @@ const Table = ({ Tabledata, column, idRow ="id", handleRowDelete, handleRowEdit,
               className="border p-1 rounded w-16"
             />
           </span>
-          
         </div>
       </div>
     </div>
