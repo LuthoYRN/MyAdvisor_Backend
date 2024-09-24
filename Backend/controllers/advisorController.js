@@ -540,9 +540,10 @@ const getAppointmentDetails = async (req, res) => {
     }
 
     // Check if the appointment is in the future
-    const appointmentDateTime = moment(
+    const appointmentDateTime = moment.tz(
       `${appointmentDetails.date} ${appointmentDetails.time}`,
-      "YYYY-MM-DD HH:mm:ss"
+      "YYYY-MM-DD HH:mm:ss",
+      "Africa/Johannesburg" // Make sure to set the same timezone
     );
     const currentDateTime = moment().tz("Africa/Johannesburg");
 
