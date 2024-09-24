@@ -112,7 +112,9 @@ const getStudentDashboard = async (req, res) => {
       where: {
         studentID: studentData.id,
         status: "Confirmed",
-        date: { [Op.lt]: today }, // Less than today's date
+        [Op.and]: [
+          sequelize.literal(`CONCAT(date, ' ', time) < NOW()`), // Combine date and time and compare with the current time
+        ],
       },
       include: [
         {
@@ -120,7 +122,7 @@ const getStudentDashboard = async (req, res) => {
           attributes: ["name", "office"], // Include advisor's details
         },
       ],
-      order: [["date", "DESC"]], // Order by date descending
+      order: [[sequelize.literal(`CONCAT(date, ' ', time)`), "DESC"]], // Order by combined date and time descending
     });
 
     // Fetch upcoming appointments (confirmed and on or after today, and current time)
