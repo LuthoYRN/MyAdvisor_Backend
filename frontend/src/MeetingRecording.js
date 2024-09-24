@@ -16,16 +16,18 @@ const MeetingRecording = () => {
   let location = useLocation();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
+  const [saveRecording, setSaveRecording] = React.useState(false);
+
   let navigate = useNavigate();
 
   const handleSave = async (mediaBlobUrl) => {
     if (!mediaBlobUrl) return;
-
     const blob = await fetch(mediaBlobUrl).then((r) => r.blob());
     const formData = new FormData();
     formData.append("video", blob, "meeting_recording.mp4");
 
     try {
+      setSaveRecording(true);
       const response = await fetch(
         `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/video/`,
         {
@@ -36,6 +38,7 @@ const MeetingRecording = () => {
 
       const result = await response.json();
       if (result.status === "success") {
+        setSaveRecording(false);
         setShowConfirmationModal(true);
       } else {
         console.error("Failed to save the recording:", result.message);
@@ -108,11 +111,16 @@ const MeetingRecording = () => {
                   <Button onClick={stopRecording} text={"Stop Recording"} />
                 ) : (
                   <Button
+                    disabled={saveRecording}
                     onClick={() => handleSave(mediaBlobUrl)}
                     text={"Save Recording"}
                   />
                 )}
-                <Button text={"Cancel"} type={"secondary"} onClick={()=> navigate(-1)} />
+                <Button
+                  text={"Cancel"}
+                  type={"secondary"}
+                  onClick={() => navigate(-1)}
+                />
               </div>
             </div>
           )}
@@ -128,9 +136,12 @@ const MeetingRecording = () => {
               </Text>
             </div>
             <Text type="sm-subheading" classNames="mb-8 text-xl">
-              Successfully saved notes
+              Successfully saved recording
             </Text>
-            <Button text="Close" onClick={() => navigate("/advisorDashboard")} />
+            <Button
+              text="Close"
+              onClick={() => navigate("/advisorDashboard")}
+            />
           </div>
         </div>
       )}

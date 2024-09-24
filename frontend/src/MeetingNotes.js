@@ -16,6 +16,7 @@ const MeetingNotes = () => {
   const [notes, setNotes] = useState("");
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [saveNotes, setSaveNotes] = useState(false);
   let navigate = useNavigate();
   let location = useLocation();
 
@@ -24,8 +25,8 @@ const MeetingNotes = () => {
       setShowErrorModal(true);
       return;
     }
-
     try {
+      setSaveNotes(true);
       const response = await fetch(
         `${config.backendUrl}/api/advisor/${localStorage.getItem("user_id")}/appointment/${location.state}/note`,
         {
@@ -38,6 +39,7 @@ const MeetingNotes = () => {
       );
       const data = await response.json();
       if (data.status === "success") {
+        setSaveNotes(false);
         setShowConfirmationModal(true);
       }
     } catch (error) {
@@ -60,7 +62,7 @@ const MeetingNotes = () => {
           onValueChange={(value) => setNotes(value)}
         />
         <div class="flex flex-row gap-8 max-w-md">
-          <Button text="Save" onClick={handleSaveNotes} />
+          <Button text="Save" disabled={saveNotes} onClick={handleSaveNotes} />
           <Button text="Back" type="secondary" onClick={() => navigate(-1)} />
         </div>
       </div>
@@ -76,7 +78,10 @@ const MeetingNotes = () => {
             <Text type="sm-subheading" classNames="mb-8 text-xl">
               Successfully saved notes
             </Text>
-            <Button text="Close" onClick={() => navigate("/advisorDashboard")} />
+            <Button
+              text="Close"
+              onClick={() => navigate("/advisorDashboard")}
+            />
           </div>
         </div>
       )}
