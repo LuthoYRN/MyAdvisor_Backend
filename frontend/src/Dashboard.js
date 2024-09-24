@@ -263,12 +263,7 @@ const Dashboard = () => {
     );
   }
 
-  const {
-    student,
-    pastAppointments,
-    upcomingAppointments,
-    unreadNotifications,
-  } = userData;
+  const { student, upcomingAppointments, unreadNotifications } = userData;
 
   return (
     <Main userType={"student"} activeMenuItem={"home"}>
@@ -283,51 +278,26 @@ const Dashboard = () => {
       </div>
 
       <div className="flex-auto grid grid-cols-2 gap-14 justify-between">
+        {/* Upcoming Appointments */}
         <div className="flex flex-col p-8 rounded-2xl bg-white shadow-xl">
-          {/* Past Appointments */}
-          <div className="gap-14 mb-4">
-            <Text type="heading" classNames="mb-8 ml-2">
-              Past Appointments
-            </Text>
-            <div className="items-center lg:max-h-[200px] xl:max-h-[550px] px-2 overflow-y-auto gap-4 flex flex-col">
-              {pastAppointments.length > 0 ? (
-                pastAppointments.map((appointment, index) => (
-                  <Card
-                    key={index}
-                    heading={`Met with ${appointment.advisorName}`}
-                    info={appointment.office}
-                    side={moment(
-                      appointment.date + " " + appointment.time
-                    ).format("DD-MM-yyyy HH:mm")}
-                  />
-                ))
-              ) : (
-                <Text>No past appointments</Text>
-              )}
-            </div>
-          </div>
-
-          {/* Upcoming Appointments */}
-          <div>
-            <Text type="heading" classNames="mb-8 ml-2">
-              Upcoming Appointments
-            </Text>
-            <div className="items-center lg:max-h-[200px] xl:max-h-[550px] px-2 overflow-y-auto gap-4 flex flex-col">
-              {upcomingAppointments.length > 0 ? (
-                upcomingAppointments.map((appointment, index) => (
-                  <Card
-                    key={index}
-                    heading={`Meeting with ${appointment.advisorName}`}
-                    info={appointment.office}
-                    side={moment(
-                      appointment.date + " " + appointment.time
-                    ).format("DD-MM-yyyy HH:mm")}
-                  />
-                ))
-              ) : (
-                <Text>No upcoming appointments</Text>
-              )}
-            </div>
+          <Text type="heading" classNames="mb-8 ml-2">
+            Upcoming Appointments
+          </Text>
+          <div className="items-center lg:max-h-[200px] xl:max-h-[550px] px-2 overflow-y-auto gap-4 flex flex-col">
+            {upcomingAppointments.length > 0 ? (
+              upcomingAppointments.map((appointment, index) => (
+                <Card
+                  key={index}
+                  heading={`Meeting with ${appointment.advisorName}`}
+                  info={appointment.office}
+                  side={moment(
+                    appointment.date + " " + appointment.time
+                  ).format("DD-MM-yyyy HH:mm")}
+                />
+              ))
+            ) : (
+              <Text>No upcoming appointments</Text>
+            )}
           </div>
         </div>
 
