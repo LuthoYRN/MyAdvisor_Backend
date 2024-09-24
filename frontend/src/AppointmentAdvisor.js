@@ -6,44 +6,32 @@ import Text from "./components/Text";
 import UserCard from "./components/UserCard";
 import config from "./config";
 import Main from "./layout/Main";
-/* 
-Data Needed:
-- Student Name
-- Date
-- Time
-- Reason for Appointment
-- Uploaded Documents
-
-*/
 
 const Appointment = () => {
   const [advisors, setAdvisors] = React.useState([]);
-  const [activeIndex, setActiveIndex] = React.useState(null);
-  const [selectedAdvisor, setSelectedAdvisor] = React.useState(null);
-  const [loading, setLoading] = React.useState(true); // Initial state is true, indicating data is loading
+  const [selectedAdvisorId, setSelectedAdvisorId] = React.useState(null); // Track advisor by unique id
+  const [loading, setLoading] = React.useState(true);
   const [showErrorModal, setShowErrorModal] = React.useState(false);
-
 
   let navigate = useNavigate();
 
-  const handleAdvisorClick = (index) => {
-    setSelectedAdvisor(advisors[index]);
-    setActiveIndex(index);
+  const handleAdvisorClick = (id) => {
+    setSelectedAdvisorId(id); // Track selected advisor by unique id
   };
 
   const handleContinue = () => {
-    // Do something with the selected advisor
+    const selectedAdvisor = advisors.find(
+      (advisor) => advisor.uuid === selectedAdvisorId
+    );
     if (selectedAdvisor) {
       navigate("/appointment", { state: selectedAdvisor });
-      // Add your logic here to save the selected advisor
     } else {
-      setShowErrorModal(true);
-      // Handle the case when no advisor is selected
+      setShowErrorModal(true); // Show error modal if no advisor is selected
     }
   };
+
   const handleBack = () => {
     navigate("/dashboard");
-    // Add your logic here to save the selected advisor
   };
 
   const [page, setPage] = React.useState(1);
@@ -55,14 +43,10 @@ const Appointment = () => {
 
   const handleNextPage = () => {
     setPage(page + 1);
-    setSelectedAdvisor(null);
-    setActiveIndex(null);
   };
 
   const handlePreviousPage = () => {
     setPage(page - 1);
-    setSelectedAdvisor(null);
-    setActiveIndex(null);
   };
 
   React.useEffect(() => {
@@ -81,9 +65,9 @@ const Appointment = () => {
         const data = await response.json();
         setAdvisors(data.data);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error("Error fetching advisors:", error);
       } finally {
-        setLoading(false); // Disable loading state after fetching or if an error occurs
+        setLoading(false);
       }
     };
 
@@ -93,50 +77,48 @@ const Appointment = () => {
   return (
     <Main userType={"student"} activeMenuItem={"bookAppointment"}>
       <div className="flex flex-col flex-auto bg-white rounded-xl ">
-        <div class="flex-auto ml-6">
+        <div className="flex-auto ml-6">
           <Text type="heading" classNames="mb-16 mt-10">
             Booking Appointment
           </Text>
           <Text type="sm-heading" classNames="mb-4">
             Choose an advisor
           </Text>
-          <div class="grid grid-cols-3 grid-rows-2 gap-4  w-full">
+          <div className="grid grid-cols-3 grid-rows-2 gap-4  w-full">
             {loading ? (
-              <div class="flex justify-center items-center col-span-3">
-                {" "}
-                {/* Ensuring the loader spans all columns */}
-                <div className="loader"></div>{" "}
-                {/* Assuming .loader is defined in your CSS */}
+              <div className="flex justify-center items-center col-span-3">
+                <div className="loader"></div>
               </div>
             ) : (
-              displayedAdvisors.map((advisor, index) => (
+              displayedAdvisors.map((advisor) => (
                 <UserCard
-                  key={index}
+                  key={advisor.uuid} // Use unique id for each advisor
                   name={advisor.name}
                   majors={advisor.majors.join(", ")}
                   office={advisor.office}
                   image={advisor.profile_url}
-                  active={index === activeIndex}
-                  onClick={() => handleAdvisorClick(index)}
+                  active={advisor.uuid === selectedAdvisorId} // Highlight selected advisor
+                  onClick={() => handleAdvisorClick(advisor.uuid)} // Pass unique id to click handler
                 />
               ))
             )}
           </div>
         </div>
-        <div class="flex flex-row gap-8 max-w-md ml-6">
-          {page > 1 ? (
-            <Button text="Previous" onClick={handlePreviousPage} />
-          ) : page === 1 ? (
-            <Button text="Previous" type="secondary" disabled={true} />
-          ) : null}
-
-          {page < totalPages ? (
-            <Button text="Next" onClick={handleNextPage} />
-          ) : page === totalPages ? (
-            <Button text="Next" type="secondary" disabled={true} />
-          ) : null}
+        <div className="flex flex-row gap-8 max-w-md ml-6">
+          <Button
+            text="Previous"
+            onClick={handlePreviousPage}
+            disabled={page === 1}
+            type={page === 1 ? "secondary" : "primary"}
+          />
+          <Button
+            text="Next"
+            onClick={handleNextPage}
+            disabled={page === totalPages}
+            type={page === totalPages ? "secondary" : "primary"}
+          />
         </div>
-        <div class="flex flex-row gap-8 max-w-md ml-6">
+        <div className="flex flex-row gap-8 max-w-md ml-6">
           <Button text="Continue" onClick={handleContinue} />
           <Button text="Back" onClick={handleBack} type="secondary" />
         </div>
