@@ -107,13 +107,14 @@ const getStudentDashboard = async (req, res) => {
     const today = moment().tz("Africa/Johannesburg").format("YYYY-MM-DD");
     const currentTime = moment().tz("Africa/Johannesburg").format("HH:mm:ss");
 
-    // Fetch past appointments (confirmed and before the current date)
     const pastAppointments = await appointment.findAll({
       where: {
         studentID: studentData.id,
         status: "Confirmed",
         [Op.and]: [
-          sequelize.literal(`CONCAT(date, ' ', time) < NOW()`), // Combine date and time and compare with the current time
+          sequelize.literal(
+            `CAST(CONCAT(date, ' ', time) AS TIMESTAMP) AT TIME ZONE 'Africa/Johannesburg' < NOW() AT TIME ZONE 'Africa/Johannesburg'`
+          ), // Use Africa/Johannesburg timezone
         ],
       },
       include: [
@@ -122,7 +123,14 @@ const getStudentDashboard = async (req, res) => {
           attributes: ["name", "office"], // Include advisor's details
         },
       ],
-      order: [[sequelize.literal(`CONCAT(date, ' ', time)`), "DESC"]], // Order by combined date and time descending
+      order: [
+        [
+          sequelize.literal(
+            `CAST(CONCAT(date, ' ', time) AS TIMESTAMP) AT TIME ZONE 'Africa/Johannesburg'`
+          ),
+          "DESC",
+        ],
+      ], // Order by combined date and time in the correct timezone
     });
 
     // Fetch upcoming appointments (confirmed and on or after today, and current time)
