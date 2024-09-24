@@ -104,8 +104,8 @@ const getStudentDashboard = async (req, res) => {
     }
 
     // Get today's date and time
-    const today = moment().format("YYYY-MM-DD");
-    const currentTime = moment().format("HH:mm:ss");
+    const today = moment().tz("Africa/Johannesburg").format("YYYY-MM-DD");
+    const currentTime = moment().tz("Africa/Johannesburg").format("HH:mm:ss");
 
     // Fetch past appointments (confirmed and before the current date)
     const pastAppointments = await appointment.findAll({
@@ -686,7 +686,7 @@ const bookAppointment = async (req, res) => {
     }
 
     // Get the current date in the format "YYYY-MM-DD"
-    const currentDate = moment().format("YYYY-MM-DD");
+    const currentDate = moment().tz("Africa/Johannesburg").format("YYYY-MM-DD");
 
     // Check if the student has a confirmed appointment on or after the current date
     const existingStudentAppointment = await appointment.findOne({
