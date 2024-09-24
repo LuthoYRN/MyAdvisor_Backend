@@ -639,7 +639,7 @@ const getAdvisorAvailability = async (req, res) => {
     const isToday = moment().isSame(parsedDate, "day");
     let currentTime = null;
     if (isToday) {
-      currentTime = moment().format("HH:mm");
+      currentTime = moment().tz("Africa/Johannesburg").format("HH:mm");
     }
 
     // Filter available times by removing already booked times
