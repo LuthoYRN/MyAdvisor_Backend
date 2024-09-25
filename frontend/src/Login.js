@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
 import image from "./assets/advisor.png";
@@ -10,13 +10,21 @@ import Container from "./layout/Container";
 
 function Login() {
   let navigate = useNavigate();
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [usernamePasswordError, setUsernamePasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [usernameError, setUsernameError] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState("");
-  const [usernamePasswordError, setUsernamePasswordError] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+  // New states for blocking after too many failed attempts
+  const [attemptCount, setAttemptCount] = useState(
+    Number(localStorage.getItem("attemptCount")) || 0
+  );
+  const [blockTime, setBlockTime] = useState(0); // Time in seconds
+  const [blockExpiresAt, setBlockExpiresAt] = useState(
+    localStorage.getItem("blockExpiresAt") || null
+  );
 
   const handleUsernameChange = (value) => {
     setUsername(value);
@@ -26,52 +34,104 @@ function Login() {
     setPassword(value);
   };
 
+  // Effect to handle countdown of block time and persist block state
+  useEffect(() => {
+    if (blockExpiresAt) {
+      const now = new Date().getTime();
+      if (now < blockExpiresAt) {
+        const remainingTime = Math.floor((blockExpiresAt - now) / 1000);
+        setBlockTime(remainingTime);
+      } else {
+        // Block expired, clear it
+        setBlockTime(0);
+        setAttemptCount(0);
+        setBlockExpiresAt(null);
+        localStorage.removeItem("attemptCount");
+        localStorage.removeItem("blockExpiresAt");
+        setUsernamePasswordError("");
+      }
+    }
+
+    // Countdown for block time
+    if (blockTime > 0) {
+      const interval = setInterval(() => {
+        setBlockTime((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [blockTime, blockExpiresAt]);
+
   const handleLogin = () => {
     setUsernameError("");
     setPasswordError("");
     setUsernamePasswordError("");
 
+    // If block time is active, prevent login attempt
+    if (blockTime > 0) {
+      setUsernamePasswordError(
+        `You are blocked for ${blockTime} more seconds.`
+      );
+      return;
+    }
+
     if (!username) {
       setUsernameError("Username is required");
-      return; // Stop the function if the username is missing
+      return;
     }
 
     if (!password) {
       setPasswordError("Password is required");
-      return; // Stop the function if the password is missing
+      return;
     }
+
     const data = {
       email: username,
       password: password,
     };
-    setIsLoading(true); // Start loading
+
+    setIsLoading(true);
     fetch(`${config.backendUrl}/api/auth/login`, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*", // Allow requests from any origin
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE", // Allow the specified HTTP methods
-        "Access-Control-Allow-Headers": "Content-Type", // Allow the specified headers
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+        "Access-Control-Allow-Headers": "Content-Type",
       },
     })
       .then((response) => response.json())
       .then((result) => {
-        // Handle the response from the API
         if (result.status === "fail") {
-          // Display a specific error based on the failure reason
-          setIsLoading(false); // Start loading
-          if (result.message === "Incorrect email or password") {
-            setPasswordError("Incorrect password");
-          } else if (result.message === "User not found") {
-            setUsernameError("User not found");
+          setIsLoading(false);
+
+          // Increment failed attempt count if login fails
+          const newAttemptCount = attemptCount + 1;
+          setAttemptCount(newAttemptCount);
+          localStorage.setItem("attemptCount", newAttemptCount);
+
+          if (newAttemptCount >= 5) {
+            // Start block time immediately after 5 failed attempts
+            const newBlockTime = Math.min((newAttemptCount - 4) * 60, 300); // Example: 1 minute for 1st block, 2 for 2nd, max 5 min
+            const blockExpires = new Date().getTime() + newBlockTime * 1000;
+            setBlockExpiresAt(blockExpires);
+            setBlockTime(newBlockTime); // Set block time to start countdown
+            localStorage.setItem("blockExpiresAt", blockExpires);
+
+            setUsernamePasswordError(
+              `Too many attempts. You are blocked for ${newBlockTime} seconds.`
+            );
           } else {
-            setUsernamePasswordError("Login failed, please try again.");
+            setUsernamePasswordError("Incorrect username or password.");
           }
         }
+
         if (result.status === "success") {
-          // Redirect the user to the appropriate page
-          setIsLoading(false); // Start loading
+          // Redirect the user to the appropriate page and reset attempts
+          setIsLoading(false);
+          setAttemptCount(0);
+          localStorage.removeItem("attemptCount");
+          localStorage.removeItem("blockExpiresAt");
           localStorage.setItem("user_id", result.user_id);
           if (result.user_type === "student") {
             navigate("/dashboard");
@@ -85,8 +145,7 @@ function Login() {
         }
       })
       .catch((error) => {
-        // Handle any errors that occur during the request
-        setIsLoading(false); // Start loading
+        setIsLoading(false);
         alert(error);
       });
   };
@@ -111,7 +170,7 @@ function Login() {
           label={"Password"}
           placeholder="Enter your password"
           onValueChange={handlePasswordChange}
-          type="password" // This ensures the password is masked
+          type="password"
         />
         {passwordError && (
           <Text classNames="text-red-500">{passwordError}</Text>
@@ -119,12 +178,18 @@ function Login() {
 
         <Button
           text={"Login"}
-          loading={isLoading} // If true, show the spinner
-          disabled={isLoading}
+          loading={isLoading}
+          disabled={isLoading || blockTime > 0}
           onClick={handleLogin}
         />
 
-        {usernameError && passwordError && (
+        {blockTime > 0 && (
+          <Text classNames="text-red-500">
+            You are blocked for {blockTime} more seconds.
+          </Text>
+        )}
+
+        {usernamePasswordError && (
           <Text classNames="text-red-500">{usernamePasswordError}</Text>
         )}
 
@@ -147,7 +212,7 @@ function Login() {
           </span>
         </Text>
       </form>
-      <img class="col-span-8 col-start-7  my-auto" src={image} alt="advisor" />
+      <img class="col-span-8 col-start-7 my-auto" src={image} alt="advisor" />
     </Container>
   );
 }
