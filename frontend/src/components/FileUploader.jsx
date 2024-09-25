@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Text from "./Text";
 import attachment from "./../assets/attachment.svg";
+
 const FileUploader = ({ handleFile }) => {
   const [files, setFiles] = useState(null);
   const [status, setStatus] = useState("initial");
+  const fileInputRef = useRef(null); // Create a ref for the file input element
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -16,7 +18,15 @@ const FileUploader = ({ handleFile }) => {
   const handleRemoveFile = (index) => {
     const newFiles = Array.from(files);
     newFiles.splice(index, 1);
-    setFiles(newFiles.length > 0 ? newFiles : null);
+
+    if (newFiles.length > 0) {
+      setFiles(newFiles);
+      handleFile(newFiles);
+    } else {
+      setFiles(null);
+      handleFile(null);
+      fileInputRef.current.value = ""; // Reset the file input value
+    }
   };
 
   return (
@@ -42,13 +52,14 @@ const FileUploader = ({ handleFile }) => {
           </svg>
           Upload file
           <input
+            ref={fileInputRef} // Associate the file input with the ref
             onChange={handleFileChange}
             type="file"
             id="uploadFile1"
             className="hidden"
           />
           <p className="text-xs font-medium text-gray-400 mt-2">
-            PDF, DOCX , DOC, and JPEG are Allowed.
+            PDF, DOCX, DOC, and JPEG are Allowed.
           </p>
         </label>
       </div>
