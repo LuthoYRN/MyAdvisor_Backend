@@ -10,7 +10,7 @@ import config from "./config";
 import SuccessModal from "./components/successModal";
 import ErrorModal from "./components/errorModal";
 
-const ResetPassword= () => {
+const ResetPassword = () => {
   let navigate = useNavigate();
   const { token } = useParams(); // Extract token from URL
 
@@ -47,10 +47,12 @@ const ResetPassword= () => {
 
     const password_data = {
       newPassword: password,
+      confirmPassword: password,
     };
 
     try {
       setIsLoading(true); // Start loading
+      console.log(token);
       const response = await fetch(
         `${config.backendUrl}/api/auth/reset-password/${token}`, // Token in the URL
         {
@@ -141,6 +143,6 @@ const ResetPassword= () => {
       />
     </Container>
   );
-}
+};
 
 export default ResetPassword;
