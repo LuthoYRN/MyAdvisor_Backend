@@ -129,7 +129,7 @@ function ResetPassword() {
         isOpen={showErrorModal}
         title="Error"
         message="Password reset failed"
-        onContinue={() => navigate("/")}
+        onContinue={() => setShowErrorModal(false)}
       />
 
       {/* Success modal */}
