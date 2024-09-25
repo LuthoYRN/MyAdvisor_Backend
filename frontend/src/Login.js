@@ -137,6 +137,15 @@ function Login() {
             Sign up
           </span>
         </Text>
+        <Text type={"paragraph"}>
+          Forgot your password?{" "}
+          <span
+            className="text-blue-600 cursor-pointer underline hover:text-blue-800"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Reset it
+          </span>
+        </Text>
       </form>
       <img class="col-span-8 col-start-7  my-auto" src={image} alt="advisor" />
     </Container>

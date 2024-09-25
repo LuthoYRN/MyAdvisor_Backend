@@ -24,13 +24,15 @@ function App() {
   const [programme, setProgramme] = React.useState("");
   const [curriculums, setCurriculums] = React.useState([]);
   const navigate = useNavigate();
-  const [showRequiredFieldsModal, setShowRequiredFieldsModal] = React.useState(false);
-  const [showPasswordMismatchModal, setShowPasswordMismatchModal] = React.useState(false);
+  const [showRequiredFieldsModal, setShowRequiredFieldsModal] =
+    React.useState(false);
+  const [showPasswordMismatchModal, setShowPasswordMismatchModal] =
+    React.useState(false);
   const [showEmailMismatchModal, setEmailMismatchModal] = React.useState(false);
-  const [showPasswordLengthModal, setPasswordLengthModal] = React.useState(false);
+  const [showPasswordLengthModal, setPasswordLengthModal] =
+    React.useState(false);
   const [showEmailInUse, setEmailInUse] = React.useState(false);
   const [showNameSurname, setNameSurname] = React.useState(false);
-
 
   const handleFacultyChange = (value) => {
     setFaculty(value);
@@ -81,19 +83,24 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-
         if (data.status === "fail") {
           for (let i = 0; i < data.message.length; i++) {
             if (data.message[i] === "Invalid email format.") {
               setEmailMismatchModal(true);
               return;
             }
-            if (data.message[i] === "Name must only contain letters." || data.message[i] === "Surname must only contain letters.") {
+            if (
+              data.message[i] === "Name must only contain letters." ||
+              data.message[i] === "Surname must only contain letters."
+            ) {
               setNameSurname(true);
               return;
             }
           }
-          if (data.message === "Password should be between 6 and 255 characters long.") {
+          if (
+            data.message ===
+            "Password should be between 6 and 255 characters long."
+          ) {
             setPasswordLengthModal(true);
             return;
           }
@@ -243,10 +250,12 @@ function App() {
           ) : curriculums ? (
             <Select
               label={"Curriculum"}
-              options={[{ value: "", label: "Select Curriculum" }, ...curriculums.map((curriculum) => ({
-                value: curriculum.id,
-                label: curriculum.programmeName,
-              }))
+              options={[
+                { value: "", label: "Select Curriculum" },
+                ...curriculums.map((curriculum) => ({
+                  value: curriculum.id,
+                  label: curriculum.programmeName,
+                })),
               ]}
               onChange={(value) => setProgramme(value)}
               classNames={"mb-2"}
@@ -282,7 +291,11 @@ function App() {
                 handleRegister();
               }}
             />
-            <Button text="Back" type={"secondary"} onClick={() => navigate(-1)} />
+            <Button
+              text="Back"
+              type={"secondary"}
+              onClick={() => navigate("/")}
+            />
           </div>
         </form>
         <img
@@ -303,7 +316,10 @@ function App() {
               <Text type="sm-subheading" classNames="mb-8 text-xl">
                 Please fill in all required fields.
               </Text>
-              <Button text="Close" onClick={() => setShowRequiredFieldsModal(false)} />
+              <Button
+                text="Close"
+                onClick={() => setShowRequiredFieldsModal(false)}
+              />
             </div>
           </div>
         )}
@@ -320,7 +336,10 @@ function App() {
               <Text type="sm-subheading" classNames="mb-8 text-xl">
                 Passwords do not match. Please try again.
               </Text>
-              <Button text="Close" onClick={() => setShowPasswordMismatchModal(false)} />
+              <Button
+                text="Close"
+                onClick={() => setShowPasswordMismatchModal(false)}
+              />
             </div>
           </div>
         )}
@@ -337,7 +356,10 @@ function App() {
               <Text type="sm-subheading" classNames="mb-8 text-xl">
                 Invalid emaill address. Please try again.
               </Text>
-              <Button text="Close" onClick={() => setEmailMismatchModal(false)} />
+              <Button
+                text="Close"
+                onClick={() => setEmailMismatchModal(false)}
+              />
             </div>
           </div>
         )}
@@ -354,7 +376,10 @@ function App() {
               <Text type="sm-subheading" classNames="mb-8 text-xl">
                 Password should be between 6 and 255 characters long.
               </Text>
-              <Button text="Close" onClick={() => setPasswordLengthModal(false)} />
+              <Button
+                text="Close"
+                onClick={() => setPasswordLengthModal(false)}
+              />
             </div>
           </div>
         )}

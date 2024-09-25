@@ -15,6 +15,8 @@ import Appointment from "./Appointment";
 import AppointmentAdvisor from "./AppointmentAdvisor";
 import AdviceLog from "./AdviceLog";
 import MeetingNotes from "./MeetingNotes";
+import ForgotPassword from "./forgotpassword";
+import ResetPassword from "./resetpassword";
 import MeetingRecording from "./MeetingRecording";
 import AddCourse from "./AddCourse";
 import AdvisorDashboard from "./AdvisorDashboard";
@@ -40,6 +42,8 @@ root.render(
   <Router>
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/advisorDashboard" element={<AdvisorDashboard />} />
       <Route path="/signup" element={<Signup />} />
@@ -49,7 +53,6 @@ root.render(
       <Route path="/appointmentDate" element={<AppointmentDate />} />
       <Route path="/courseSelection" element={<CourseSelection />} />
       <Route path="/appointmentApprove" element={<AppointmentApprove />} />
-      
       <Route path="/appointment" element={<Appointment />} />
       <Route path="/appointmentDetails" element={<AppointmentDetails />} />
       <Route path="/adviceLog" element={<AdviceLog />} />
@@ -61,19 +64,25 @@ root.render(
       <Route path="/appointmentRequests" element={<AppointmentRequests />} />
       <Route path="/userManagement" element={<UserManagement />} />
       <Route path="/curriculumManagement" element={<CurriculumManagement />} />
-      <Route path="/addCourse" element={<AddCourse/>} />
-      <Route path="/addAdvisor" element={<AddAdvisor/>} />   
-      <Route path="/addFacultyAdmin" element={<AddFacultyAdmin/>} />  
-      <Route path="/facultyAdminDashboard" element={<FacultyAdminDashboard/>} />  
-      <Route path="/facultyRules" element={<FacultyRules/>} /> 
+      <Route path="/addCourse" element={<AddCourse />} />
+      <Route path="/addAdvisor" element={<AddAdvisor />} />
+      <Route path="/addFacultyAdmin" element={<AddFacultyAdmin />} />
+      <Route
+        path="/facultyAdminDashboard"
+        element={<FacultyAdminDashboard />}
+      />
+      <Route path="/facultyRules" element={<FacultyRules />} />
       <Route path="/courseManagement" element={<CourseManagement />} />
       <Route path="/allAdviceLogs" element={<AllAdviceLog />} />
       <Route path="/clusterManagement" element={<ClusterManagement />} />
-      <Route path="/editCourse" element={<EditCourse/>} />
+      <Route path="/editCourse" element={<EditCourse />} />
       <Route path="/advisorManagement" element={<AdvisorManagement />} />
-      <Route path="/facultyCurriculumManagement" element={<FacultyCurriculumManagement />} />
-      <Route path="/studentCourses" element={<StudentCourses/>} />
-      <Route path="/addCurriculum" element={<AddCurriculum/>} />
+      <Route
+        path="/facultyCurriculumManagement"
+        element={<FacultyCurriculumManagement />}
+      />
+      <Route path="/studentCourses" element={<StudentCourses />} />
+      <Route path="/addCurriculum" element={<AddCurriculum />} />
     </Routes>
   </Router>
 );
