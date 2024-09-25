@@ -15,7 +15,7 @@ import Appointment from "./Appointment";
 import AppointmentAdvisor from "./AppointmentAdvisor";
 import AdviceLog from "./AdviceLog";
 import MeetingNotes from "./MeetingNotes";
-import ResetPassword from "./ResetPassword";
+import ResetPassword from "./resetpassword";
 import ForgotPassword from "./forgotpassword";
 import MeetingRecording from "./MeetingRecording";
 import AddCourse from "./AddCourse";
