@@ -8,6 +8,7 @@ const {
   completedCourse,
   major,
   programme,
+  passwordResetToken,
   facultyAdmin,
   department,
   sharedCourse,
@@ -15,6 +16,66 @@ const {
   studentsMajor,
 } = require("../db/models");
 const bcrypt = require("bcrypt");
+const moment = require("moment");
+const { sendResetEmail } = require("../utils/email"); // This is where the email logic goes
+const crypto = require("crypto");
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Check if the user exists in any of the tables (student, advisor, facultyAdmin, systemAdmin)
+    let user =
+      (await student.findOne({ where: { email } })) ||
+      (await advisor.findOne({ where: { email } })) ||
+      (await facultyAdmin.findOne({ where: { email } })) ||
+      (await systemAdmin.findOne({ where: { email } }));
+
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User with this email not found",
+      });
+    }
+
+    // Generate a reset token using crypto
+    const token = crypto.randomBytes(32).toString("hex");
+
+    // Hash the token and set an expiration time for the reset
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const tokenExpiration = moment
+      .tz("Africa/Johannesburg")
+      .add(1, "hour")
+      .toDate(); // Expires in 1 hour
+
+    // Store the token and expiration in the resetToken table
+    await passwordResetToken.create({
+      userUUID: user.uuid, // Assuming the user table has a 'userID' or 'id' field
+      resetToken: hashedToken,
+      expiration: tokenExpiration,
+    });
+
+    // Generate the reset link
+    const resetLink = `${req.protocol}://${req.get(
+      "host"
+    )}/reset-password/${token}`;
+
+    // Send the email with the reset link
+    await sendResetEmail(email, resetLink);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset link sent to your email.",
+      resetLink,
+    });
+  } catch (error) {
+    console.error("Error in forgot password:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
 
 //returns faculties for signup page dropdown
 const getFaculties = async (req, res) => {
@@ -484,6 +545,7 @@ module.exports = {
   signup,
   login,
   getFaculties,
+  forgotPassword,
   getCurriculumsByFaculty,
   getCoursesForStudent,
   addCompletedCourses,
