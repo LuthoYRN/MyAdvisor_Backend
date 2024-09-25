@@ -10,7 +10,7 @@ import config from "./config";
 import SuccessModal from "./components/successModal";
 import ErrorModal from "./components/errorModal";
 
-function ResetPassword() {
+const ResetPassword= () => {
   let navigate = useNavigate();
   const { token } = useParams(); // Extract token from URL
 

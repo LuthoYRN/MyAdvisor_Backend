@@ -10,7 +10,7 @@ import Container from "./layout/Container";
 import SuccessModal from "./components/successModal";
 import ErrorModal from "./components/errorModal";
 
-function ForgotPassword() {
+const ForgotPassword = () => {
   let navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
