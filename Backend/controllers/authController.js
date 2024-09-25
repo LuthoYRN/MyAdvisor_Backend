@@ -1,4 +1,4 @@
-const { ValidationError } = require("sequelize");
+const { ValidationError, Op } = require("sequelize");
 const { sequelize } = require("../db/models");
 const {
   advisor,
@@ -43,10 +43,7 @@ const forgotPassword = async (req, res) => {
 
     // Hash the token and set an expiration time for the reset
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-    const tokenExpiration = moment
-      .tz("Africa/Johannesburg")
-      .add(1, "hour")
-      .toDate(); // Expires in 1 hour
+    const tokenExpiration = moment().add(1, "hour").toDate(); // Expires in 1 hour
 
     // Store the token and expiration in the resetToken table
     await passwordResetToken.create({
@@ -70,6 +67,78 @@ const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in forgot password:", error.message);
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// Reset Password API
+const resetPassword = async (req, res) => {
+  try {
+    const { tokenID } = req.params; // Extract token from URL
+    const { newPassword, confirmPassword } = req.body; // Passwords from request body
+
+    // Ensure passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Passwords do not match.",
+      });
+    }
+    // Hash the token from the URL
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(tokenID)
+      .digest("hex");
+
+    // Find the token in the passwordResetToken table
+    const tokenRecord = await passwordResetToken.findOne({
+      where: {
+        resetToken: hashedToken,
+        expiration: { [Op.gt]: moment().toDate() },
+      }, // Token should not be expired
+    });
+
+    if (!tokenRecord) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Token is invalid or has expired.",
+      });
+    }
+
+    // Determine the user based on the UUID in the token record
+    let user =
+      (await student.findOne({ where: { uuid: tokenRecord.userUUID } })) ||
+      (await advisor.findOne({ where: { uuid: tokenRecord.userUUID } })) ||
+      (await facultyAdmin.findOne({ where: { uuid: tokenRecord.userUUID } })) ||
+      (await systemAdmin.findOne({ where: { uuid: tokenRecord.userUUID } }));
+
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found.",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Remove the used reset token from the database
+    await passwordResetToken.destroy({ where: { resetToken: hashedToken } });
+
+    // Send a success response
+    return res.status(200).json({
+      status: "success",
+      message: "Password updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
     return res.status(500).json({
       status: "fail",
       message: "Internal Server Error",
@@ -546,6 +615,7 @@ module.exports = {
   login,
   getFaculties,
   forgotPassword,
+  resetPassword,
   getCurriculumsByFaculty,
   getCoursesForStudent,
   addCompletedCourses,
