@@ -15,8 +15,8 @@ import Appointment from "./Appointment";
 import AppointmentAdvisor from "./AppointmentAdvisor";
 import AdviceLog from "./AdviceLog";
 import MeetingNotes from "./MeetingNotes";
-import ForgotPassword from "./forgotpassword";
-import ResetPassword from "./resetpassword";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 import MeetingRecording from "./MeetingRecording";
 import AddCourse from "./AddCourse";
 import AdvisorDashboard from "./AdvisorDashboard";
@@ -43,7 +43,7 @@ root.render(
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/advisorDashboard" element={<AdvisorDashboard />} />
       <Route path="/signup" element={<Signup />} />

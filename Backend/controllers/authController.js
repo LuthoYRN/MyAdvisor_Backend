@@ -53,9 +53,7 @@ const forgotPassword = async (req, res) => {
     });
 
     // Generate the reset link
-    const resetLink = `${req.protocol}://${req.get(
-      "host"
-    )}/reset-password/${token}`;
+    const resetLink = `https://my-advisor-frontend.vercel.app/reset-password/${token}`;
 
     // Send the email with the reset link
     await sendResetEmail(email, resetLink);
