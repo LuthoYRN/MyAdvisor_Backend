@@ -715,7 +715,7 @@ const bookAppointment = async (req, res) => {
       },
     });
 
-    if (existingStudentAppointment) {
+    if (existingStudentAppointment.length > 0) {
       return res.status(400).json({
         status: "fail",
         data: existingStudentAppointment,
