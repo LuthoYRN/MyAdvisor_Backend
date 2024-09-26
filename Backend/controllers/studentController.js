@@ -695,15 +695,23 @@ const bookAppointment = async (req, res) => {
         .json({ status: "fail", message: "Student or Advisor not found" });
     }
 
-    // Get the current date in the format "YYYY-MM-DD"
-    const currentDate = moment().tz("Africa/Johannesburg").format("YYYY-MM-DD");
+    const currentTime = moment().tz("Africa/Johannesburg").format("HH:mm:ss");
+    const today = moment().tz("Africa/Johannesburg").format("YYYY-MM-DD");
 
     // Check if the student has a confirmed appointment on or after the current date
-    const existingStudentAppointment = await appointment.findOne({
+    const existingStudentAppointment = await appointment.findAll({
       where: {
         studentID: theStudent.id,
-        date: { [Op.gte]: currentDate }, // On or after the current date
-        status: "Confirmed", // Only confirmed appointments
+        status: "Confirmed",
+        [Op.or]: [
+          {
+            date: { [Op.gt]: today }, // Dates after today
+          },
+          {
+            date: today, // Appointments on today but after current time
+            time: { [Op.gte]: currentTime },
+          },
+        ],
       },
     });
 
