@@ -718,6 +718,7 @@ const bookAppointment = async (req, res) => {
     if (existingStudentAppointment) {
       return res.status(400).json({
         status: "fail",
+        data: existingStudentAppointment,
         message: "You already have a confirmed appointment.",
       });
     }
