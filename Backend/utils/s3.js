@@ -11,6 +11,7 @@ const BUCKET_REGION = process.env.BUCKET_REGION;
 const ACCESS_KEY = process.env.ACCESS_KEY;
 const SECRET_KEY = process.env.SECRET_KEY;
 const PUBLIC_URL = process.env.PUBLIC_URL;
+const END_POINT = process.env.END_POINT;
 
 // Configure S3 client
 const s3Client = new S3Client({
