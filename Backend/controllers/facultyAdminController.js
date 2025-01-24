@@ -111,12 +111,12 @@ const updateProfilePicture = async (req, res) => {
     const currentProfilePicture = the_admin.profile_url;
     const isDefaultPicture =
       currentProfilePicture ===
-      "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png";
+      "https://pub-cfb4608b525a41058b2c8e0e2b138eea.r2.dev/default.png";
 
     // If there's an existing profile picture that's not the default, delete it
     if (currentProfilePicture && !isDefaultPicture) {
       // Extract the key (file name) from the current profile picture URL
-      const currentProfilePictureKey = currentProfilePicture.split(".com/")[1];
+      const currentProfilePictureKey = currentProfilePicture.split(".dev/")[1];
       await deleteFromS3(currentProfilePictureKey); // Delete the file from S3
     }
     if (req.file) {

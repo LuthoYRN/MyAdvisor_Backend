@@ -10,6 +10,7 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const BUCKET_REGION = process.env.BUCKET_REGION;
 const ACCESS_KEY = process.env.ACCESS_KEY;
 const SECRET_KEY = process.env.SECRET_KEY;
+const PUBLIC_URL = process.env.PUBLIC_URL;
 
 // Configure S3 client
 const s3Client = new S3Client({
@@ -33,7 +34,7 @@ const uploadToS3 = async (fileBuffer, fileName, mimetype) => {
     // Using the send method to execute the PutObjectCommand
     const data = await s3Client.send(new PutObjectCommand(params));
     // Return the public S3 URL of the uploaded file
-    return `https://${BUCKET_NAME}.s3.${BUCKET_REGION}.amazonaws.com/${fileName}`;
+    return `${PUBLIC_URL}/${fileName}`;
   } catch (error) {
     console.error("Error uploading to S3:", error);
     throw new Error("S3 upload failed");

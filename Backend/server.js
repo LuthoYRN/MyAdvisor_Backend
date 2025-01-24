@@ -9,7 +9,7 @@ app.listen(PORT, HOST, async () => {
   try {
     console.log(`Server is running on ${HOST}:${PORT}`);
     await sequelize.authenticate();
-    console.log("Connected to AWS PostgreSQL successfully!");
+    console.log("Connected to PostgreSQL successfully!");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
