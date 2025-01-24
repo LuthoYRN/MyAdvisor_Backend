@@ -14,7 +14,7 @@ const PUBLIC_URL = process.env.PUBLIC_URL;
 
 // Configure S3 client
 const s3Client = new S3Client({
-  endpoint: EMD_POINT,
+  endpoint: END_POINT,
   region: BUCKET_REGION,
   credentials: {
     accessKeyId: ACCESS_KEY,
