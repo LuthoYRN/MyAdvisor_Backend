@@ -325,7 +325,7 @@ const signup = async (req, res) => {
       password: bcrypt.hashSync(confirmPassword, 10), // Hash password for security
       programmeID: programmeID || null, // If no programme selected, set to null
       profile_url:
-        "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png",
+        "https://pub-cfb4608b525a41058b2c8e0e2b138eea.r2.dev/default.png",
     });
 
     const result = newStudent.toJSON();

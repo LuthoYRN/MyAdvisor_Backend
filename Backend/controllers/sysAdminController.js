@@ -171,7 +171,7 @@ const addAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       profile_url:
-        "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png",
+        "https://pub-cfb4608b525a41058b2c8e0e2b138eea.r2.dev/default.png",
       facultyID,
     });
 
@@ -251,7 +251,7 @@ const addAdvisor = async (req, res) => {
       password: hashedPassword,
       office,
       profile_url:
-        "https://myadvisor-store.s3.af-south-1.amazonaws.com/profile-pictures/default.png",
+        "https://pub-cfb4608b525a41058b2c8e0e2b138eea.r2.dev/default.png",
       advisor_level,
       facultyID,
       clusterID: advisor_level === "advisor" ? clusterID : null, // Assign clusterID for junior advisors
