@@ -1,35 +1,37 @@
 const nodemailer = require("nodemailer");
 
 const sendResetEmail = async (email, resetLink) => {
-  // Extract the domain from the recipient's email
   const emailDomain = email.split("@")[1];
 
   let transporter;
 
-  // Determine which email service to use based on the recipient's email domain
   if (emailDomain.includes("gmail.com")) {
+    // Gmail SMTP settings
     transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", // Gmail SMTP server
-      port: 465, // Secure port for Gmail
-      secure: true, // Use SSL
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER, // Gmail user
-        pass: process.env.EMAIL_PASS, // Gmail password or app password
+        pass: process.env.EMAIL_PASS, // Gmail app password
       },
     });
   } else {
+    // Outlook/Office365 SMTP settings
     transporter = nodemailer.createTransport({
-      host: "smtp.office365.com", // Outlook/Office365 SMTP server
-      port: 587, // Secure port for Outlook
-      secure: false, // Use STARTTLS (not SSL)
+      host: "smtp.office365.com",
+      port: 587,
+      secure: false, // Use STARTTLS
       auth: {
-        user: process.env.OTHER_EMAIL_USER, // Outlook user
-        pass: process.env.OTHER_EMAIL_PASS, // Outlook password
+        user: process.env.OTHER_EMAIL_USER, // Outlook/Office365 user
+        pass: process.env.OTHER_EMAIL_PASS, // App password for Outlook
+      },
+      tls: {
+        ciphers: "TLSv1.2",
       },
     });
   }
 
-  // Common mail options
   const mailOptions = {
     from: emailDomain.includes("gmail.com")
       ? process.env.EMAIL_USER
