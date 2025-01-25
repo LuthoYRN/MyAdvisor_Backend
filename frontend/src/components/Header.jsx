@@ -21,7 +21,6 @@ const Header = ({
   const [loading, setLoading] = React.useState(false); // Loading state
 
   const changeProfile = () => {
-    setLoading(true); // Start the loader
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*"; // Optional: Limit file types to images
@@ -29,6 +28,7 @@ const Header = ({
     fileInput.onchange = async (event) => {
       const file = event.target.files[0];
       if (file) {
+        setLoading(true); // Start the loader
         const formData = new FormData();
         formData.append("profilePicture", file); // Use 'profilePicture' as the key
 
