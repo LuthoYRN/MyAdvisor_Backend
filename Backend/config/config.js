@@ -8,12 +8,6 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: "postgres",
-    dialectOptions: {
-      ssl: {
-        require: true, // This is required to enforce SSL connection
-        rejectUnauthorized: false, // For self-signed certificates, set this to false
-      },
-    },
   },
   test: {
     username: process.env.DB_CLOUD_USERNAME,
