@@ -1,5 +1,4 @@
 import React from "react";
-import account from "../assets/account_circle.svg";
 import notification from "../assets/notification.svg";
 import Text from "./Text";
 import { useNavigate } from "react-router-dom";
@@ -45,14 +44,17 @@ const Header = ({
           if (response.ok) {
             const data = await response.json();
             setShowSuccessModal(true);
-            setLoading(false); // Stop the loader
           } else {
             setShowErrorModal(true);
-            setLoading(false);
           }
         } catch (error) {
-          setLoading(false); // Stop the loader in case of an error
+          setShowErrorModal(true); // Show error modal in case of fetch failure
+        } finally {
+          setLoading(false); // Stop the loader
         }
+      } else {
+        // User canceled file selection
+        setLoading(false); // Stop the loader
       }
     };
 
