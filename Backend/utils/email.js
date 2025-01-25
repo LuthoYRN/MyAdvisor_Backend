@@ -1,49 +1,26 @@
 const nodemailer = require("nodemailer");
 
 const sendResetEmail = async (email, resetLink) => {
-  const emailDomain = email.split("@")[1];
+  // Gmail SMTP Transporter
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // Use SSL
+    auth: {
+      user: process.env.EMAIL_USER, // Your Gmail address
+      pass: process.env.EMAIL_PASS, // Your Gmail app password
+    },
+  });
 
-  let transporter;
-
-  if (emailDomain.includes("gmail.com")) {
-    // Gmail SMTP settings
-    transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER, // Gmail user
-        pass: process.env.EMAIL_PASS, // Gmail app password
-      },
-    });
-  } else {
-    // Outlook/Office365 SMTP settings
-    transporter = nodemailer.createTransport({
-      host: "smtp.office365.com",
-      port: 587,
-      secure: false, // Use STARTTLS
-      auth: {
-        user: process.env.OTHER_EMAIL_USER, // Outlook/Office365 user
-        pass: process.env.OTHER_EMAIL_PASS, // App password for Outlook
-      },
-      tls: {
-        ciphers: "TLSv1.2",
-      },
-    });
-  }
-
+  // Mail Options
   const mailOptions = {
-    from: emailDomain.includes("gmail.com")
-      ? process.env.EMAIL_USER
-      : process.env.OTHER_EMAIL_USER,
-    to: email,
+    from: process.env.EMAIL_USER, // Sender's Gmail address
+    to: email, // Recipient's email address
     subject: "Password Reset Request",
     text: `You requested for a password reset. Click here to reset your password: ${resetLink}`,
     html: `<p>You requested for a password reset. Click <a href="${resetLink}">here</a> to reset your password.</p>`,
     headers: {
-      "Reply-To": emailDomain.includes("gmail.com")
-        ? process.env.EMAIL_USER
-        : process.env.OTHER_EMAIL_USER,
+      "Reply-To": process.env.EMAIL_USER, // Reply-to address (Gmail)
     },
   };
 
